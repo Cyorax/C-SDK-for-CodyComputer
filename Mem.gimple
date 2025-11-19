@@ -1,0 +1,24 @@
+void poke (int * address, int bytes)
+{
+  *address = bytes;
+}
+
+
+void poke1byte (int * address, int byte)
+{
+  _1 = *address;
+  _2 = _1 & 65280;
+  _3 = byte + _2;
+  *address = _3;
+}
+
+
+int peek (int * address)
+{
+  int D.1954;
+
+  D.1954 = *address;
+  return D.1954;
+}
+
+

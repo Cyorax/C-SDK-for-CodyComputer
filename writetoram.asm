@@ -1,0 +1,338 @@
+LDA #$FF
+STA 0
+JSR main
+BRK
+;	 Function: main
+main:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+PHA
+PHA
+PHA
+PHA
+;	Ram[2] = 768
+LDA #0
+STA 2
+LDA #3
+STA 3
+;	address = Ram[2]
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+LDA 0
+CLC
+SBC #2
+TAX
+LDA 3
+STA $100,X
+;	Ram[2] = 5550
+LDA #174
+STA 2
+LDA #21
+STA 3
+;	zahl = Ram[2]
+LDA 0
+CLC
+SBC #5
+TAX
+LDA 2
+STA $100,X
+LDA 0
+CLC
+SBC #4
+TAX
+LDA 3
+STA $100,X
+;	 Call
+;push zahl
+LDA 0
+CLC
+SBC #4
+TAX
+LDA $100,X
+PHA
+LDA 0
+CLC
+SBC #5
+TAX
+LDA $100,X
+PHA
+;push address
+LDA 0
+CLC
+SBC #2
+TAX
+LDA $100,X
+PHA
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+PHA
+JSR poke
+;	Ram[2] = 10
+LDA #10
+STA 2
+LDA #0
+STA 3
+;	_1 = Ram[2]
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	 Call
+;push _1
+LDA $203
+PHA
+LDA $202
+PHA
+;push address
+LDA 0
+CLC
+SBC #2
+TAX
+LDA $100,X
+PHA
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+PHA
+JSR poke1byte
+;	Ram[2] = 0
+LDA #0
+STA 2
+LDA #0
+STA 3
+;	D.1949 = Ram[2]
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+LDA 0
+CLC
+SBC #0
+TAX
+LDA 3
+STA $100,X
+;	Return
+;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+LDA 0
+TAX
+LDA $100, X
+STA 6
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+LDA 0
+CLC
+SBC #0
+TAX
+LDA $100,X
+STA 3
+;	SP=Ram[0](FBP)
+LDA 0
+TAX
+TXS
+;	FBP = Ram[6]
+LDA 6
+STA 0
+rts
+;	 Function: poke
+poke:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+;	Ram[2] = bytes
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+LDA 0
+CLC
+ADC #6
+TAX
+LDA $100,X
+STA 3
+;	*address = Ram[2]
+;	Ram[4] = address
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+LDA 0
+CLC
+ADC #4
+TAX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+LDA 3
+INY
+STA (4),Y
+;	Return
+;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+LDA 0
+TAX
+LDA $100, X
+STA 6
+;	SP=Ram[0](FBP)
+LDA 0
+TAX
+TXS
+;	FBP = Ram[6]
+LDA 6
+STA 0
+rts
+;	 Function: poke1byte
+poke1byte:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+;	Ram[2] = *address
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+LDA 0
+CLC
+ADC #4
+TAX
+LDA $100,X
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+TAX
+INY
+LDA (2),Y
+STA 3
+TXA
+STA 2
+;	_1 = Ram[2]
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	Ram[2] = _1
+LDA $202
+STA 2
+LDA $203
+STA 3
+;	Ram[4] = 65280
+LDA #0
+STA 4
+LDA #255
+STA 5
+LDA 2
+AND 4
+STA 2
+LDA 3
+AND 5
+STA 3
+;	_2 = Ram[2]
+LDA 2
+STA $204
+LDA 3
+STA $205
+;	Ram[2] = byte
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+LDA 0
+CLC
+ADC #6
+TAX
+LDA $100,X
+STA 3
+;	Ram[4] = _2
+LDA $204
+STA 4
+LDA $205
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+;	_3 = Ram[2]
+LDA 2
+STA $206
+LDA 3
+STA $207
+;	Ram[2] = _3
+LDA $206
+STA 2
+LDA $207
+STA 3
+;	*address = Ram[2]
+;	Ram[4] = address
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+LDA 0
+CLC
+ADC #4
+TAX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+LDA 3
+INY
+STA (4),Y
+;	Return
+;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+LDA 0
+TAX
+LDA $100, X
+STA 6
+;	SP=Ram[0](FBP)
+LDA 0
+TAX
+TXS
+;	FBP = Ram[6]
+LDA 6
+STA 0
+rts
