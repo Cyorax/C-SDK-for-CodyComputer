@@ -22,7 +22,11 @@ for i in range(3,len(argv)):
     toke = Tokenizer(lines)
     gimple = Gimple(toke)
     gim.merge(gimple)
+<<<<<<< HEAD
 
+=======
+gim.dump_gimple()
+>>>>>>> ff16b26 (single byte Datentypen hinzugefügt)
 opt = Optimizer(gim)
 c = CodeGenerator(gim)
 c.print_final_code(outputname)

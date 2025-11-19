@@ -6,9 +6,14 @@ int main ()
     
     address = 768;
     zahl = 5550;
+<<<<<<< HEAD
     poke (address, zahl);
     _1 = 10;
     poke1byte (address, _1);
+=======
+    _2 = address + zahl;
+    _1 = 10;
+>>>>>>> ff16b26 (single byte Datentypen hinzugefügt)
     D.1949 = 0;
     return D.1949;
 
