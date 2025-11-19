@@ -1,8 +1,11 @@
 from Frontend.GimpleParser import Gimple
 #TODO neg fix  
+#TODO pusharg mit pointerübergabe
 #TODO mult und div aufrufen
 #TODO Parser Logik ändern offsett zeigt auf Low bit und nicht auf High
 #TODO SHORTS, Chars adden assign2,4 und write 2 dann anpassen highbyte auf FF setzen beim reinladen von 1Byte Werten
+#TODO Zum Optimieren des ASM CODES die Berechnung der Laufzeit Addressen in die einzelenen Methoden reinziehen für die Offsetberechnung, sodass wir pro assign min. 4 Instruktionen sparen 
+#TODO Beim Zahlenpushen kann es kaputt gehen _2 pushed immer zwei byte
 
 
 ##Speichermedien
@@ -19,8 +22,8 @@ from Frontend.GimpleParser import Gimple
 
 # arg...
 # arg2
-# arg1 byte1
 # arg1 byte2
+# arg1 byte1
 # return addresse byte 2
 # return addresse byte 1
 # old FBP <-FBP
@@ -85,6 +88,7 @@ class CodeGenerator():
         with open(filename+".asm", "w") as f:
             for line in self.finalcode:
                 print(line, file=f)
+        print("OUPUT: "+filename+".asm")
     
     def compile_statements(self,statementslist):
         if(len(statementslist)==0):
@@ -139,7 +143,7 @@ class CodeGenerator():
         args = instr[2:]
         call = [";\t Call"]
         for a in reversed(args):
-            call += [";push " + a] + self.push_arg(a)
+            call += self.push_arg(a)
         call.append(f"JSR {func}")
         self.finalcode += call
         return
@@ -198,6 +202,7 @@ class CodeGenerator():
                 return ["LDA 4","CLC","ADC #1","STA 4","LDA 5","ADC #0","STA 5"] + self.compile_operator("lt")
             
             case _:
+                print("UNKNOW OPERATION: "+operation)
                 return
             
             
@@ -205,75 +210,62 @@ class CodeGenerator():
         if(ident[0]=="_"):
             return ["LDA 2","STA $2"+str(int(ident[1:])*2).zfill(2),"LDA 3","STA $2"+str(int(ident[1:])*2 + 1).zfill(2)]
         elif(ident[0]=="*"):
-            return [";\tRam[4] = " + ident[1:]] + self.assign4(ident[1:]) + ["LDA #0","TAY","LDA 2","STA (4),Y","LDA 3","INY","STA (4),Y"]
-        else:
+            return [";\tRam[4] = " + ident[1:]] + self.assign4(ident[1:]) + ["LDA #0","TAY","LDA 2","STA (4),Y"]+(["LDA 3","INY","STA (4),Y"] if self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte" else [])
+        elif(ident in self.curfunc["locals"]):
             m = self.curfunc["locals"][ident]
-            if m["location"] == "arg":
-                return self.compute_stackaddress_in_X(ident, 1) + ["LDA 2","STA $100,X"] + self.compute_stackaddress_in_X(ident, 0) + ["LDA 3","STA $100,X"]
-            else:
-                return self.compute_stackaddress_in_X(ident, 1) + ["LDA 2","STA $100,X"] + self.compute_stackaddress_in_X(ident, 0) + ["LDA 3","STA $100,X"]
-    
+            return self.compute_lowBitstackaddress_in_X(ident) + ["LDA 2","STA $100,X"] +(["INX","LDA 3","STA $100,X"] if self.curfunc["locals"][ident]["size"] == 2 else [])
+        else:
+            print("UNKNOW VARIABLE FOUND: "+ident+" IN FUNCTION: "+self.curfunc["Name"])
+            
     # HIGHbyte zuerst pushen da stack von oben nach unten für little Endian
     def push_arg(self,ident):
         if(ident[0]=="_"):
             return ["LDA $2"+str(int(ident[1:])*2+1).zfill(2),"PHA","LDA $2"+str(int(ident[1:])*2).zfill(2),"PHA"]
+        elif(ident[0]=="*"):
+            print("ERROR NICHT IMPLEMENTIERT") 
+        elif(ident in self.curfunc["locals"]):
+            m = self.curfunc["locals"][ident]
+            #gcc casted short zu int beim pushen
+            return (self.compute_lowBitstackaddress_in_X(ident) + ["INX","LDA $100,X","PHA","DEX"] if m["size"] == 2 else (self.compute_lowBitstackaddress_in_X(ident)+["LDA #0","PHA"])) + ["LDA $100,X","PHA"]
         else:
-            if(ident in self.curfunc["locals"]):
-                m = self.curfunc["locals"][ident]
-                if m["location"] == "arg":
-                    return self.compute_stackaddress_in_X(ident, 0) + ["LDA $100,X","PHA"] + self.compute_stackaddress_in_X(ident, 1) + ["LDA $100,X","PHA"]
-                else:
-                    return self.compute_stackaddress_in_X(ident, 0) + ["LDA $100,X","PHA"] + self.compute_stackaddress_in_X(ident, 1) + ["LDA $100,X","PHA"]
-            else:
-                value = int(ident)
-                high = (value >> 8) & 0xFF
-                low  = value & 0xFF
-                return ["LDA #"+str(high),"PHA","LDA #"+str(low),"PHA"]
-        
-
+            print("UNKNOW VARIABLE FOUND: "+ident+" IN FUNCTION: "+self.curfunc["Name"])
+            
     def assign2(self,ident):
-        if(ident[0]!="_"):
-            if(ident[0]=="*"):
-                return self.assign2(ident[1:]) + ["LDA #0","TAY","LDA (2),Y","TAX","INY","LDA (2),Y","STA 3","TXA","STA 2"]
-            elif(ident in self.curfunc["locals"]):
-                m = self.curfunc["locals"][ident]
-                if m["location"] == "arg":
-                    return self.compute_stackaddress_in_X(ident, 1) + ["LDA $100,X","STA 2"] + self.compute_stackaddress_in_X(ident, 0) + ["LDA $100,X","STA 3"]
-                else:
-                    return self.compute_stackaddress_in_X(ident, 1) + ["LDA $100,X","STA 2"] + self.compute_stackaddress_in_X(ident, 0) + ["LDA $100,X","STA 3"]
-            else:
-                value = int(ident)
-                high = (value >> 8) & 0xFF
-                low  = value & 0xFF
-                return ["LDA #"+str(low),"STA 2","LDA #"+str(high),"STA 3"]
-        else:
+        if(ident[0]=="_"):
             return ["LDA $2"+str(int(ident[1:])*2).zfill(2),"STA 2","LDA $2"+str(int(ident[1:])*2 + 1).zfill(2),"STA 3"]
+        elif(ident[0]=="*"):    # x da die zwei als Akkumulator und aktueller Speicher für den Pointer dient
+            return self.assign2(ident[1:]) + ["LDA #0","TAY","LDA (2),Y"]+(["TAX","INY","LDA (2),Y","STA 3","TXA","STA 2"] if self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte" else ["STA 2","LDA #0","STA 3"])
+        elif(ident in self.curfunc["locals"]):
+            m = self.curfunc["locals"][ident]
+            return self.compute_lowBitstackaddress_in_X(ident) + ["LDA $100,X","STA 2"] +(["INX","LDA $100,X","STA 3"] if m["size"] == 2 else ["LDA #0","STA 3"])
+        else:
+            value = int(ident)
+            high = (value >> 8) & 0xFF
+            low  = value & 0xFF
+            return ["LDA #"+str(low),"STA 2","LDA #"+str(high),"STA 3"]
+        
     
     def assign4(self,ident):
-        if(ident[0]!="_"):
-            if(ident[0]=="*"):
-                return self.assign4(ident[1:]) + ["LDA #0","TAY","LDA (4),Y","TAX","INY","LDA (4),Y","STA 5","TXA","STA 4"]  
-            elif(ident in self.curfunc["locals"]):
-                m = self.curfunc["locals"][ident]
-                if m["location"] == "arg":
-                    return self.compute_stackaddress_in_X(ident, 1) + ["LDA $100,X","STA 4"] + self.compute_stackaddress_in_X(ident, 0) + ["LDA $100,X","STA 5"]
-                else:
-                    return self.compute_stackaddress_in_X(ident, 1) + ["LDA $100,X","STA 4"] + self.compute_stackaddress_in_X(ident, 0) + ["LDA $100,X","STA 5"]
-            else:
-                value = int(ident)
-                high = (value >> 8) & 0xFF
-                low  = value & 0xFF
-                return ["LDA #"+str(low),"STA 4","LDA #"+str(high),"STA 5"]
-        else:
+        if(ident[0]=="_"):
             return ["LDA $2"+str(int(ident[1:])*2).zfill(2),"STA 4","LDA $2"+str(int(ident[1:])*2 + 1).zfill(2),"STA 5"]
+        elif(ident[0]=="*"):    # x da die zwei als Akkumulator und aktueller Speicher für den Pointer dient
+            return self.assign4(ident[1:]) + ["LDA #0","TAY","LDA (4),Y"]+(["TAX","INY","LDA (4),Y","STA 5","TXA","STA 4"] if self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte" else ["STA 4","LDA #0","STA 5"])
+        elif(ident in self.curfunc["locals"]):
+            m = self.curfunc["locals"][ident]
+            return self.compute_lowBitstackaddress_in_X(ident) + ["LDA $100,X","STA 4"] +(["INX","LDA $100,X","STA 5"] if m["size"] == 2 else ["LDA #0","STA 5"])
+        else:
+            value = int(ident)
+            high = (value >> 8) & 0xFF
+            low  = value & 0xFF
+            return ["LDA #"+str(low),"STA 4","LDA #"+str(high),"STA 5"]
     
-    #highbit = 0 low = 1
-    def compute_stackaddress_in_X(self,ident,higholow):
+    #highbit = 1 low = 0 Methode fügt code hinzu zum berechnen der Stackaddressen zur Laufzeit
+    def compute_lowBitstackaddress_in_X(self,ident,):
         m = self.curfunc["locals"][ident]
         if m["location"] == "arg":
             #Skip FBP + Ret
-            return ["LDA 0","CLC","ADC #"+str(m["offset"] - higholow + 4),"TAX"]
+            return ["LDA 0","CLC","ADC #"+str(m["offset"] + 3),"TAX"]
         else:
-            #skip FBP
-            return ["LDA 0","CLC","SBC #"+str(m["offset"] + higholow),"TAX"]
+            #skip FBP und -1 wegen subtraktion
+            return ["LDA 0","CLC","SBC #"+str(m["offset"] -1),"TAX"]
             

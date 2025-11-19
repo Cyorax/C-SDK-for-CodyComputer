@@ -1,0 +1,26 @@
+short int multwiththree (short int ii)
+{
+  short int D.1949;
+
+  _2 = ii + 3;
+  D.1949 = (short int) _2;
+  return D.1949;
+}
+
+
+int main ()
+{
+  int D.1951;
+
+  
+    short int i;
+
+    i = 244;
+    _1 = (int) i;
+    i = multwiththree (_1);
+    _1 = i;
+    D.1951 = 0;
+    return D.1951;
+  }
+
+

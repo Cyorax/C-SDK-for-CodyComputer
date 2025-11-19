@@ -5,17 +5,16 @@ class Optimizer():
         self.remove_unused_funcs()
     #BFS um die ungenutzen Methoden zu finden und zu entfernen
     def remove_unused_funcs(self):
-        self.availiblefuncs = ["main"]
+        self.availablefuncs = ["main"]
         self.queue = ["main"]
         while self.queue != []:
             cur = self.queue.pop(0)
             for i in self.get_successors(cur):
-                if i not in self.availiblefuncs:
-                    self.availiblefuncs.append(i)
+                if i not in self.availablefuncs:
+                    self.availablefuncs.append(i)
                     self.queue.append(i)
-        for f in self.parser.functions:
-            if f["Name"] not in self.availiblefuncs:
-                self.parser.functions.remove(f)
+        self.parser.functions = [f for f in self.parser.functions if f["Name"] in self.availablefuncs]
+
         
     def get_successors(self,func):
         f = self.get_Func(func)

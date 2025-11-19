@@ -10,13 +10,14 @@ class Gimple():
     
     def __init__(self, tokenizer):
         self.tok = tokenizer
-        self.datatypes = {"int":2,"char":1,"pointer":2}
+        self.datatypes = {"int":2,"short":1,"char":1,"pointer":2,"pointer onebyte":2}
         self.parse_globals()
         self.parse_functions()
         
     def dump_gimple(self):
         print(self.globalsmap)
-        print(self.functions)
+        for f in self.functions:
+            print("\n",f)
         
     def merge(self,gimp):
         for i in gimp.globalsmap.keys():
@@ -92,11 +93,12 @@ class Gimple():
                     argtype,argident = self.parse_type()
                     self.localtab[argident] = {
                         "type": argtype,
+                        "size":self.datatypes[argtype],
                         "offset": self.argoffsetcount,
                         "location": "arg"
                     }
                     self.argoffsetcount += 2
-        
+                    
                     if self.tok.next() == ",":
                         self.tok.eat(",")  # skip ,
         
@@ -115,8 +117,8 @@ class Gimple():
         if self.tok.next() in self.datatypes:
             typ, ident = self.parse_type()
             self.tok.eat(";")
-            self.localtab[ident] = {"type":typ,"size":self.datatypes[typ],"offset":self.lcloffsetcount,"location": "lcl"}
             self.lcloffsetcount += self.datatypes[typ]
+            self.localtab[ident] = {"type":typ,"size":self.datatypes[typ],"offset":self.lcloffsetcount,"location": "lcl"}
             return True
         return False
     
@@ -166,7 +168,7 @@ class Gimple():
         elif self.tok.next() == "return":
             self.tok.eat("return") # skip return
             value = ""
-            if(self.tok.next()!=";"):
+            while(self.tok.next()!=";"):
                 value = " "+self.tok.consume_cur() 
             self.tok.eat(";") # skip ;        
             self.addInstruktion("return"+value)  
@@ -182,9 +184,11 @@ class Gimple():
 
     def parse_type(self):
         type = self.tok.consume_cur()
+        if(type == "short"):
+            self.tok.eat("int")
         if(self.tok.next()=="*"):
             self.tok.advance()
-            type = "pointer"
+            type = "pointer" if self.datatypes[type] == 2 else "pointer onebyte"
         ident =self.tok.consume_cur()
         return type, ident 
     

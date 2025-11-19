@@ -23,7 +23,9 @@ for i in range(3,len(argv)):
     gimple = Gimple(toke)
     gim.merge(gimple)
 
+
 opt = Optimizer(gim)
+gim.dump_gimple()
 c = CodeGenerator(gim)
 c.print_final_code(outputname)
-print("OUPUT: "+outputname)
+
