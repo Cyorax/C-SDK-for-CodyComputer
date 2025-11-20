@@ -14,25 +14,10 @@ PHA
 PHA
 PHA
 PHA
-PHA
-PHA
-PHA
-;	Ram[2] = 244
-LDA #244
+;	Ram[2] = 65519
+LDA #239
 STA 2
-LDA #0
-STA 3
-;	s = Ram[2]
-LDA 0
-CLC
-SBC #6
-TAX
-LDA 2
-STA $100,X
-;	Ram[2] = 767
 LDA #255
-STA 2
-LDA #2
 STA 3
 ;	address = Ram[2]
 LDA 0
@@ -44,68 +29,23 @@ STA $100,X
 INX
 LDA 3
 STA $100,X
-;	Ram[2] = address
+;	 Call
 LDA 0
 CLC
 SBC #3
 TAX
-LDA $100,X
-STA 2
 INX
 LDA $100,X
-STA 3
-;	zahl = Ram[2]
-LDA 0
-CLC
-SBC #5
-TAX
+PHA
+DEX
+LDA $100,X
+PHA
+JSR abs
+;	_1 = Ram[2]
 LDA 2
-STA $100,X
-INX
+STA $202
 LDA 3
-STA $100,X
-;	 Call
-LDA 0
-CLC
-SBC #5
-TAX
-INX
-LDA $100,X
-PHA
-DEX
-LDA $100,X
-PHA
-LDA 0
-CLC
-SBC #3
-TAX
-INX
-LDA $100,X
-PHA
-DEX
-LDA $100,X
-PHA
-JSR poke
-;	 Call
-LDA 0
-CLC
-SBC #6
-TAX
-LDA #0
-PHA
-LDA $100,X
-PHA
-LDA 0
-CLC
-SBC #3
-TAX
-INX
-LDA $100,X
-PHA
-DEX
-LDA $100,X
-PHA
-JSR poke1byte
+STA $203
 ;	Ram[2] = 0
 LDA #0
 STA 2
@@ -144,48 +84,83 @@ TXS
 LDA 6
 STA 0
 rts
-;	 Function: poke
-poke:
+;	 Function: abs
+abs:
 TSX
 LDA 0
 PHA
 TXA
 STA 0
 LDA #0
-;	Ram[2] = bytes
+;	Ram[2] = i
 LDA 0
 CLC
-ADC #5
+ADC #3
 TAX
 LDA $100,X
 STA 2
 INX
 LDA $100,X
 STA 3
-;	*address = Ram[2]
-;	Ram[4] = address
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
+;	Ram[4] = 0
 LDA #0
-TAY
+STA 4
+LDA #0
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
+STA 5
 LDA 2
-STA (4),Y
+CLC
+ADC 4
+STA 2
 LDA 3
-INY
-STA (4),Y
+ADC 5
+STA 3
+BMI TRUE1
+JMP FALSE1
+TRUE1:
+LDA #0
+STA 2
+JMP END1
+FALSE1:
+LDA #$FF
+STA 2
+END1:
+LDA 2
+BEQ neg
+JMP pos
+neg:
 ;	Return
 ;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
 LDA 0
 TAX
 LDA $100, X
 STA 6
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+EOR #$FF
+CLC
+ADC #1
+STA 2
+LDA 3
+EOR #$FF
+ADC #0
+STA 3
 ;	SP=Ram[0](FBP)
 LDA 0
 TAX
@@ -194,44 +169,22 @@ TXS
 LDA 6
 STA 0
 rts
-;	 Function: poke1byte
-poke1byte:
-TSX
-LDA 0
-PHA
-TXA
-STA 0
-LDA #0
-;	Ram[2] = byte
-LDA 0
-CLC
-ADC #5
-TAX
-LDA $100,X
-STA 2
-LDA #0
-STA 3
-;	*add = Ram[2]
-;	Ram[4] = add
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
+pos:
 ;	Return
 ;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
 LDA 0
 TAX
 LDA $100, X
 STA 6
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
 ;	SP=Ram[0](FBP)
 LDA 0
 TAX

@@ -15,4 +15,9 @@ int peek (int * address)
   return *address;
 }
 
+short int peek1byte(short int* address)
+{
+  return *address;
+}
+
 

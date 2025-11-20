@@ -3,7 +3,7 @@
 ##DatenTypen:
 # int 16 Bit -32768 bis 32767
 # char 8 Bit 0 bis 255
-# short 8 Bit -128 bis 127
+# short 8 Bit 0 bis 255
 # pointer 16 Bit 64k
 
 class Gimple():
@@ -169,9 +169,9 @@ class Gimple():
             self.tok.eat("return") # skip return
             value = ""
             while(self.tok.next()!=";"):
-                value = " "+self.tok.consume_cur() 
+                value += self.tok.consume_cur() 
             self.tok.eat(";") # skip ;        
-            self.addInstruktion("return"+value)  
+            self.addInstruktion("return "+value)  
             return True 
         
         elif self.tok.next(1) == "(": 
@@ -225,14 +225,11 @@ class Gimple():
         negated = False
         if self.tok.next() == "-":
             self.tok.eat("-")
-            op += "neg("
-            negated = True
+            op += "-"
             
         op += self.tok.consume_cur()
         if(op == "*" or op == "&"):
             op += self.tok.consume_cur()
-        if(negated):
-            op += ")"
         return op
     
     def parse_label(self):
@@ -248,9 +245,12 @@ class Gimple():
         self.tok.eat("(")
         args = ""
         while(self.tok.next()!=")"):
-            args += " "+self.tok.consume_cur()
-            if(self.tok.next()==","):
-                self.tok.advance()
+            value = ""
+            while(self.tok.next()!="," and self.tok.next()!=")" ):
+                value += self.tok.consume_cur()
+            if(self.tok.next() == ","):
+                self.tok.eat(",")
+            args += " "+value;
         self.tok.eat(")")
         self.calledfuncs += [ident]
         return ident, args
@@ -295,6 +295,8 @@ class Gimple():
                 return "bitor"
             case "^":
                 return "xor"
+            case "%":
+                return "mod"
             case _:
                 print("COULD NOT MATCH OPERATION",op)
 

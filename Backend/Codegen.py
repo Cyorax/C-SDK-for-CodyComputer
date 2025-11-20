@@ -1,12 +1,6 @@
 from Frontend.GimpleParser import Gimple
-#TODO neg fix  
-#TODO pusharg mit pointerübergabe
+#TODO neg fix  unäres minus bei push arg
 #TODO mult und div aufrufen
-#TODO Parser Logik ändern offsett zeigt auf Low bit und nicht auf High
-#TODO SHORTS, Chars adden assign2,4 und write 2 dann anpassen highbyte auf FF setzen beim reinladen von 1Byte Werten
-#TODO Zum Optimieren des ASM CODES die Berechnung der Laufzeit Addressen in die einzelenen Methoden reinziehen für die Offsetberechnung, sodass wir pro assign min. 4 Instruktionen sparen 
-#TODO Beim Zahlenpushen kann es kaputt gehen _2 pushed immer zwei byte
-
 
 ##Speichermedien
 # globalsmap map: ident -> (offset static, type, initvalue)
@@ -131,6 +125,7 @@ class CodeGenerator():
     def compile_return(self,instr):
         ret1 =[";\tReturn",";\tRam[6] = Ram[$100 + Ram[0]](Old FBP)","LDA 0","TAX","LDA $100, X","STA 6"]
         retopt = []
+        print(instr)
         if(len(instr)==2):
             retopt = self.assign2(instr[1])
         ret2 = [";\tSP=Ram[0](FBP)","LDA 0","TAX","TXS",";\tFBP = Ram[6]","LDA 6","STA 0","rts"]
@@ -154,6 +149,15 @@ class CodeGenerator():
     
     #op dest op1 op2 -> assign2(op1) assign4(op2) op write2(dest)
     def compile_operation(self,instr):
+        if(instr[0] == "mult"):
+            self.compile_call(["call","mult",instr[2],instr[3]]) + self.compile_assignret(instr[1])
+            return
+        elif(instr[0] == "div"):
+            self.compile_call(["call","div",instr[2],instr[3]]) + self.compile_assignret(instr[1])
+            return
+        elif(instr[0] == "mod"):
+            self.compile_call(["call","mod",instr[2],instr[3]]) + self.compile_assignret(instr[1])
+            return
         self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[2]) + [";\tRam[4] = " + instr[3]] + self.assign4(instr[3]) + self.compile_operator(instr[0]) + [";\t" + instr[1] + " = Ram[2]"] + self.write2(instr[1])
     
     #assignret dest -> write2(dest)
@@ -163,15 +167,15 @@ class CodeGenerator():
     #if op op1 op2 l1 l2 -> assign2(op1) assign4(op2) op interpret2(l1,l2)
     def compile_if(self,instr):
         self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[2]) + [";\tRam[4] = " + instr[3]] + self.assign4(instr[3]) + self.compile_operator(instr[1]) + ["LDA 2","BEQ "+instr[4],"JMP "+instr[5]]
-        
+    #gimple erzeugt kein sub immer + - oder + und dann zahl die Negativ ist
     def compile_operator(self,operation):
         match operation:
             case "add":
                 return ["LDA 2","CLC","ADC 4","STA 2","LDA 3","ADC 5","STA 3"]
-            
+        
             case "sub":
                 return ["LDA 4","EOR #$FF","CLC","ADC #1","STA 4","LDA 5","EOR #$FF","ADC #0","STA 5"]+self.compile_operator("add")
-            
+
             case "bitand":
                 return ["LDA 2","AND 4","STA 2","LDA 3","AND 5","STA 3"]
             
@@ -202,7 +206,7 @@ class CodeGenerator():
                 return ["LDA 4","CLC","ADC #1","STA 4","LDA 5","ADC #0","STA 5"] + self.compile_operator("lt")
             
             case _:
-                print("UNKNOW OPERATION: "+operation)
+                print("UNKNOW OPERATION: "+operation+ " IN METHOD "+self.curfunc["Name"])
                 return
             
             
@@ -217,12 +221,14 @@ class CodeGenerator():
         else:
             print("UNKNOW VARIABLE FOUND: "+ident+" IN FUNCTION: "+self.curfunc["Name"])
             
-    # HIGHbyte zuerst pushen da stack von oben nach unten für little Endian
+    # HIGHbyte zuerst pushen da stack von oben nach unten für little Endian und args sind immer 16 bit 
     def push_arg(self,ident):
-        if(ident[0]=="_"):
+        if(ident[0]=="-"):
+            return self.assign2(ident) + ["LDA 3","PHA","LDA 2","PHA"]
+        elif(ident[0]=="_"):
             return ["LDA $2"+str(int(ident[1:])*2+1).zfill(2),"PHA","LDA $2"+str(int(ident[1:])*2).zfill(2),"PHA"]
         elif(ident[0]=="*"):
-            print("ERROR NICHT IMPLEMENTIERT") 
+            return self.assign2(ident) + ["LDA 3","PHA","LDA 2","PHA"]
         elif(ident in self.curfunc["locals"]):
             m = self.curfunc["locals"][ident]
             #gcc casted short zu int beim pushen
@@ -231,7 +237,9 @@ class CodeGenerator():
             print("UNKNOW VARIABLE FOUND: "+ident+" IN FUNCTION: "+self.curfunc["Name"])
             
     def assign2(self,ident):
-        if(ident[0]=="_"):
+        if(ident[0]=="-"):
+            return self.assign2(ident[1:]) + ["LDA 2","EOR #$FF","CLC","ADC #1","STA 2","LDA 3","EOR #$FF","ADC #0","STA 3"]
+        elif(ident[0]=="_"):
             return ["LDA $2"+str(int(ident[1:])*2).zfill(2),"STA 2","LDA $2"+str(int(ident[1:])*2 + 1).zfill(2),"STA 3"]
         elif(ident[0]=="*"):    # x da die zwei als Akkumulator und aktueller Speicher für den Pointer dient
             return self.assign2(ident[1:]) + ["LDA #0","TAY","LDA (2),Y"]+(["TAX","INY","LDA (2),Y","STA 3","TXA","STA 2"] if self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte" else ["STA 2","LDA #0","STA 3"])
@@ -246,7 +254,9 @@ class CodeGenerator():
         
     
     def assign4(self,ident):
-        if(ident[0]=="_"):
+        if(ident[0]=="-"):
+            return self.assign2(ident[1:]) + ["LDA 4","EOR #$FF","CLC","ADC #1","STA 4","LDA 5","EOR #$FF","ADC #0","STA 5"]
+        elif(ident[0]=="_"):
             return ["LDA $2"+str(int(ident[1:])*2).zfill(2),"STA 4","LDA $2"+str(int(ident[1:])*2 + 1).zfill(2),"STA 5"]
         elif(ident[0]=="*"):    # x da die zwei als Akkumulator und aktueller Speicher für den Pointer dient
             return self.assign4(ident[1:]) + ["LDA #0","TAY","LDA (4),Y"]+(["TAX","INY","LDA (4),Y","STA 5","TXA","STA 4"] if self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte" else ["STA 4","LDA #0","STA 5"])

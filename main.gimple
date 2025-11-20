@@ -1,16 +1,12 @@
+
 int main ()
 {
   int D.1949;
-    int address;
-    int zahl;
-    short int s;
-
-    s = 244;    
-    address = 767;
-    zahl = address;
-
-    poke(address, zahl);
-    poke1byte(address, s);
+    int* address;
+     
+    address = 65519;
+    
+    _1 = abs(address);
     
     D.1949 = 0;
     return D.1949;

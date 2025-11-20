@@ -1,0 +1,8 @@
+int abs(int i)
+{
+  if (i < 0) goto <neg>;else goto <pos>;
+	<neg>:
+	  return -i;
+	<pos>:
+	  return i;
+}
