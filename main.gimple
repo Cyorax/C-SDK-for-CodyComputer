@@ -2,6 +2,7 @@
 int main ()
 {
   int D.1949;
+<<<<<<< HEAD
     int i;
     int j;
     i = -10;
@@ -10,6 +11,21 @@ int main ()
     _3 = j;   
     _1 = i*j;
 
+=======
+    int address;
+    int zahl;
+    
+    address = 768;
+    zahl = 5550;
+<<<<<<< HEAD
+    poke (address, zahl);
+    _1 = 10;
+    poke1byte (address, _1);
+=======
+    _2 = address + zahl;
+    _1 = 10;
+>>>>>>> ff16b26 (single byte Datentypen hinzugefügt)
+>>>>>>> refs/remotes/origin/main
     D.1949 = 0;
     return D.1949;
 
