@@ -6,3 +6,30 @@ int abs(int i)
 	<pos>:
 	  return i;
 }
+//wird später noch verändert
+int mult (int i, int j)
+{
+  int jj;
+  int erg;
+  jj = abs(j);
+  erg = 0;
+  goto <W1>;
+  <W2>:
+  erg = erg + i;
+  jj = jj + -1;
+  <W1>:
+  if (jj != 0) goto <W2>; else goto <W0>;
+  <W0>:
+  if (j < 0) goto <W4>; else goto <W5>;
+  <W4>:
+  return -erg;
+  <W5>:
+  return erg;
+}
+int mod(int i, int j){
+
+}
+
+int div(int i, int j){
+
+}

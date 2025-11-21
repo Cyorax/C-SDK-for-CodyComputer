@@ -23,9 +23,9 @@ for i in range(3,len(argv)):
     toke = Tokenizer(lines)
     gimple = Gimple(toke)
     gim.merge(gimple)
-
-gim.dump_gimple()
+    
 opt = Optimizer(gim)
+gim.dump_gimple()
 c = CodeGenerator(gim)
 c.print_final_code(outputname)
 

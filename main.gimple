@@ -2,12 +2,14 @@
 int main ()
 {
   int D.1949;
-    int* address;
-     
-    address = 65519;
-    
-    _1 = abs(address);
-    
+    int i;
+    int j;
+    i = -10;
+    j = -10; 
+    _2 = i;
+    _3 = j;   
+    _1 = i*j;
+
     D.1949 = 0;
     return D.1949;
 

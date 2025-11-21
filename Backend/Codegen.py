@@ -150,13 +150,16 @@ class CodeGenerator():
     #op dest op1 op2 -> assign2(op1) assign4(op2) op write2(dest)
     def compile_operation(self,instr):
         if(instr[0] == "mult"):
-            self.compile_call(["call","mult",instr[2],instr[3]]) + self.compile_assignret(instr[1])
+            self.compile_call(["call","mult",instr[2],instr[3]])
+            self.compile_assignret(["return",instr[1]])
             return
         elif(instr[0] == "div"):
-            self.compile_call(["call","div",instr[2],instr[3]]) + self.compile_assignret(instr[1])
+            self.compile_call(["call","div",instr[2],instr[3]]) 
+            self.compile_assignret(["return",instr[1]])
             return
         elif(instr[0] == "mod"):
-            self.compile_call(["call","mod",instr[2],instr[3]]) + self.compile_assignret(instr[1])
+            self.compile_call(["call","mod",instr[2],instr[3]]) 
+            self.compile_assignret(["return",instr[1]])
             return
         self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[2]) + [";\tRam[4] = " + instr[3]] + self.assign4(instr[3]) + self.compile_operator(instr[0]) + [";\t" + instr[1] + " = Ram[2]"] + self.write2(instr[1])
     
@@ -166,7 +169,9 @@ class CodeGenerator():
         
     #if op op1 op2 l1 l2 -> assign2(op1) assign4(op2) op interpret2(l1,l2)
     def compile_if(self,instr):
-        self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[2]) + [";\tRam[4] = " + instr[3]] + self.assign4(instr[3]) + self.compile_operator(instr[1]) + ["LDA 2","BEQ "+instr[4],"JMP "+instr[5]]
+        self.counter += 1
+        self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[2]) + [";\tRam[4] = " + instr[3]] + self.assign4(instr[3]) + self.compile_operator(instr[1]) + ["LDA 2","BNE NOT"+str(self.counter),"JMP "+instr[4],"NOT"+str(self.counter)+":","JMP "+instr[5]]
+    
     #gimple erzeugt kein sub immer + - oder + und dann zahl die Negativ ist
     def compile_operator(self,operation):
         match operation:
@@ -187,7 +192,7 @@ class CodeGenerator():
             
             case "eq":
                 self.counter += 1
-                return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","ORA 2","STA 2","BEQ TRUE"+str(self.counter),"LDA #$FF","STA 2","TRUE"+str(self.counter)+":","LDA #0","STA 3"]
+                return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","ORA 2","STA 2","BEQ TRUE"+str(self.counter),"LDA #$FF","STA 2","TRUE"+str(self.counter)+":"]
             
             case "neq":
                 return self.compile_operator("eq") + ["LDA #$FF","EOR 2","STA 2"]
@@ -255,7 +260,7 @@ class CodeGenerator():
     
     def assign4(self,ident):
         if(ident[0]=="-"):
-            return self.assign2(ident[1:]) + ["LDA 4","EOR #$FF","CLC","ADC #1","STA 4","LDA 5","EOR #$FF","ADC #0","STA 5"]
+            return self.assign4(ident[1:]) + ["LDA 4","EOR #$FF","CLC","ADC #1","STA 4","LDA 5","EOR #$FF","ADC #0","STA 5"]
         elif(ident[0]=="_"):
             return ["LDA $2"+str(int(ident[1:])*2).zfill(2),"STA 4","LDA $2"+str(int(ident[1:])*2 + 1).zfill(2),"STA 5"]
         elif(ident[0]=="*"):    # x da die zwei als Akkumulator und aktueller Speicher für den Pointer dient

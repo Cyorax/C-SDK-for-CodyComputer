@@ -3,6 +3,7 @@ class Tokenizer:
     def __init__(self, tokenstring):
         self.tokenlist = self.tokenize(tokenstring)
         self.cur = 0
+        self.curmethod = ""
         
     def advance(self):
         self.cur += 1
@@ -25,7 +26,7 @@ class Tokenizer:
         if self.next() == token:
             self.advance()
             return 
-        raise SyntaxError(f"Expected {token} got {self.next()}")
+        print(f"Expected {token} got {self.next()} in function {self.curmethod}")
     
     def next(self, nex = 0): 
         return "EOF" if self.cur+nex >= len(self.tokenlist) else self.tokenlist[self.cur+nex]

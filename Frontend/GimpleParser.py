@@ -84,6 +84,7 @@ class Gimple():
             
             self.rettype = rettype
             self.funcname = funcname
+            self.tok.curmethod = funcname
             
             self.tok.eat("(")
             if self.tok.next() == "void":
@@ -286,8 +287,10 @@ class Gimple():
             case "-":
                 return "sub"
             case "*":
+                self.calledfuncs += ["mult"]
                 return "mult"
             case "/":
+                self.calledfuncs += ["div"]
                 return "div"
             case "&":
                 return "bitand"
@@ -296,6 +299,7 @@ class Gimple():
             case "^":
                 return "xor"
             case "%":
+                self.calledfuncs += ["mod"]
                 return "mod"
             case _:
                 print("COULD NOT MATCH OPERATION",op)
