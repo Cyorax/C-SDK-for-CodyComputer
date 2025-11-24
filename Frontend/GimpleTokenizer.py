@@ -5,6 +5,12 @@ class Tokenizer:
         self.cur = 0
         self.curmethod = ""
         
+    def get_pointer(self):
+        return self.cur
+    
+    def set_pointer(self,value):
+        self.cur = value
+    
     def advance(self):
         self.cur += 1
     

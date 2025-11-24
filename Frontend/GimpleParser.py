@@ -34,22 +34,25 @@ class Gimple():
         self.globalsmap = {} 
         while(self.parse_globalline()):
             pass
-    
+    # da wir durch pointer usw. keinen festen Lookahead haben backtracke ich einfach  
+    # mit Backtracking wir gehen zuerst davon aus, dass das was Kommt eine Globale var ist und keine FUnktion 
     def parse_globalline(self):
-        if self.tok.next(2) == "=" or self.tok.next(2) == ";":
-            typ,ident = self.parse_type()
-            if(self.tok.next() == "="):
-                self.tok.eat("=")# skip =
-                initvalue = self.parse_operand()
-                self.tok.eat(";") # skip ;
-            else:
-                self.tok.eat(";") # skip ;
-                initvalue = "null"
-            self.globalsmap[ident] = {"offset":self.globalcount,"type":typ,"value":initvalue}
-            self.globalcount += 2
-            return True
-        return False
-    
+        ret = self.tok.get_pointer()
+        typ,ident = self.parse_type()
+        if(self.tok.next()=="("):
+            self.tok.set_pointer(ret)
+            return False
+        if(self.tok.next() == "="):
+            self.tok.eat("=")# skip =
+            initvalue = self.parse_operand()
+            self.tok.eat(";") # skip ;
+        else:
+            self.tok.eat(";") # skip ;
+            initvalue = "null"
+        self.globalsmap[ident] = {"offset":self.globalcount,"type":typ,"value":initvalue}
+        self.globalcount += 2
+        return True
+        
     def parse_functions(self):
         self.functions = []
         while(self.parse_function()):

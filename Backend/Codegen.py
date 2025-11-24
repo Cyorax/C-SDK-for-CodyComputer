@@ -226,7 +226,7 @@ class CodeGenerator():
         if(ident[0]=="_"):
             return ["LDA 2","STA $2"+str(int(ident[1:])*2).zfill(2),"LDA 3","STA $2"+str(int(ident[1:])*2 + 1).zfill(2)]
         elif(ident[0]=="*"):
-            return [";\tRam[4] = " + ident[1:]] + self.assign4(ident[1:]) + ["LDA #0","TAY","LDA 2","STA (4),Y"]+(["LDA 3","INY","STA (4),Y"] if self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte" else [])
+            return [";\tRam[4] = " + ident[1:]] + self.assign4(ident[1:]) + ["LDA #0","TAY","LDA 2","STA (4),Y"]+(["LDA 3","INY","STA (4),Y"] if self.is_two_bytes(ident) else [])
         elif(ident in self.curfunc["locals"]):
             return self.compute_lowBitstackaddress_in_X(ident) + ["LDA 2","STA $100,X"] +(["INX","LDA 3","STA $100,X"] if self.curfunc["locals"][ident]["size"] == 2 else [])
         elif(ident in self.gimple.globalsmap):
@@ -237,19 +237,7 @@ class CodeGenerator():
             
     # HIGHbyte zuerst pushen da stack von oben nach unten für little Endian und args sind immer 16 bit 
     def push_arg(self,ident):
-        if(ident[0]=="-"):
-            return self.assign2(ident) + ["LDA 3","PHA","LDA 2","PHA"]
-        elif(ident[0]=="_"):
-            return ["LDA $2"+str(int(ident[1:])*2+1).zfill(2),"PHA","LDA $2"+str(int(ident[1:])*2).zfill(2),"PHA"]
-        elif(ident[0]=="*"):
-            return self.assign2(ident) + ["LDA 3","PHA","LDA 2","PHA"]
-        elif(ident in self.curfunc["locals"]):
-            #gcc casted short zu int beim pushen
-            return (self.compute_lowBitstackaddress_in_X(ident) + ["INX","LDA $100,X","PHA","DEX"] if self.curfunc["locals"][ident]["size"] == 2 else (self.compute_lowBitstackaddress_in_X(ident)+["LDA #0","PHA"])) + ["LDA $100,X","PHA"]
-        elif(ident in self.gimple.globalsmap):
-            return self.assign2(ident) + ["LDA 3","PHA","LDA 2","PHA"]
-        else:
-            print("UNKNOW VARIABLE FOUND: "+ident+" IN FUNCTION: "+self.curfunc["Name"])
+        return self.assign2(ident) + ["LDA 3","PHA","LDA 2","PHA"]
             
     def assign2(self,ident):
         if(ident[0]=="-"):
@@ -257,7 +245,7 @@ class CodeGenerator():
         elif(ident[0]=="_"):
             return ["LDA $2"+str(int(ident[1:])*2).zfill(2),"STA 2","LDA $2"+str(int(ident[1:])*2 + 1).zfill(2),"STA 3"]
         elif(ident[0]=="*"):    # x da die zwei als Akkumulator und aktueller Speicher für den Pointer dient
-            return self.assign2(ident[1:]) + ["LDA #0","TAY","LDA (2),Y"]+(["TAX","INY","LDA (2),Y","STA 3","TXA","STA 2"] if self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte" else ["STA 2","LDA #0","STA 3"])
+            return self.assign2(ident[1:]) + ["LDA #0","TAY","LDA (2),Y"]+(["TAX","INY","LDA (2),Y","STA 3","TXA","STA 2"] if self.is_two_bytes(ident) else ["STA 2","LDA #0","STA 3"])
         elif(ident in self.curfunc["locals"]):
             return self.compute_lowBitstackaddress_in_X(ident) + ["LDA $100,X","STA 2"] +(["INX","LDA $100,X","STA 3"] if self.curfunc["locals"][ident]["size"] == 2 else ["LDA #0","STA 3"])
         elif(ident in self.gimple.globalsmap):
@@ -267,7 +255,7 @@ class CodeGenerator():
             high = (value >> 8) & 0xFF
             low  = value & 0xFF
             return ["LDA #"+str(low),"STA 2","LDA #"+str(high),"STA 3"]
-        
+        return 
     
     def assign4(self,ident):
         if(ident[0]=="-"):
@@ -275,7 +263,7 @@ class CodeGenerator():
         elif(ident[0]=="_"):
             return ["LDA $2"+str(int(ident[1:])*2).zfill(2),"STA 4","LDA $2"+str(int(ident[1:])*2 + 1).zfill(2),"STA 5"]
         elif(ident[0]=="*"):    # x da die zwei als Akkumulator und aktueller Speicher für den Pointer dient
-            return self.assign4(ident[1:]) + ["LDA #0","TAY","LDA (4),Y"]+(["TAX","INY","LDA (4),Y","STA 5","TXA","STA 4"] if self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte" else ["STA 4","LDA #0","STA 5"])
+            return self.assign4(ident[1:]) + ["LDA #0","TAY","LDA (4),Y"]+(["TAX","INY","LDA (4),Y","STA 5","TXA","STA 4"] if self.is_two_bytes(ident) else ["STA 4","LDA #0","STA 5"])
         elif(ident in self.curfunc["locals"]):
             return self.compute_lowBitstackaddress_in_X(ident) + ["LDA $100,X","STA 4"] +(["INX","LDA $100,X","STA 5"] if self.curfunc["locals"][ident]["size"] == 2 else ["LDA #0","STA 5"])
         elif(ident in self.gimple.globalsmap):
@@ -285,9 +273,16 @@ class CodeGenerator():
             high = (value >> 8) & 0xFF
             low  = value & 0xFF
             return ["LDA #"+str(low),"STA 4","LDA #"+str(high),"STA 5"]
+        
+    def is_two_bytes(self,ident):
+        if ident in self.curfunc["locals"] and self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte":
+            return True
+        if ident in self.gimple.globalsmap and self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte":
+            return True
+        return False
     
     #highbit = 1 low = 0 Methode fügt code hinzu zum berechnen der Stackaddressen zur Laufzeit
-    def compute_lowBitstackaddress_in_X(self,ident,):
+    def compute_lowBitstackaddress_in_X(self,ident):
         m = self.curfunc["locals"][ident]
         if m["location"] == "arg":
             #Skip FBP + Ret

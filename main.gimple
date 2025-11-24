@@ -1,9 +1,12 @@
 int main ()
 {
   int D.1954;
-
+		
       _1 = 3;
 	  vid_set_border_color(_1);
+	  
+	
+	  
 	  _1 = 0;
 	  _2 = 72;
  	  place_character(_1,_2);
