@@ -2,7 +2,6 @@
 
 ##DatenTypen:
 # int 16 Bit -32768 bis 32767
-# char 8 Bit 0 bis 255
 # short 8 Bit 0 bis 255
 # pointer 16 Bit 64k
 
@@ -38,17 +37,16 @@ class Gimple():
     
     def parse_globalline(self):
         if self.tok.next(2) == "=" or self.tok.next(2) == ";":
-            typ = self.tok.consume_cur()
-            ident = self.tok.consume_cur()
+            typ,ident = self.parse_type()
             if(self.tok.next() == "="):
                 self.tok.eat("=")# skip =
-                initvalue = self.tok.consume_cur()
+                initvalue = self.parse_operand()
                 self.tok.eat(";") # skip ;
             else:
                 self.tok.eat(";") # skip ;
                 initvalue = "null"
             self.globalsmap[ident] = {"offset":self.globalcount,"type":typ,"value":initvalue}
-            self.globalcount += self.datatypes.get(typ)
+            self.globalcount += 2
             return True
         return False
     
@@ -223,7 +221,6 @@ class Gimple():
                 self.tok.consume_cur()
             self.tok.eat(")")
         op = ""
-        negated = False
         if self.tok.next() == "-":
             self.tok.eat("-")
             op += "-"

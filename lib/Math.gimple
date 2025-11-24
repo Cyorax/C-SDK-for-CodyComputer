@@ -26,6 +26,7 @@ int mult (int i, int j)
   <W5>:
   return erg;
 }
+
 int mod(int i, int j){
 
 }

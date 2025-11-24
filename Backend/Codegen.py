@@ -1,6 +1,4 @@
 from Frontend.GimpleParser import Gimple
-#TODO neg fix  unäres minus bei push arg
-#TODO mult und div aufrufen
 
 ##Speichermedien
 # globalsmap map: ident -> (offset static, type, initvalue)
@@ -36,10 +34,10 @@ from Frontend.GimpleParser import Gimple
 #3 Operandenregister 1 Unteres Byte
 #4 Operandenregister 2 O. Byte
 #5 Operandenregister 2 U. Byte
-#6 Beliebig 
+#6 zwischenspeicher für Return 
 #7 Beliebig
-#8 Beliebig
-#9 Beliebig
+#8 ISPTR
+#9 ISPTR
 
 # $10-$FF ist Static
 # $100-$1FF ist Stack
@@ -55,9 +53,17 @@ from Frontend.GimpleParser import Gimple
 class CodeGenerator():
     def __init__(self,Gimple):
         self.gimple = Gimple
-        self.finalcode = ["LDA #$FF","STA 0","JSR main","BRK"]
+        self.finalcode = ["LDA #$FF","STA 0"]
+        self.curfunc = {"locals":[]}
+        self.init_globalsvalue(Gimple)
         self.compile_Funcs(Gimple)
         
+    def init_globalsvalue(self,gimple):
+        for g in gimple.globalsmap:
+            if str(gimple.globalsmap[g]["value"])!="null":
+                self.finalcode += self.assign2(gimple.globalsmap[g]["value"]) + self.write2(g)
+        self.finalcode += ["JSR main","JMP BRK"]
+        return 
     # label name 
     # n locale Variablen mit 0 initialisieren
     def compile_Funcs(self,instr):
@@ -80,8 +86,10 @@ class CodeGenerator():
         
     def print_final_code(self,filename):
         with open(filename+".asm", "w") as f:
+            print(f";   64tass --mw65c02 --nostart -o {filename}.bin {filename}.asm\nADDR= $0300\n.WORD ADDR\n.WORD (ADDR + LAST - FIRST - 1)\n.LOGICAL    ADDR\nFIRST:",file = f)
             for line in self.finalcode:
                 print(line, file=f)
+            print("BRK: BRA BRK\nLAST\n.ENDLOGICAL",file = f)
         print("OUPUT: "+filename+".asm")
     
     def compile_statements(self,statementslist):
@@ -125,7 +133,6 @@ class CodeGenerator():
     def compile_return(self,instr):
         ret1 =[";\tReturn",";\tRam[6] = Ram[$100 + Ram[0]](Old FBP)","LDA 0","TAX","LDA $100, X","STA 6"]
         retopt = []
-        print(instr)
         if(len(instr)==2):
             retopt = self.assign2(instr[1])
         ret2 = [";\tSP=Ram[0](FBP)","LDA 0","TAX","TXS",";\tFBP = Ram[6]","LDA 6","STA 0","rts"]
@@ -221,8 +228,10 @@ class CodeGenerator():
         elif(ident[0]=="*"):
             return [";\tRam[4] = " + ident[1:]] + self.assign4(ident[1:]) + ["LDA #0","TAY","LDA 2","STA (4),Y"]+(["LDA 3","INY","STA (4),Y"] if self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte" else [])
         elif(ident in self.curfunc["locals"]):
-            m = self.curfunc["locals"][ident]
             return self.compute_lowBitstackaddress_in_X(ident) + ["LDA 2","STA $100,X"] +(["INX","LDA 3","STA $100,X"] if self.curfunc["locals"][ident]["size"] == 2 else [])
+        elif(ident in self.gimple.globalsmap):
+            return ["LDA 2","STA "+str(10+self.gimple.globalsmap[ident]["offset"]),"LDA 3","STA "+str(11+self.gimple.globalsmap[ident]["offset"])]
+            #return ["LDA $2"+str(int(ident[1:])*2+1).zfill(2),"PHA","LDA $2"+str(int(ident[1:])*2).zfill(2),"PHA"]
         else:
             print("UNKNOW VARIABLE FOUND: "+ident+" IN FUNCTION: "+self.curfunc["Name"])
             
@@ -235,9 +244,10 @@ class CodeGenerator():
         elif(ident[0]=="*"):
             return self.assign2(ident) + ["LDA 3","PHA","LDA 2","PHA"]
         elif(ident in self.curfunc["locals"]):
-            m = self.curfunc["locals"][ident]
             #gcc casted short zu int beim pushen
-            return (self.compute_lowBitstackaddress_in_X(ident) + ["INX","LDA $100,X","PHA","DEX"] if m["size"] == 2 else (self.compute_lowBitstackaddress_in_X(ident)+["LDA #0","PHA"])) + ["LDA $100,X","PHA"]
+            return (self.compute_lowBitstackaddress_in_X(ident) + ["INX","LDA $100,X","PHA","DEX"] if self.curfunc["locals"][ident]["size"] == 2 else (self.compute_lowBitstackaddress_in_X(ident)+["LDA #0","PHA"])) + ["LDA $100,X","PHA"]
+        elif(ident in self.gimple.globalsmap):
+            return self.assign2(ident) + ["LDA 3","PHA","LDA 2","PHA"]
         else:
             print("UNKNOW VARIABLE FOUND: "+ident+" IN FUNCTION: "+self.curfunc["Name"])
             
@@ -249,8 +259,9 @@ class CodeGenerator():
         elif(ident[0]=="*"):    # x da die zwei als Akkumulator und aktueller Speicher für den Pointer dient
             return self.assign2(ident[1:]) + ["LDA #0","TAY","LDA (2),Y"]+(["TAX","INY","LDA (2),Y","STA 3","TXA","STA 2"] if self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte" else ["STA 2","LDA #0","STA 3"])
         elif(ident in self.curfunc["locals"]):
-            m = self.curfunc["locals"][ident]
-            return self.compute_lowBitstackaddress_in_X(ident) + ["LDA $100,X","STA 2"] +(["INX","LDA $100,X","STA 3"] if m["size"] == 2 else ["LDA #0","STA 3"])
+            return self.compute_lowBitstackaddress_in_X(ident) + ["LDA $100,X","STA 2"] +(["INX","LDA $100,X","STA 3"] if self.curfunc["locals"][ident]["size"] == 2 else ["LDA #0","STA 3"])
+        elif(ident in self.gimple.globalsmap):
+            return ["LDA "+str(10+self.gimple.globalsmap[ident]["offset"]),"STA 2","LDA "+str(11+self.gimple.globalsmap[ident]["offset"]),"STA 3"]
         else:
             value = int(ident)
             high = (value >> 8) & 0xFF
@@ -266,8 +277,9 @@ class CodeGenerator():
         elif(ident[0]=="*"):    # x da die zwei als Akkumulator und aktueller Speicher für den Pointer dient
             return self.assign4(ident[1:]) + ["LDA #0","TAY","LDA (4),Y"]+(["TAX","INY","LDA (4),Y","STA 5","TXA","STA 4"] if self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte" else ["STA 4","LDA #0","STA 5"])
         elif(ident in self.curfunc["locals"]):
-            m = self.curfunc["locals"][ident]
-            return self.compute_lowBitstackaddress_in_X(ident) + ["LDA $100,X","STA 4"] +(["INX","LDA $100,X","STA 5"] if m["size"] == 2 else ["LDA #0","STA 5"])
+            return self.compute_lowBitstackaddress_in_X(ident) + ["LDA $100,X","STA 4"] +(["INX","LDA $100,X","STA 5"] if self.curfunc["locals"][ident]["size"] == 2 else ["LDA #0","STA 5"])
+        elif(ident in self.gimple.globalsmap):
+            return ["LDA "+str(10+self.gimple.globalsmap[ident]["offset"]),"STA 4","LDA "+str(11+self.gimple.globalsmap[ident]["offset"]),"STA 5"]
         else:
             value = int(ident)
             high = (value >> 8) & 0xFF

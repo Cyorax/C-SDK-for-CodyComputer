@@ -1,7 +1,21 @@
+;   64tass --mw65c02 --nostart -o writetoram.bin writetoram.asm
+ADDR= $0300
+.WORD ADDR
+.WORD (ADDR + LAST - FIRST - 1)
+.LOGICAL    ADDR
+FIRST:
 LDA #$FF
 STA 0
+LDA #10
+STA 2
+LDA #0
+STA 3
+LDA 2
+STA 10
+LDA 3
+STA 11
 JSR main
-BRK
+JMP BRK
 ;	 Function: main
 main:
 TSX
@@ -12,121 +26,47 @@ STA 0
 LDA #0
 PHA
 PHA
-PHA
-PHA
-PHA
-PHA
-;	Ram[2] = -10
+;	Ram[2] = 10
 LDA #10
 STA 2
 LDA #0
 STA 3
+;	_1 = Ram[2]
 LDA 2
-EOR #$FF
-CLC
-ADC #1
-STA 2
+STA $202
 LDA 3
-EOR #$FF
-ADC #0
-STA 3
-;	i = Ram[2]
-LDA 0
-CLC
-SBC #3
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = -10
-LDA #10
+STA $203
+;	Ram[2] = 3
+LDA #3
 STA 2
 LDA #0
-STA 3
-LDA 2
-EOR #$FF
-CLC
-ADC #1
-STA 2
-LDA 3
-EOR #$FF
-ADC #0
-STA 3
-;	j = Ram[2]
-LDA 0
-CLC
-SBC #5
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = i
-LDA 0
-CLC
-SBC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
 STA 3
 ;	_2 = Ram[2]
 LDA 2
 STA $204
 LDA 3
 STA $205
-;	Ram[2] = j
-LDA 0
-CLC
-SBC #5
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	_3 = Ram[2]
-LDA 2
-STA $206
-LDA 3
-STA $207
 ;	 Call
-LDA 0
-CLC
-SBC #5
-TAX
-INX
-LDA $100,X
+LDA $205
 PHA
-DEX
-LDA $100,X
+LDA $204
 PHA
-LDA 0
-CLC
-SBC #3
-TAX
-INX
-LDA $100,X
+LDA $203
 PHA
-DEX
-LDA $100,X
+LDA $202
 PHA
 JSR mult
-;	_1 = Ram[2]
+;	i = Ram[2]
 LDA 2
-STA $202
+STA 10
 LDA 3
-STA $203
+STA 11
 ;	Ram[2] = 0
 LDA #0
 STA 2
 LDA #0
 STA 3
-;	D.1949 = Ram[2]
+;	D.1954 = Ram[2]
 LDA 0
 CLC
 SBC #1
@@ -538,3 +478,6 @@ TXS
 LDA 6
 STA 0
 rts
+BRK: BRA BRK
+LAST
+.ENDLOGICAL

@@ -1,0 +1,93 @@
+void vid_toggle_screen_output(){
+short int* i;
+i = 53249;
+*i = *i ^ 1;
+}
+void vid_toggle_vscroll(){
+short int* i;
+i = 53249;
+*i = *i ^ 2;
+}
+void vid_toggle_hscroll(){
+short int* i;
+i = 53249;
+*i = *i ^ 4;
+}
+void vid_toggle_row_effect(){
+short int* i;
+i = 53249;
+*i = *i ^ 8;
+}
+void vid_toggle_bitmap_mode(){
+short int* i;
+i = 53249;
+*i = *i ^ 16;
+}
+//returns value != 0 if not blanked
+short int vid_blanking(){
+short int* i;
+i = 53248;
+return *i;
+}
+// returns value != 0 if enabled
+short int vid_screen_enabled_value(){
+short int* i;
+short int zurueck;
+i = 53249;
+zurueck = *i & 1;
+return zurueck;
+}
+short int vid_vscroll_enabled_value(){
+short int* i;
+short int zurueck;
+i = 53249;
+zurueck = *i & 2;
+return zurueck;
+}
+short int vid_hscroll_enabled_value(){
+short int* i;
+short int zurueck;
+i = 53249;
+zurueck = *i & 4;
+return zurueck;
+}
+short int vid_row_effect_enabled_value(){
+short int* i;
+short int zurueck;
+i = 53249;
+zurueck = *i & 8;
+return zurueck;
+}
+short int vid_bitmap_mode_enabled_value(){
+short int* i;
+short int zurueck;
+i = 53249;
+zurueck = *i & 16;
+return zurueck;
+}
+// D002 Color Register 53250
+
+short int vid_get_border_color(){
+short int* i;
+short int zurueck;
+i = 53250;
+zurueck = *i & 15;
+return zurueck;
+}
+
+void vid_set_border_color(short int color){
+short int* i;
+int zurueck;
+i = 53250;
+zurueck = *i & 240;
+zurueck = zurueck | color;
+*i = zurueck;
+}
+
+void place_character(int loc,short int character) {
+short int* loco;
+loco = 50176 + loc;
+*loco = character;
+}
+void insert_
+

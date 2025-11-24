@@ -1,34 +1,50 @@
-
 int main ()
 {
-  int D.1949;
-<<<<<<< HEAD
-    int i;
-    int j;
-    i = -10;
-    j = -10; 
-    _2 = i;
-    _3 = j;   
-    _1 = i*j;
+  int D.1954;
 
-=======
-    int address;
-    int zahl;
-    
-    address = 768;
-    zahl = 5550;
-<<<<<<< HEAD
-    poke (address, zahl);
-    _1 = 10;
-    poke1byte (address, _1);
-=======
-    _2 = address + zahl;
-    _1 = 10;
->>>>>>> ff16b26 (single byte Datentypen hinzugefügt)
->>>>>>> refs/remotes/origin/main
-    D.1949 = 0;
-    return D.1949;
+      _1 = 3;
+	  vid_set_border_color(_1);
+	  _1 = 0;
+	  _2 = 72;
+ 	  place_character(_1,_2);
+ 	  _1 = 1;
+	  _2 = 65;
+ 	  place_character(_1,_2);
+ 	  _1 = 2;
+	  _2 = 76;
+ 	  place_character(_1,_2);
+ 	  _1 = 3;
+	  _2 = 76;
+ 	  place_character(_1,_2);
+ 	  _1 = 4;
+	  _2 = 79;
+ 	  place_character(_1,_2);
+ 	  
+ 	  _1 = 6;
+	  _2 = 74;
+ 	  place_character(_1,_2);
+ 	  _1 = 7;
+	  _2 = 79;
+ 	  place_character(_1,_2);
+ 	  _1 = 8;
+	  _2 = 72;
+ 	  place_character(_1,_2);
+ 	  _1 = 9;
+	  _2 = 78;
+ 	  place_character(_1,_2);
+   	 	  _1 = 10;
+	  _2 = 224;
+ 	  place_character(_1,_2);
+ 	    _1 = 11;
+ 	   _2 = 74;
+ 	  place_character(_1,_2);
+	  _2 = 224;
+ 	  place_character(_1,_2);
 
+ 	  
+ 	  
+ 	  
+  D.1954 = 0;
+  return D.1954;
 }
-
 
