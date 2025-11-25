@@ -267,7 +267,7 @@ class Gimple():
         
     def parse_opertation(self):
         op = self.tok.consume_cur()
-        if(self.tok.next()== "="):
+        if(self.tok.next()== "=" or self.tok.next() == "<" or self.tok.next() == ">"):
             op += self.tok.consume_cur()
         match op:
             case "==":
@@ -301,6 +301,17 @@ class Gimple():
             case "%":
                 self.calledfuncs += ["mod"]
                 return "mod"
+            case "<<":
+                self.calledfuncs += ["leftshift"]
+                return "<<"
+            case ">>":
+                self.calledfuncs += ["rightshift"]
+                return ">>"
+            #intern
+            case "ASR":
+                return "ASR"
+            case "ASL":
+                return "ASL"
             case _:
                 print("COULD NOT MATCH OPERATION",op)
 

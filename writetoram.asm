@@ -6,6 +6,14 @@ ADDR= $0300
 FIRST:
 LDA #$FF
 STA 0
+LDA #10
+STA 2
+LDA #0
+STA 3
+LDA 2
+STA 10
+LDA 3
+STA 11
 LDA #0
 STA 2
 LDA #208
@@ -62,6 +70,38 @@ LDA 2
 STA 22
 LDA 3
 STA 23
+LDA #6
+STA 2
+LDA #208
+STA 3
+LDA 2
+STA 24
+LDA 3
+STA 25
+LDA #0
+STA 2
+LDA #180
+STA 3
+LDA 2
+STA 26
+LDA 3
+STA 27
+LDA #0
+STA 2
+LDA #196
+STA 3
+LDA 2
+STA 28
+LDA 3
+STA 29
+LDA #0
+STA 2
+LDA #216
+STA 3
+LDA 2
+STA 30
+LDA 3
+STA 31
 JSR main
 JMP BRK
 ;	 Function: main
@@ -74,472 +114,126 @@ STA 0
 LDA #0
 PHA
 PHA
-;	Ram[2] = 3
-LDA #3
+;	 Call
+LDA #1
 STA 2
 LDA #0
-STA 3
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	 Call
-LDA $202
-STA 2
-LDA $203
 STA 3
 LDA 3
 PHA
 LDA 2
 PHA
 JSR vid_set_border_color
-;	Ram[2] = 0
-LDA #0
-STA 2
-LDA #0
-STA 3
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	Ram[2] = 72
-LDA #72
-STA 2
-LDA #0
-STA 3
-;	_2 = Ram[2]
-LDA 2
-STA $204
-LDA 3
-STA $205
 ;	 Call
-LDA $204
-STA 2
-LDA $205
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR place_character
-;	Ram[2] = 1
-LDA #1
+LDA #16
 STA 2
 LDA #0
 STA 3
-;	_1 = Ram[2]
-LDA 2
-STA $202
 LDA 3
-STA $203
-;	Ram[2] = 65
-LDA #65
+PHA
+LDA 2
+PHA
+LDA #0
 STA 2
 LDA #0
 STA 3
-;	_2 = Ram[2]
-LDA 2
-STA $204
 LDA 3
-STA $205
+PHA
+LDA 2
+PHA
+JSR insert_color_to_cram
 ;	 Call
-LDA $204
-STA 2
-LDA $205
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR place_character
-;	Ram[2] = 2
-LDA #2
+LDA #0
 STA 2
 LDA #0
 STA 3
-;	_1 = Ram[2]
-LDA 2
-STA $202
 LDA 3
-STA $203
-;	Ram[2] = 76
-LDA #76
+PHA
+LDA 2
+PHA
+LDA #255
 STA 2
 LDA #0
 STA 3
-;	_2 = Ram[2]
-LDA 2
-STA $204
 LDA 3
-STA $205
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #255
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #255
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #255
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR insert_character_to_chram
 ;	 Call
-LDA $204
-STA 2
-LDA $205
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR place_character
-;	Ram[2] = 3
-LDA #3
+LDA #0
 STA 2
 LDA #0
 STA 3
-;	_1 = Ram[2]
-LDA 2
-STA $202
 LDA 3
-STA $203
-;	Ram[2] = 76
-LDA #76
+PHA
+LDA 2
+PHA
+LDA #0
 STA 2
 LDA #0
 STA 3
-;	_2 = Ram[2]
-LDA 2
-STA $204
-LDA 3
-STA $205
-;	 Call
-LDA $204
-STA 2
-LDA $205
-STA 3
 LDA 3
 PHA
 LDA 2
 PHA
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR place_character
-;	Ram[2] = 4
-LDA #4
-STA 2
-LDA #0
-STA 3
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	Ram[2] = 79
-LDA #79
-STA 2
-LDA #0
-STA 3
-;	_2 = Ram[2]
-LDA 2
-STA $204
-LDA 3
-STA $205
-;	 Call
-LDA $204
-STA 2
-LDA $205
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR place_character
-;	Ram[2] = 6
-LDA #6
-STA 2
-LDA #0
-STA 3
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	Ram[2] = 74
-LDA #74
-STA 2
-LDA #0
-STA 3
-;	_2 = Ram[2]
-LDA 2
-STA $204
-LDA 3
-STA $205
-;	 Call
-LDA $204
-STA 2
-LDA $205
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR place_character
-;	Ram[2] = 7
-LDA #7
-STA 2
-LDA #0
-STA 3
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	Ram[2] = 79
-LDA #79
-STA 2
-LDA #0
-STA 3
-;	_2 = Ram[2]
-LDA 2
-STA $204
-LDA 3
-STA $205
-;	 Call
-LDA $204
-STA 2
-LDA $205
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR place_character
-;	Ram[2] = 8
-LDA #8
-STA 2
-LDA #0
-STA 3
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	Ram[2] = 72
-LDA #72
-STA 2
-LDA #0
-STA 3
-;	_2 = Ram[2]
-LDA 2
-STA $204
-LDA 3
-STA $205
-;	 Call
-LDA $204
-STA 2
-LDA $205
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR place_character
-;	Ram[2] = 9
-LDA #9
-STA 2
-LDA #0
-STA 3
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	Ram[2] = 78
-LDA #78
-STA 2
-LDA #0
-STA 3
-;	_2 = Ram[2]
-LDA 2
-STA $204
-LDA 3
-STA $205
-;	 Call
-LDA $204
-STA 2
-LDA $205
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR place_character
-;	Ram[2] = 10
-LDA #10
-STA 2
-LDA #0
-STA 3
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	Ram[2] = 224
-LDA #224
-STA 2
-LDA #0
-STA 3
-;	_2 = Ram[2]
-LDA 2
-STA $204
-LDA 3
-STA $205
-;	 Call
-LDA $204
-STA 2
-LDA $205
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR place_character
-;	Ram[2] = 11
-LDA #11
-STA 2
-LDA #0
-STA 3
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	Ram[2] = 74
-LDA #74
-STA 2
-LDA #0
-STA 3
-;	_2 = Ram[2]
-LDA 2
-STA $204
-LDA 3
-STA $205
-;	 Call
-LDA $204
-STA 2
-LDA $205
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR place_character
-;	Ram[2] = 224
-LDA #224
-STA 2
-LDA #0
-STA 3
-;	_2 = Ram[2]
-LDA 2
-STA $204
-LDA 3
-STA $205
-;	 Call
-LDA $204
-STA 2
-LDA $205
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR place_character
+JSR place_character_to_screen
 ;	Ram[2] = 0
 LDA #0
 STA 2
@@ -586,8 +280,6 @@ PHA
 TXA
 STA 0
 LDA #0
-PHA
-PHA
 ;	Ram[2] = *vid_color_register
 LDA 14
 STA 2
@@ -610,25 +302,26 @@ STA 2
 LDA 3
 AND 5
 STA 3
-;	zurueck = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
+;	*vid_color_register = Ram[2]
+;	Ram[4] = vid_color_register
+LDA 14
+STA 4
+LDA 15
+STA 5
+LDA #0
+TAY
 LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = zurueck
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
+STA (4),Y
+;	Ram[2] = *vid_color_register
+LDA 14
 STA 2
-INX
-LDA $100,X
+LDA 15
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
 STA 3
 ;	Ram[4] = color
 LDA 0
@@ -644,26 +337,6 @@ ORA 4
 STA 2
 LDA 3
 ORA 5
-STA 3
-;	zurueck = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = zurueck
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
 STA 3
 ;	*vid_color_register = Ram[2]
 ;	Ram[4] = vid_color_register
@@ -689,8 +362,8 @@ TXS
 LDA 6
 STA 0
 rts
-;	 Function: place_character
-place_character:
+;	 Function: place_character_to_screen
+place_character_to_screen:
 TSX
 LDA 0
 PHA
@@ -699,10 +372,10 @@ STA 0
 LDA #0
 PHA
 PHA
-;	Ram[2] = 50176
-LDA #0
+;	Ram[2] = vid_screen_ram
+LDA 28
 STA 2
-LDA #196
+LDA 29
 STA 3
 ;	Ram[4] = loc
 LDA 0
@@ -738,10 +411,563 @@ ADC #5
 TAX
 LDA $100,X
 STA 2
-LDA #0
+INX
+LDA $100,X
 STA 3
 ;	*loco = Ram[2]
 ;	Ram[4] = loco
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	Return
+;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+LDA 0
+TAX
+LDA $100, X
+STA 6
+;	SP=Ram[0](FBP)
+LDA 0
+TAX
+TXS
+;	FBP = Ram[6]
+LDA 6
+STA 0
+rts
+;	 Function: insert_character_to_chram
+insert_character_to_chram:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	Ram[2] = vid_character_ram
+LDA 26
+STA 2
+LDA 27
+STA 3
+;	Ram[4] = offset
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+;	add = Ram[2]
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	Ram[2] = line1
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+LDA #0
+STA 3
+;	*add = Ram[2]
+;	Ram[4] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	Ram[2] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	Ram[4] = 1
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+;	add = Ram[2]
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	Ram[2] = line2
+LDA 0
+CLC
+ADC #7
+TAX
+LDA $100,X
+STA 2
+LDA #0
+STA 3
+;	*add = Ram[2]
+;	Ram[4] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	Ram[2] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	Ram[4] = 1
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+;	add = Ram[2]
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	Ram[2] = line3
+LDA 0
+CLC
+ADC #9
+TAX
+LDA $100,X
+STA 2
+LDA #0
+STA 3
+;	*add = Ram[2]
+;	Ram[4] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	Ram[2] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	Ram[4] = 1
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+;	add = Ram[2]
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	Ram[2] = line4
+LDA 0
+CLC
+ADC #11
+TAX
+LDA $100,X
+STA 2
+LDA #0
+STA 3
+;	*add = Ram[2]
+;	Ram[4] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	Ram[2] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	Ram[4] = 1
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+;	add = Ram[2]
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	Ram[2] = line5
+LDA 0
+CLC
+ADC #13
+TAX
+LDA $100,X
+STA 2
+LDA #0
+STA 3
+;	*add = Ram[2]
+;	Ram[4] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	Ram[2] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	Ram[4] = 1
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+;	add = Ram[2]
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	Ram[2] = line6
+LDA 0
+CLC
+ADC #15
+TAX
+LDA $100,X
+STA 2
+LDA #0
+STA 3
+;	*add = Ram[2]
+;	Ram[4] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	Ram[2] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	Ram[4] = 1
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+;	add = Ram[2]
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	Ram[2] = line7
+LDA 0
+CLC
+ADC #17
+TAX
+LDA $100,X
+STA 2
+LDA #0
+STA 3
+;	*add = Ram[2]
+;	Ram[4] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	Ram[2] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	Ram[4] = 1
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+;	add = Ram[2]
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	Ram[2] = line8
+LDA 0
+CLC
+ADC #19
+TAX
+LDA $100,X
+STA 2
+LDA #0
+STA 3
+;	*add = Ram[2]
+;	Ram[4] = add
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	Return
+;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+LDA 0
+TAX
+LDA $100, X
+STA 6
+;	SP=Ram[0](FBP)
+LDA 0
+TAX
+TXS
+;	FBP = Ram[6]
+LDA 6
+STA 0
+rts
+;	 Function: insert_color_to_cram
+insert_color_to_cram:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	Ram[2] = vid_color_ram
+LDA 30
+STA 2
+LDA 31
+STA 3
+;	Ram[4] = offset
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+;	add = Ram[2]
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	Ram[2] = line1
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+LDA #0
+STA 3
+;	*add = Ram[2]
+;	Ram[4] = add
 LDA 0
 CLC
 SBC #1

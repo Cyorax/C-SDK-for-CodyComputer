@@ -34,3 +34,23 @@ int mod(int i, int j){
 int div(int i, int j){
 
 }
+int leftshift(int i, int j){
+  goto <W1>;
+  <W2>:
+  i = i ASL 0;
+  j = j + -1;
+  <W1>:
+  if (j != 0) goto <W2>; else goto <W0>;
+  <W0>:
+  return i;
+}
+int rightshift(int i, int j){
+  goto <W1>;
+  <W2>:
+  i = i ASR 0;
+  j = j + -1;
+  <W1>:
+  if (j != 0) goto <W2>; else goto <W0>;
+  <W0>:
+  return i;
+}

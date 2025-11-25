@@ -118,10 +118,10 @@ class CodeGenerator():
         self.compile_statements(statementslist[1:])
             
     def compile_label(self,instr):
-        self.finalcode.append(instr[1]+":")
+        self.finalcode.append(self.curfunc["Name"]+instr[1]+":")
         
     def compile_goto(self,instr):
-        self.finalcode.append("JMP "+instr[1])
+        self.finalcode.append("JMP "+self.curfunc["Name"]+instr[1])
     
     # bei Return machen wir also:   also übersetzt
     # Ram[10] = Ram[FBP]            Ram[6] = Ram[$100 + Ram[0]]
@@ -168,6 +168,14 @@ class CodeGenerator():
             self.compile_call(["call","mod",instr[2],instr[3]]) 
             self.compile_assignret(["return",instr[1]])
             return
+        elif(instr[0] == "<<"):
+            self.compile_call(["call","leftshift",instr[2],instr[3]]) 
+            self.compile_assignret(["return",instr[1]])
+            return
+        elif(instr[0] == ">>"):
+            self.compile_call(["call","rightshift",instr[2],instr[3]]) 
+            self.compile_assignret(["return",instr[1]])
+            return
         self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[2]) + [";\tRam[4] = " + instr[3]] + self.assign4(instr[3]) + self.compile_operator(instr[0]) + [";\t" + instr[1] + " = Ram[2]"] + self.write2(instr[1])
     
     #assignret dest -> write2(dest)
@@ -177,7 +185,7 @@ class CodeGenerator():
     #if op op1 op2 l1 l2 -> assign2(op1) assign4(op2) op interpret2(l1,l2)
     def compile_if(self,instr):
         self.counter += 1
-        self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[2]) + [";\tRam[4] = " + instr[3]] + self.assign4(instr[3]) + self.compile_operator(instr[1]) + ["LDA 2","BNE NOT"+str(self.counter),"JMP "+instr[4],"NOT"+str(self.counter)+":","JMP "+instr[5]]
+        self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[2]) + [";\tRam[4] = " + instr[3]] + self.assign4(instr[3]) + self.compile_operator(instr[1]) + ["LDA 2","BNE NOT"+str(self.counter),"JMP "+self.curfunc["Name"]+instr[4],"NOT"+str(self.counter)+":","JMP "+self.curfunc["Name"]+instr[5]]
     
     #gimple erzeugt kein sub immer + - oder + und dann zahl die Negativ ist
     def compile_operator(self,operation):
@@ -196,6 +204,14 @@ class CodeGenerator():
             
             case "xor":
                 return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","STA 3"]
+            #shifts nur für 8 bit short ints 
+            case "ASL": 
+                self.counter += 1
+                return ["ASL 2"]
+            
+            case "ASR":
+                self.counter += 1
+                return ["LSR 2"]
             
             case "eq":
                 self.counter += 1

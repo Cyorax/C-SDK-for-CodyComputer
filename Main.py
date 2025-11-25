@@ -12,6 +12,7 @@ lines = ""
 for  line in f:
     lines += line.split("//")[0]
 tok = Tokenizer(lines)
+print(tok.get_tokens())
 gim = Gimple(tok)
 #Mathe lib immer hinzufügen für mal und geteilt usw.
 argv.append("lib/Math.gimple")
@@ -23,7 +24,7 @@ for i in range(3,len(argv)):
     toke = Tokenizer(lines)
     gimple = Gimple(toke)
     gim.merge(gimple)
-
+    
 opt = Optimizer(gim)
 gim.dump_gimple()
 c = CodeGenerator(gim)
