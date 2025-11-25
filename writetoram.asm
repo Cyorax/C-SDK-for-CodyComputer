@@ -115,7 +115,7 @@ LDA #0
 PHA
 PHA
 ;	 Call
-LDA #1
+LDA #3
 STA 2
 LDA #0
 STA 3
@@ -124,6 +124,16 @@ PHA
 LDA 2
 PHA
 JSR vid_set_border_color
+;	 Call
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR set_character_ram_address
 ;	 Call
 LDA #16
 STA 2
@@ -151,7 +161,7 @@ LDA 3
 PHA
 LDA 2
 PHA
-LDA #255
+LDA #85
 STA 2
 LDA #0
 STA 3
@@ -167,7 +177,7 @@ LDA 3
 PHA
 LDA 2
 PHA
-LDA #255
+LDA #85
 STA 2
 LDA #0
 STA 3
@@ -183,7 +193,7 @@ LDA 3
 PHA
 LDA 2
 PHA
-LDA #255
+LDA #85
 STA 2
 LDA #0
 STA 3
@@ -199,7 +209,7 @@ LDA 3
 PHA
 LDA 2
 PHA
-LDA #255
+LDA #85
 STA 2
 LDA #0
 STA 3
@@ -226,6 +236,42 @@ PHA
 LDA 2
 PHA
 LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR place_character_to_screen
+;	 Call
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #1
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR place_character_to_screen
+;	 Call
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #2
 STA 2
 LDA #0
 STA 3
@@ -362,6 +408,169 @@ TXS
 LDA 6
 STA 0
 rts
+;	 Function: set_character_ram_address
+set_character_ram_address:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	 Call
+LDA #0
+STA 2
+LDA #4
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR mult
+;	_1 = Ram[2]
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	Ram[2] = 40960
+LDA #0
+STA 2
+LDA #160
+STA 3
+;	Ram[4] = _1
+LDA $202
+STA 4
+LDA $203
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+;	base = Ram[2]
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	Ram[2] = *vid_base_register
+LDA 16
+STA 2
+LDA 17
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+;	Ram[4] = 240
+LDA #240
+STA 4
+LDA #0
+STA 5
+LDA 2
+AND 4
+STA 2
+LDA 3
+AND 5
+STA 3
+;	*vid_base_register = Ram[2]
+;	Ram[4] = vid_base_register
+LDA 16
+STA 4
+LDA 17
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	Ram[2] = *vid_base_register
+LDA 16
+STA 2
+LDA 17
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+;	Ram[4] = loc
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA 2
+ORA 4
+STA 2
+LDA 3
+ORA 5
+STA 3
+;	*vid_base_register = Ram[2]
+;	Ram[4] = vid_base_register
+LDA 16
+STA 4
+LDA 17
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	Ram[2] = base
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	vid_character_ram = Ram[2]
+LDA 2
+STA 26
+LDA 3
+STA 27
+;	Return
+;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+LDA 0
+TAX
+LDA $100, X
+STA 6
+;	SP=Ram[0](FBP)
+LDA 0
+TAX
+TXS
+;	FBP = Ram[6]
+LDA 6
+STA 0
+rts
 ;	 Function: place_character_to_screen
 place_character_to_screen:
 TSX
@@ -453,20 +662,43 @@ STA 0
 LDA #0
 PHA
 PHA
-;	Ram[2] = vid_character_ram
-LDA 26
-STA 2
-LDA 27
-STA 3
-;	Ram[4] = offset
+;	 Call
 LDA 0
 CLC
 ADC #3
 TAX
 LDA $100,X
-STA 4
+STA 2
 INX
 LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #8
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR mult
+;	_1 = Ram[2]
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	Ram[2] = vid_character_ram
+LDA 26
+STA 2
+LDA 27
+STA 3
+;	Ram[4] = _1
+LDA $202
+STA 4
+LDA $203
 STA 5
 LDA 2
 CLC
@@ -987,6 +1219,388 @@ LDA 0
 TAX
 LDA $100, X
 STA 6
+;	SP=Ram[0](FBP)
+LDA 0
+TAX
+TXS
+;	FBP = Ram[6]
+LDA 6
+STA 0
+rts
+;	 Function: abs
+abs:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+;	Ram[2] = i
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	Ram[4] = 0
+LDA #0
+STA 4
+LDA #0
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+BMI TRUE2
+JMP FALSE2
+TRUE2:
+LDA #0
+STA 2
+JMP END2
+FALSE2:
+LDA #$FF
+STA 2
+END2:
+LDA 2
+BNE NOT2
+JMP absneg
+NOT2:
+JMP abspos
+absneg:
+;	Return
+;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+LDA 0
+TAX
+LDA $100, X
+STA 6
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+EOR #$FF
+CLC
+ADC #1
+STA 2
+LDA 3
+EOR #$FF
+ADC #0
+STA 3
+;	SP=Ram[0](FBP)
+LDA 0
+TAX
+TXS
+;	FBP = Ram[6]
+LDA 6
+STA 0
+rts
+abspos:
+;	Return
+;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+LDA 0
+TAX
+LDA $100, X
+STA 6
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	SP=Ram[0](FBP)
+LDA 0
+TAX
+TXS
+;	FBP = Ram[6]
+LDA 6
+STA 0
+rts
+;	 Function: mult
+mult:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+PHA
+PHA
+;	 Call
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR abs
+;	jj = Ram[2]
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	Ram[2] = 0
+LDA #0
+STA 2
+LDA #0
+STA 3
+;	erg = Ram[2]
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+JMP multW1
+multW2:
+;	Ram[2] = erg
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	Ram[4] = i
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+;	erg = Ram[2]
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	Ram[2] = jj
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	Ram[4] = -1
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+;	jj = Ram[2]
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+multW1:
+;	Ram[2] = jj
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	Ram[4] = 0
+LDA #0
+STA 4
+LDA #0
+STA 5
+LDA 2
+EOR 4
+STA 2
+LDA 3
+EOR 5
+ORA 2
+STA 2
+BEQ TRUE4
+LDA #$FF
+STA 2
+TRUE4:
+LDA #$FF
+EOR 2
+STA 2
+LDA 2
+BNE NOT4
+JMP multW2
+NOT4:
+JMP multW0
+multW0:
+;	Ram[2] = j
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+;	Ram[4] = 0
+LDA #0
+STA 4
+LDA #0
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+BMI TRUE6
+JMP FALSE6
+TRUE6:
+LDA #0
+STA 2
+JMP END6
+FALSE6:
+LDA #$FF
+STA 2
+END6:
+LDA 2
+BNE NOT6
+JMP multW4
+NOT6:
+JMP multW5
+multW4:
+;	Return
+;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+LDA 0
+TAX
+LDA $100, X
+STA 6
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+EOR #$FF
+CLC
+ADC #1
+STA 2
+LDA 3
+EOR #$FF
+ADC #0
+STA 3
+;	SP=Ram[0](FBP)
+LDA 0
+TAX
+TXS
+;	FBP = Ram[6]
+LDA 6
+STA 0
+rts
+multW5:
+;	Return
+;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+LDA 0
+TAX
+LDA $100, X
+STA 6
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
 ;	SP=Ram[0](FBP)
 LDA 0
 TAX

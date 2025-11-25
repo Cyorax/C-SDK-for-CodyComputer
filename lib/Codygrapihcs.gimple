@@ -8,7 +8,7 @@ short int* vid_sprite_register = 53254;
 short int* vid_shared_colors_register = 53254;
 
 // defaultwerte für Addressbereiche 
-
+//default Addresse von character_ram ist wahrscheinlich immernoch falsch 
 short int* vid_character_ram = 46080;			// 2k 8 Pages mit zwei Bit pro Pixel für alle vier anzeigbaren Farben 8 Byte lang ein Byte eine Zeile im Tile 
 short int* vid_screen_ram = 50176;				// 40 * 25 bytes sprich 1k 4 Pages für je ein Tile pro byte mit zwei Bit pro pixel 00 ist vrdgrund 01 hntrgrund 10 ist die Farbe aus D005 genauso wie 11
 short int* vid_color_ram = 55296;				// 40 * 25 bytes sprich 1k 4 Pages für je ein Tile pro byte high nibble Vordergrund low nibble Hintergrund
@@ -85,8 +85,8 @@ void set_character_ram_address(int loc){
 int base;
 _1 = loc * 1024;
 base = 40960 + _1;
-*vid_color_register = *vid_color_register & 240;
-*vid_color_register = *vid_color_register | loc;
+*vid_base_register = *vid_base_register & 240;
+*vid_base_register = *vid_base_register | loc;
 vid_character_ram = base;
 }
 
@@ -99,7 +99,8 @@ loco = vid_screen_ram + loc;
 
 void insert_character_to_chram(int offset,short int line1,short int line2,short int line3,short int line4,short int line5,short int line6,short int line7,short int line8) {
 short int* add;
-add = vid_character_ram + offset;
+_1 = 8 * offset;
+add = vid_character_ram + _1;
 *add = line1;
 add = add + 1;
 *add = line2;

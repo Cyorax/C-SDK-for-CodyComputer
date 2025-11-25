@@ -4,10 +4,15 @@ int main ()
 {
 // 16 ist bswp schwarzer Hintergrund weisser Vordergrund
   int D.1954;
-  vid_set_border_color(1);
+  vid_set_border_color(3);
+  set_character_ram_address(0);
   insert_color_to_cram(0,16);
-  insert_character_to_chram(0,255,0,255,0,255,0,255,0);
+  insert_character_to_chram(0,85,0,85,0,85,0,85,0);
+  
   place_character_to_screen(0,0);
+  place_character_to_screen(1,0);
+  place_character_to_screen(2,0);
+  
   D.1954 = 0;
   return D.1954;
 }
