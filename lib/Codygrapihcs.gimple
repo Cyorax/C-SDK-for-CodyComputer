@@ -7,9 +7,9 @@ short int* vid_scolor_register = 53253;
 short int* vid_sprite_register = 53254;
 short int* vid_shared_colors_register = 53254;
 
-// defaultwerte für Addressbereiche 
-//default Addresse von character_ram ist wahrscheinlich immernoch falsch 
-short int* vid_character_ram = 46080;			// 2k 8 Pages mit zwei Bit pro Pixel für alle vier anzeigbaren Farben 8 Byte lang ein Byte eine Zeile im Tile 
+// defaultwerte für Adressbereiche 
+// default Adresse von character_ram ist wahrscheinlich immernoch falsch 
+short int* vid_character_ram = 57344;			// 2k 8 Pages mit zwei Bit pro Pixel für alle vier anzeigbaren Farben 8 Byte lang ein Byte eine Zeile im Tile 
 short int* vid_screen_ram = 50176;				// 40 * 25 bytes sprich 1k 4 Pages für je ein Tile pro byte mit zwei Bit pro pixel 00 ist vrdgrund 01 hntrgrund 10 ist die Farbe aus D005 genauso wie 11
 short int* vid_color_ram = 55296;				// 40 * 25 bytes sprich 1k 4 Pages für je ein Tile pro byte high nibble Vordergrund low nibble Hintergrund
 
@@ -61,7 +61,14 @@ void vid_set_border_color(short int color){
 *vid_color_register = *vid_color_register | color;
 }
 
-void set_screen_ram_address(int loc){
+void vid_set_color2(short int color){
+
+}
+void vid_set_color3(short int color){
+
+}
+
+void vid_set_screen_ram_address(int loc){
 int base;
 _1 = loc * 1024;
 base = 40960 + _1;
@@ -71,7 +78,7 @@ loc = loc << 4;
 vid_screen_ram = base;
 }
 
-void set_color_ram_address(int loc){
+void vid_set_color_ram_address(int loc){
 int base;
 _1 = loc * 1024;
 base = 40960 + _1;
@@ -81,7 +88,7 @@ loc = loc << 4;
 vid_color_ram = base;
 }
 
-void set_character_ram_address(int loc){
+void vid_set_character_ram_address(int loc){
 int base;
 _1 = loc * 1024;
 base = 40960 + _1;
@@ -91,13 +98,13 @@ vid_character_ram = base;
 }
 
 
-void place_character_to_screen(int loc,int character) {
+void vid_place_character_to_screen(int loc,int character) {
 short int* loco;
 loco = vid_screen_ram + loc;
 *loco = character;
 }
 
-void insert_character_to_chram(int offset,short int line1,short int line2,short int line3,short int line4,short int line5,short int line6,short int line7,short int line8) {
+void vid_insert_character_to_chram(int offset,short int line1,short int line2,short int line3,short int line4,short int line5,short int line6,short int line7,short int line8) {
 short int* add;
 _1 = 8 * offset;
 add = vid_character_ram + _1;
@@ -118,8 +125,58 @@ add = add + 1;
 *add = line8;
 }
 
-void insert_color_to_cram(int offset,short int line1) {
+void vid_insert_color_to_cram(int offset,short int line1) {
 short int* add;
 add = vid_color_ram + offset;
 *add = line1;
+}
+
+//0 und 1 tiles in Codybasic suchen und abändern
+void printnum(int loc,int num){
+short int stelle0;
+short int stelle1;
+short int stelle2;
+short int stelle3;
+short int stelle4;
+short int stelle5;
+short int stelle6;
+short int stelle7;
+
+stelle0 = num & 1;
+_1 = loc + 7;
+vid_place_character_to_screen(_1,stelle0);
+
+stelle1 = num & 2;
+stelle1 = stelle1 >> 1;
+_1 = loc + 6;
+vid_place_character_to_screen(_1,stelle1);
+
+stelle2 = num & 4;
+stelle2 = stelle2 >> 2;
+_1 = loc + 5;
+vid_place_character_to_screen(_1,stelle2);
+
+stelle3 = num & 8;
+stelle3 = stelle1 >> 3;
+_1 = loc + 4;
+vid_place_character_to_screen(_1,stelle3);
+
+stelle4 = num & 16;
+stelle4 = stelle4 >> 4;
+_1 = loc + 3;
+vid_place_character_to_screen(_1,stelle4);
+
+stelle5 = num & 32;
+stelle5 = stelle5 >> 5;
+_1 = loc + 2;
+vid_place_character_to_screen(_1,stelle5);
+
+stelle6 = num & 64;
+stelle6 = stelle6 >> 6;
+_1 = loc + 1;
+vid_place_character_to_screen(_1,stelle6);
+
+stelle7 = num & 128;
+stelle7 = stelle7 >> 7;
+vid_place_character_to_screen(loc,stelle7);
 }

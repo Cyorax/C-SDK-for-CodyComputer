@@ -3,6 +3,7 @@ class Optimizer():
     def __init__(self,gimple):
         self.parser =gimple
         self.remove_unused_funcs()
+        
     #BFS um die ungenutzen Methoden zu finden und zu entfernen
     def remove_unused_funcs(self):
         self.availablefuncs = ["main"]
