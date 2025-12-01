@@ -106,6 +106,8 @@ STA 0
 LDA #0
 PHA
 PHA
+PHA
+PHA
 ;	 Call
 LDA #3
 STA 2
@@ -274,8 +276,251 @@ PHA
 LDA 2
 PHA
 JSR vid_insert_character_to_chram
+mainp:
 ;	 Call
-LDA #48
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #1
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR is_key_pressed
+;	 Call
+LDA #40
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #2
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR is_key_pressed
+;	 Call
+LDA #80
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #3
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR is_key_pressed
+;	 Call
+LDA #120
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #4
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR is_key_pressed
+;	 Call
+LDA #160
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #5
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR is_key_pressed
+;	 Call
+LDA #200
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #6
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR is_key_pressed
+;	 Call
+LDA #240
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #7
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR is_key_pressed
+;	 Call
+LDA #24
+STA 2
+LDA #1
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #8
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR is_key_pressed
+;	 Call
+LDA #64
+STA 2
+LDA #1
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #9
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR is_key_pressed
+;	 Call
+LDA #104
+STA 2
+LDA #1
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
 STA 2
 LDA #0
 STA 3
@@ -291,9 +536,17 @@ LDA 3
 PHA
 LDA 2
 PHA
-JSR vid_insert_color_to_cram
+JSR is_key_pressed
 ;	 Call
-LDA #48
+LDA #144
+STA 2
+LDA #1
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
 STA 2
 LDA #0
 STA 3
@@ -309,9 +562,17 @@ LDA 3
 PHA
 LDA 2
 PHA
-JSR vid_insert_color_to_cram
+JSR is_key_pressed
 ;	 Call
-LDA #48
+LDA #184
+STA 2
+LDA #1
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
 STA 2
 LDA #0
 STA 3
@@ -327,28 +588,17 @@ LDA 3
 PHA
 LDA 2
 PHA
-JSR vid_insert_color_to_cram
+JSR is_key_pressed
 ;	 Call
-LDA #48
+LDA #224
 STA 2
-LDA #0
+LDA #1
 STA 3
 LDA 3
 PHA
 LDA 2
 PHA
-LDA #13
-STA 2
 LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR vid_insert_color_to_cram
-mainp:
-;	 Call
-LDA #4
 STA 2
 LDA #0
 STA 3
@@ -365,11 +615,6 @@ PHA
 LDA 2
 PHA
 JSR is_key_pressed
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
 JMP mainp
 ;	Ram[2] = 0
 LDA #0
@@ -1204,86 +1449,6 @@ STA $100,X
 LDA 0
 CLC
 ADC #19
-TAX
-LDA $100,X
-STA 2
-LDA #0
-STA 3
-;	*add = Ram[2]
-;	Ram[4] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	Return
-;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
-LDA 0
-TAX
-LDA $100, X
-STA 6
-;	SP=Ram[0](FBP)
-LDA 0
-TAX
-TXS
-;	FBP = Ram[6]
-LDA 6
-STA 0
-rts
-;	 Function: vid_insert_color_to_cram
-vid_insert_color_to_cram:
-TSX
-LDA 0
-PHA
-TXA
-STA 0
-LDA #0
-PHA
-PHA
-;	Ram[2] = vid_color_ram
-LDA 30
-STA 2
-LDA 31
-STA 3
-;	Ram[4] = offset
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-;	add = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = line1
-LDA 0
-CLC
-ADC #5
 TAX
 LDA $100,X
 STA 2
@@ -2228,9 +2393,14 @@ LDA 3
 PHA
 LDA 2
 PHA
-LDA #10
+LDA 0
+CLC
+ADC #7
+TAX
+LDA $100,X
 STA 2
-LDA #0
+INX
+LDA $100,X
 STA 3
 LDA 3
 PHA
