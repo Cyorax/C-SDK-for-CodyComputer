@@ -1,16 +1,25 @@
-int main ()
-{
+int main (){
+
   int D.1954;
+  short int* add;
   vid_set_border_color(3);
   vid_set_character_ram_address(0);
   vid_insert_character_to_chram(0,20,65,65,65,65,65,20,0);
   vid_insert_character_to_chram(1,20,4,4,4,4,4,21,0);
-  vid_insert_color_to_cram(10,48);
-  vid_insert_color_to_cram(11,48);
-  vid_insert_color_to_cram(12,48);
-  vid_insert_color_to_cram(13,48);
   <p>:
-  _1 = is_key_pressed(0,4);
+	is_key_pressed(1,0,0);
+	is_key_pressed(2,0,40);
+	is_key_pressed(3,0,80);
+	is_key_pressed(4,0,120);
+	is_key_pressed(5,0,160);
+	is_key_pressed(6,0,200);
+	is_key_pressed(7,0,240);
+	is_key_pressed(8,0,280);
+	is_key_pressed(9,0,320);
+	is_key_pressed(10,0,360);
+	is_key_pressed(11,0,400);
+	is_key_pressed(12,0,440);
+	is_key_pressed(0,0,480);
   goto <p>;
   
   D.1954 = 0;

@@ -1,5 +1,6 @@
 import unittest
-from Frontend import GimpleParser, GimpleTokenizer
+from middleend import GimpleParser
+from middleend import GimpleTokenizer
 from Backend import Optimizer
 
 

@@ -1,4 +1,4 @@
-from Frontend.GimpleParser import Gimple
+from middleend.GimpleParser import Gimple
 
 ##Speichermedien
 # globalsmap map: ident -> (offset static, type, initvalue)
@@ -34,7 +34,7 @@ from Frontend.GimpleParser import Gimple
 #3 Operandenregister 1 Unteres Byte
 #4 Operandenregister 2 O. Byte
 #5 Operandenregister 2 U. Byte
-#6 zwischenspeicher für Return 
+#6 zwischenspeicher für Return (nicht Return Ergebnis)
 #7 Beliebig
 #8 ISPTR
 #9 ISPTR
@@ -42,6 +42,7 @@ from Frontend.GimpleParser import Gimple
 # $10-$FF ist Static
 # $100-$1FF ist Stack
 # $200-$2FF ist Temp
+
 # $300-$A00 ist Heap
 
 

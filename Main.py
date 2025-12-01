@@ -1,11 +1,28 @@
-from Frontend.GimpleTokenizer import Tokenizer
-from Frontend.GimpleParser import Gimple
+# from Frontend.CTokenizer import Tokenizer
+# from sys import argv
+# from Frontend.CParser import CParser
+#
+# outputname = argv[1]
+# f = open(argv[2], "r")
+# lines = "" 
+# lc = 1;
+# #defines und imports hier verarbeiten
+# for  line in f:
+#     lines += "."+str(lc)+" "+line.split("//")[0]
+#     lc += 1
+# tok = Tokenizer(lines)
+# print(tok.get_tokens())
+# cpar = CParser(tok)
+# print(cpar.generate_gimple())
+
+
+from middleend.GimpleTokenizer import Tokenizer
+from middleend.GimpleParser import Gimple
 from Backend.Codegen import CodeGenerator
 from Backend.Optimizer import Optimizer
 from sys import argv
 
 # aufruf make outputfilename input1.c input2.c ...
-
 outputname = argv[1]
 f = open(argv[2], "r")
 lines = ""
@@ -14,9 +31,9 @@ for  line in f:
 tok = Tokenizer(lines)
 print(tok.get_tokens())
 gim = Gimple(tok)
-#Mathe lib immer hinzufügen für mal und geteilt usw.
+# Mathe lib immer hinzufügen für mal und geteilt usw.
 argv.append("lib/Math.gimple")
-for i in range(3,len(argv)):
+for i in range(3, len(argv)):
     f = open(argv[i], "r")
     lines = ""
     for  line in f:
@@ -24,7 +41,7 @@ for i in range(3,len(argv)):
     toke = Tokenizer(lines)
     gimple = Gimple(toke)
     gim.merge(gimple)
-    
+
 opt = Optimizer(gim)
 gim.dump_gimple()
 c = CodeGenerator(gim)

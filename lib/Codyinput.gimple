@@ -1,8 +1,8 @@
-short int is_key_pressed(int row,int id) {
+short int is_key_pressed(int row,int id,int screenoffset) {
 short int* add;
 add = 40705 + row;
 _1 = *add ^ 255;
-printnum(10,_1);
+printnum(screenoffset,_1);
 _1 = _1 & id;
 return _1;
 }

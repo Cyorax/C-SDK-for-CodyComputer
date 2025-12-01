@@ -189,7 +189,8 @@ class Gimple():
         if(type == "short"):
             self.tok.eat("int")
         if(self.tok.next()=="*"):
-            self.tok.advance()
+            while(self.tok.next()=="*"):
+                self.tok.advance()
             type = "pointer" if self.datatypes[type] == 2 else "pointer onebyte"
         ident =self.tok.consume_cur()
         return type, ident 

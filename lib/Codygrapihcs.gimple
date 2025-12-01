@@ -131,6 +131,22 @@ add = vid_color_ram + offset;
 *add = line1;
 }
 
+//4*8 für jeden Tile also 32 pixel in 4 byte sprich 
+void vid_set_bitmapped_pixel_x_y(int x,int y,short int color){
+short int* add;
+add = vid_screen_ram + offset;
+
+}
+
+
+
+
+
+
+
+
+
+
 //0 und 1 tiles in Codybasic suchen und abändern
 void printnum(int loc,int num){
 short int stelle0;

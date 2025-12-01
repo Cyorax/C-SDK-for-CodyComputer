@@ -1,5 +1,5 @@
 import unittest
-from Frontend import GimpleTokenizer
+from middleend import GimpleTokenizer
 
 
 class TestGimple(unittest.TestCase):

@@ -1,4 +1,5 @@
-from Frontend.GimpleParser import Gimple
+from middleend.GimpleParser import Gimple
+
 class Optimizer():
     def __init__(self,gimple):
         self.parser =gimple

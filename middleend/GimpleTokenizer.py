@@ -32,7 +32,7 @@ class Tokenizer:
         if self.next() == token:
             self.advance()
             return 
-        print(f"Expected {token} got {self.next()} in function {self.curmethod}")
+        raise Exception(f"Expected {token} got {self.next()} in function {self.curmethod}")
     
     def next(self, nex = 0): 
         return "EOF" if self.cur+nex >= len(self.tokenlist) else self.tokenlist[self.cur+nex]
