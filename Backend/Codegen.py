@@ -183,10 +183,10 @@ class CodeGenerator():
     def compile_assignret(self,instr):
         self.finalcode += [";\t" + instr[1] + " = Ram[2]"] + self.write2(instr[1])
         
-    #if op op1 op2 l1 l2 -> assign2(op1) assign4(op2) op interpret2(l1,l2)
+    #if op l1 l2 -> assign2(op1) assign4(op2) op interpret2(l1,l2)
     def compile_if(self,instr):
         self.counter += 1
-        self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[2]) + [";\tRam[4] = " + instr[3]] + self.assign4(instr[3]) + self.compile_operator(instr[1]) + ["LDA 2","BNE NOT"+str(self.counter),"JMP "+self.curfunc["Name"]+instr[4],"NOT"+str(self.counter)+":","JMP "+self.curfunc["Name"]+instr[5]]
+        self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[1]) + ["LDA 2","BNE NOT"+str(self.counter),"JMP "+self.curfunc["Name"]+instr[2],"NOT"+str(self.counter)+":","JMP "+self.curfunc["Name"]+instr[3]]
     
     #gimple erzeugt kein sub immer + - oder + und dann zahl die Negativ ist
     def compile_operator(self,operation):

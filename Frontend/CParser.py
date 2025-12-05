@@ -381,12 +381,16 @@ class CParser:
         self.add_to_expression_code(f"{name}({', '.join(args)});")
 
     def parse_global_init(self,type,ident):
+        if(type == "void"):
+            print("global variable can't be of type void")
         self.tok.advance()
         int = self.parse_int()
         self.tok.eat(";")
         self.globals.append(f"{type} {ident} = {int};")
         
     def parse_global_dec(self,type,ident):
+        if(type == "void"):
+            print("global variable can't be of type void")
         self.tok.advance()
         self.globals.append(f"{type} {ident};")
         

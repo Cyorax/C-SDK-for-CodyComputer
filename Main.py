@@ -1,18 +1,20 @@
+#todos in files der priorität nach
+
+#todos codegen:
+# compile if , Operatoren fixen (||,&&,>=,>,>>,<<)
+
 #todos CParser:
 #Typechecking
 # else for 
-
-#todos Preprozessor:
-# makros
-
-#todos codegen:
-# compile if , Operatoren fixen (||,&&,>=,>) 
 
 #todos CTokenizer:
 # multiline commands
 
 #todos libs:
 # codygrapics bitmapped, sprites, scrolling, codykeyboard
+
+#todos Preprozessor:
+# makros
 
 from Frontend import CTokenizer
 from Frontend import Preprozessor

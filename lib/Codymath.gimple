@@ -1,0 +1,62 @@
+int abs(int i)
+{
+  _1 = i < 0;
+  if _1 goto <neg>;else goto <pos>;
+	<neg>:
+	  return -i;
+	<pos>:
+	  return i;
+}
+//wird später noch verändert
+int mult (int i, int j)
+{
+  int jj;
+  int erg;
+  jj = abs(j);
+  erg = 0;
+  goto <W1>;
+  <W2>:
+  erg = erg + i;
+  jj = jj + -1;
+  <W1>:
+  _1 = jj != 0;
+  if _1 goto <W2>; else goto <W0>;
+  <W0>:
+  _1 = j < 0;
+  if _1 goto <W4>; else goto <W5>;
+  <W4>:
+  return -erg;
+  <W5>:
+  return erg;
+}
+
+int mod(int i, int j){
+	
+
+}
+
+int div(int i, int j){
+
+}
+int leftshift(int i, int j){
+  goto <W1>;
+  <W2>:
+  i = i ASL 0;
+  j = j + -1;
+  <W1>:
+  _1 = j != 0;
+  if _1 goto <W2>; else goto <W0>;
+  <W0>:
+  return i;
+}
+int rightshift(int i, int j){
+  goto <W1>;
+  <W2>:
+  i = i ASR 0;
+  j = j + -1;
+  <W1>:
+  _1 = j != 0;
+  if _1 goto <W2>; else goto <W0>;
+  <W0>:
+  return i;
+}
