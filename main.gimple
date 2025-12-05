@@ -1,7 +1,11 @@
+int a;
+
 int main (){
 
   int D.1954;
-  short int* add;
+  short* add;
+  add = 100;
+  *add = 100;
   vid_set_border_color(3);
   vid_set_character_ram_address(0);
   vid_insert_character_to_chram(0,20,65,65,65,65,65,20,0);

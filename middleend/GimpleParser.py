@@ -134,7 +134,7 @@ class Gimple():
         
         if self.tok.next() == "if":
             self.tok.eat("if") # skip if
-            op,op1,op2 = self.parse_condition()
+            op = self.parse_operand()
             self.tok.eat("goto") # skip goto
             label = self.parse_label()
             self.tok.eat(";")
@@ -143,11 +143,7 @@ class Gimple():
                 self.tok.eat("goto") # skip goto
                 label += " "+self.parse_label()
                 self.tok.eat(";") # skip ;
-            #Schummeln für vergleiche
-            if("gt" not in op):
-                self.addInstruktion("if"+" "+op+" "+op1+" "+op2+" "+label) 
-            else:
-                self.addInstruktion("if"+" "+op+" "+op2+" "+op1+" "+label) 
+            self.addInstruktion("if "+ op +" "+label) 
             return True
         
         elif self.tok.next() == "goto":  
@@ -186,8 +182,6 @@ class Gimple():
 
     def parse_type(self):
         type = self.tok.consume_cur()
-        if(type == "short"):
-            self.tok.eat("int")
         if(self.tok.next()=="*"):
             while(self.tok.next()=="*"):
                 self.tok.advance()
@@ -257,18 +251,10 @@ class Gimple():
         self.calledfuncs += [ident]
         return ident, args
         
-    #mit klammern
-    def parse_condition(self):
-        self.tok.eat("(")
-        op1 = self.parse_operand()
-        operation = self.parse_opertation()
-        op2 = self.parse_operand()
-        self.tok.eat(")")
-        return operation,op1,op2
         
     def parse_opertation(self):
         op = self.tok.consume_cur()
-        if(self.tok.next()== "=" or self.tok.next() == "<" or self.tok.next() == ">"):
+        if(self.tok.next() in ["=","|","&","<",">"]):
             op += self.tok.consume_cur()
         match op:
             case "==":
@@ -297,6 +283,10 @@ class Gimple():
                 return "bitand"
             case "|":
                 return "bitor"
+            case "&&":
+                return "and"
+            case "||":
+                return "or"
             case "^":
                 return "xor"
             case "%":

@@ -205,6 +205,12 @@ class CodeGenerator():
             
             case "xor":
                 return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","STA 3"]
+            
+            case "or":
+                return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","STA 3"]
+            
+            case "and":
+                return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","STA 3"]
             #shifts nur für 8 bit short ints 
             case "ASL": 
                 self.counter += 1
@@ -257,7 +263,7 @@ class CodeGenerator():
         return self.assign2(ident) + ["LDA 3","PHA","LDA 2","PHA"]
             
     def assign2(self,ident):
-        if(ident[0]=="-"):
+        if(ident[0]=="-" or ident[0]=="!"):
             return self.assign2(ident[1:]) + ["LDA 2","EOR #$FF","CLC","ADC #1","STA 2","LDA 3","EOR #$FF","ADC #0","STA 3"]
         elif(ident[0]=="_"):
             return ["LDA $2"+str(int(ident[1:])*2).zfill(2),"STA 2","LDA $2"+str(int(ident[1:])*2 + 1).zfill(2),"STA 3"]

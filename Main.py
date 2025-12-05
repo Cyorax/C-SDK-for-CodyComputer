@@ -1,48 +1,71 @@
-# from Frontend.CTokenizer import Tokenizer
-# from sys import argv
-# from Frontend.CParser import CParser
-#
-# outputname = argv[1]
-# f = open(argv[2], "r")
-# lines = "" 
-# lc = 1;
-# #defines und imports hier verarbeiten
-# for  line in f:
-#     lines += "."+str(lc)+" "+line.split("//")[0]
-#     lc += 1
-# tok = Tokenizer(lines)
-# print(tok.get_tokens())
-# cpar = CParser(tok)
-# print(cpar.generate_gimple())
+#todos CParser:
+#Typechecking
+# else for 
 
+#todos Preprozessor:
+# makros
 
-from middleend.GimpleTokenizer import Tokenizer
-from middleend.GimpleParser import Gimple
-from Backend.Codegen import CodeGenerator
-from Backend.Optimizer import Optimizer
+#todos codegen:
+# compile if , Operatoren fixen (||,&&,>=,>) 
+
+#todos CTokenizer:
+# multiline commands
+
+#todos libs:
+# codygrapics bitmapped, sprites, scrolling, codykeyboard
+
+from Frontend import CTokenizer
+from Frontend import Preprozessor
 from sys import argv
+from Frontend import CParser
+from middleend import GimpleTokenizer
+from middleend import GimpleParser
+from Backend import Optimizer
+from Backend.Codegen import CodeGenerator
 
-# aufruf make outputfilename input1.c input2.c ...
-outputname = argv[1]
-f = open(argv[2], "r")
-lines = ""
-for  line in f:
-    lines += line.split("//")[0]
-tok = Tokenizer(lines)
-print(tok.get_tokens())
-gim = Gimple(tok)
-# Mathe lib immer hinzufügen für mal und geteilt usw.
-argv.append("lib/Math.gimple")
-for i in range(3, len(argv)):
-    f = open(argv[i], "r")
-    lines = ""
+#Verwendung python main.py -op1 -op2 outputname cfile1 cfile2 ...
+
+if(len(argv) == 0):
+    print("false usage")
+    exit(0)
+
+options = []
+opt_pntr = 1
+while(argv[opt_pntr].startswith("-")):
+    options.append(argv[opt_pntr])
+    opt_pntr += 1
+
+outputname = argv[opt_pntr]
+syslibs = []
+tok = CTokenizer.Tokenizer(argv[opt_pntr+1])
+opt_pntr += 2
+pre = Preprozessor.Preprozessor(tok)
+cpar = CParser.CParser(tok)
+syslibs += pre.get_syslibs()
+gimptok = GimpleTokenizer.Tokenizer(" ".join(cpar.generate_gimple()))
+gim = GimpleParser.Gimple(gimptok)
+
+while(opt_pntr < len(argv)):
+    tok1 = CTokenizer.Tokenizer(argv[opt_pntr])
+    opt_pntr += 1
+    pre1 = Preprozessor.Preprozessor(tok1)
+    cpar1 = CParser.CParser(tok1)
+    syslibs += pre1.get_syslibs()
+    gimptok1 = GimpleTokenizer.Tokenizer(" ".join(cpar1.generate_gimple()))
+    gim1 = GimpleParser.Gimple(gimptok1)
+    gim.merge(gim1)
+    
+syslibs = set(syslibs)
+for lib in syslibs:
+    f = open("lib/"+lib.replace(".h",".gimple"), "r")
+    lines = "" 
     for  line in f:
         lines += line.split("//")[0]
-    toke = Tokenizer(lines)
-    gimple = Gimple(toke)
-    gim.merge(gimple)
-
-opt = Optimizer(gim)
+    gimptok2 = GimpleTokenizer.Tokenizer(lines)
+    gim2 = GimpleParser.Gimple(gimptok2)
+    gim.merge(gim2)
+    
+opt = Optimizer.Optimizer(gim);
 gim.dump_gimple()
 c = CodeGenerator(gim)
 c.print_final_code(outputname)

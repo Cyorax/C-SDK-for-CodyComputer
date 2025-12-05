@@ -1,17 +1,32 @@
 class Tokenizer:
 
-    def __init__(self, tokenstring):
-        self.tokenlist = self.tokenize(tokenstring)
+    def __init__(self, filepath):
+        f = open(filepath, "r")
+        lines = "" 
+        lc = 1;
+        for  line in f:
+            lines += "."+str(lc)+" "+line.split("//")[0]
+            lc += 1
+        self.tokenlist = self.tokenize(lines)
         self.cur = 0
         self.linecounter = 0
-        self.eof_counter = 0;
         self.curmethod = ""
+        self.doubles = ["==", "!=", "<=", ">=", "<<", ">>", "&&", "||"]
         
     def get_pointer(self):
         return self.cur
     
     def set_pointer(self,value):
         self.cur = value
+        
+    def drop_line(self,line):
+        index = self.tokenlist.index("."+str(line)) + 1
+        while(not self.tokenlist[index].startswith(".")):
+            self.tokenlist.pop(index)
+    
+    def append_toline(self,line,code):
+        index = self.tokenlist.index("."+str(line+1))
+        self.tokenlist.insert(index,code)
     
     def advance(self):
         while(self.cur < len(self.tokenlist) and self.tokenlist[self.cur][0]=="."):
@@ -19,9 +34,14 @@ class Tokenizer:
             self.cur += 1
         self.cur += 1
         
+    def get_line(self):
+        return self.linecounter
+        
     def consume_cur(self):
         n = self.next()
         self.advance()
+        if(n in self.doubles):
+            self.advance()
         return n
     
     def get_next_tok_num(self):
@@ -39,8 +59,14 @@ class Tokenizer:
             self.advance()
             return 
         print(f"Expected {token} got {a} in line {self.linecounter}")
+        
+    def next(self,nex = 0):
+        if(str(self.nex(nex) + self.nex(nex+1)) in self.doubles):
+            return str(self.nex(nex) + self.nex(nex+1))
+        else:
+            return str(self.nex(nex))
     
-    def next(self, nex=0):
+    def nex(self, nex = 0):
         i = self.cur
         while i < len(self.tokenlist) and self.tokenlist[i].startswith("."):
             self.linecounter = int(self.tokenlist[i][1:])
@@ -55,8 +81,6 @@ class Tokenizer:
         if i >= len(self.tokenlist):
             return "EOF"
         return self.tokenlist[i]
-
-        
         
     def tokenize(self, tokenstring: str):
         SYMBOLS = ["#","+", "-", "*", "/", "=", ";", "{", "}", "(", ")", ",","<",">"]
@@ -65,3 +89,13 @@ class Tokenizer:
             s = s.replace(sym, f" {sym} ")
         tokens = s.split()
         return tokens
+    
+    def is_ident(self,ident):
+        return ident.lower()[0] in "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z".split(",")
+    
+    def is_number(self,ident):
+        return all(ch in "0,1,2,3,4,5,6,7,8,9".split(",") for ch in ident)
+    
+    def is_character(self,ident):
+        return ident[0] == "'" and ident[-1] == "'"
+        
