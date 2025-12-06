@@ -3,7 +3,7 @@ from middleend.GimpleParser import Gimple
 ##Speichermedien
 # globalsmap map: ident -> (offset static, type, initvalue)
 # functions list: function
-# function map: {Name, lclmaxoffset, Rettype, localtab , instructions}
+# function map: {Name, lclmaxoffset, localtab , instructions}
 # locals map: ident -> (type ,size, offset, location) 
 # location string-> {argstack, lclstack}
 # instructions list: instruction
@@ -191,26 +191,22 @@ class CodeGenerator():
     #gimple erzeugt kein sub immer + - oder + und dann zahl die Negativ ist
     def compile_operator(self,operation):
         match operation:
+            # 2 Byte -> 2 Byte
             case "add":
                 return ["LDA 2","CLC","ADC 4","STA 2","LDA 3","ADC 5","STA 3"]
-        
+            # 2 Byte -> 2 Byte
             case "sub":
                 return ["LDA 4","EOR #$FF","CLC","ADC #1","STA 4","LDA 5","EOR #$FF","ADC #0","STA 5"]+self.compile_operator("add")
-
+            # 2 Byte -> 2 Byte
             case "bitand":
                 return ["LDA 2","AND 4","STA 2","LDA 3","AND 5","STA 3"]
-            
+            # 2 Byte -> 2 Byte            
             case "bitor": 
                 return ["LDA 2","ORA 4","STA 2","LDA 3","ORA 5","STA 3"]
-            
+            # 2 Byte -> 2 Byte            
             case "xor":
                 return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","STA 3"]
             
-            case "or":
-                return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","STA 3"]
-            
-            case "and":
-                return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","STA 3"]
             #shifts nur für 8 bit short ints 
             case "ASL": 
                 self.counter += 1

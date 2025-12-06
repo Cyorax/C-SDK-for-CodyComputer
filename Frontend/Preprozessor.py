@@ -8,6 +8,7 @@ class Preprozessor:
         self.systemslibs = ["Codymath.h"]
         while(tok.next()=="#"):
             self.expand_includes()
+            tok.set_pointer_next_line(tok.get_line())
         tok.set_pointer(0)# das hier hat mich eine Stunde debuggen gekostet um zu verstehen, dass ich den pointer veränder und das gleiche Objekt in der Main weitergebe
         
     def get_syslibs(self):

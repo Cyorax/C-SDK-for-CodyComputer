@@ -58,12 +58,11 @@ class Gimple():
         while(self.parse_function()):
             if(self.instructions ==[] or "return" not in self.instructions[-1]):
                 self.instructions.append("return")
-            self.functions.append({"Name":self.funcname,"calledfuncs":self.calledfuncs,"lclmaxoffset":self.lcloffsetcount,"rettype":self.rettype,"locals":self.localtab,"Instructions":self.instructions})
+            self.functions.append({"Name":self.funcname,"calledfuncs":self.calledfuncs,"lclmaxoffset":self.lcloffsetcount,"locals":self.localtab,"Instructions":self.instructions})
             
     def parse_function(self):
         self.localtab = {}
         self.funcname = None
-        self.rettype = None
         self.argoffsetcount = 0
         self.lcloffsetcount = 0
         self.calledfuncs = []
@@ -81,9 +80,8 @@ class Gimple():
     def parse_functionheadder(self):
         n = self.tok.next()
         if n != "EOF":
-            rettype, funcname = self.parse_type()
+            _, funcname = self.parse_type()
             
-            self.rettype = rettype
             self.funcname = funcname
             self.tok.curmethod = funcname
             

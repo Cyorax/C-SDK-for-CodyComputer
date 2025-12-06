@@ -87,7 +87,7 @@ class CParser:
                 expr = self.parse_expression()
                 labeltrue = self.create_label()
                 labelfalse = self.create_label()
-                self.add_to_expression_code(f"if {expr} goto {labeltrue}; else goto {labelfalse}")
+                self.add_to_expression_code(f"if {expr} goto {labeltrue}; else goto {labelfalse};")
                 self.add_to_expression_code(f"{labeltrue}:")
                 self.tok.eat(")")
                 if(self.tok.next() == "{"):
@@ -124,7 +124,6 @@ class CParser:
                     self.add_to_expression_code(f"goto {labelwhilecondition};")
                     self.add_to_expression_code(labelwhilefalse+":")
                  
-            
             case "return":
                 self.tok.eat("return")
                 if(self.tok.next() == ";"):
@@ -181,10 +180,18 @@ class CParser:
     def add_to_expression_code(self, code):
         self.instructions.append(code)
         
-    #operatoren liste :
-    # &&,&,||,|,<=,>=,<,>,==,!=,^,+,-,/,*,%,>>,<< und bindet stärker als oder und dazwischen ist xor
-    #unär: 
-    # - ! 
+    #short circuting ablauf oder:
+    # links auswerten
+    # if links goto <True>;else goto <Rechts>;
+    # <Rechts>:
+    #rechts auswerten
+    # if rechts goto <True>; else goto <false>;
+    # <True>:
+    # result = 0;
+    # goto <end>;
+    # <False>:
+    # result = -1;
+    # <end>:
     
     def parse_or(self):
         left = self.parse_and()
@@ -193,6 +200,7 @@ class CParser:
     def parse_or_strich(self, left):
         if self.tok.next() != "||":
             return left
+        self.tok.advance()
         self.tok.advance()
         right = self.parse_and()
         t = self.generate_temp()
@@ -206,6 +214,7 @@ class CParser:
     def parse_and_strich(self, left):
         if self.tok.next() != "&&":
             return left
+        self.tok.advance()
         self.tok.advance()
         right = self.parse_bw_or()
         t = self.generate_temp()
@@ -321,7 +330,10 @@ class CParser:
             tok = self.tok.consume_cur()
             val = self.parse_unary()
             t = self.generate_temp()
-            self.add_to_expression_code(f"{t} = {tok} {val};")
+            if(tok == "!"):
+                self.add_to_expression_code(f"{t} = {val} == 0;")
+            else:  
+                self.add_to_expression_code(f"{t} = {tok} {val};")
             return t
         return self.parse_highest()
 

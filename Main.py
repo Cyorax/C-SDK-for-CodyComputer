@@ -1,17 +1,19 @@
 #todos in files der priorität nach
 
 #todos codegen:
-# compile if , Operatoren fixen (||,&&,>=,>,>>,<<)
+# Operatoren fixen (||,&&,>=,>,>>,<<) & als adressengetter 
 
 #todos CParser:
-#Typechecking
-# else for 
+# else for und dec von mehrereren Variablen
 
 #todos CTokenizer:
 # multiline commands
 
 #todos libs:
-# codygrapics bitmapped, sprites, scrolling, codykeyboard
+# codygrapics bitmapped, sprites, scrolling, codykeyboard, Sound (in der Uni testen)
+
+#todos CParser:
+#Typechecking
 
 #todos Preprozessor:
 # makros
@@ -42,6 +44,7 @@ syslibs = []
 tok = CTokenizer.Tokenizer(argv[opt_pntr+1])
 opt_pntr += 2
 pre = Preprozessor.Preprozessor(tok)
+tok.print_tokens()
 cpar = CParser.CParser(tok)
 syslibs += pre.get_syslibs()
 gimptok = GimpleTokenizer.Tokenizer(" ".join(cpar.generate_gimple()))

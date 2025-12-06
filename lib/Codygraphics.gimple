@@ -1,17 +1,17 @@
-short int* vid_blanking_register = 53248;
-short int* vid_controll_register = 53249;
-short int* vid_color_register = 53250;
-short int* vid_base_register = 53251;
-short int* vid_scroll_register = 53252;
-short int* vid_scolor_register = 53253;
-short int* vid_sprite_register = 53254;
-short int* vid_shared_colors_register = 53254;
+short* vid_blanking_register = 53248;
+short* vid_controll_register = 53249;
+short* vid_color_register = 53250;
+short* vid_base_register = 53251;
+short* vid_scroll_register = 53252;
+short* vid_scolor_register = 53253;
+short* vid_sprite_register = 53254;
+short* vid_shared_colors_register = 53254;
 
 // defaultwerte für Adressbereiche 
 // default Adresse von character_ram ist wahrscheinlich immernoch falsch 
-short int* vid_character_ram = 57344;			// 2k 8 Pages mit zwei Bit pro Pixel für alle vier anzeigbaren Farben 8 Byte lang ein Byte eine Zeile im Tile 
-short int* vid_screen_ram = 50176;				// 40 * 25 bytes sprich 1k 4 Pages für je ein Tile pro byte mit zwei Bit pro pixel 00 ist vrdgrund 01 hntrgrund 10 ist die Farbe aus D005 genauso wie 11
-short int* vid_color_ram = 55296;				// 40 * 25 bytes sprich 1k 4 Pages für je ein Tile pro byte high nibble Vordergrund low nibble Hintergrund
+short* vid_character_ram = 57344;			// 2k 8 Pages mit zwei Bit pro Pixel für alle vier anzeigbaren Farben 8 Byte lang ein Byte eine Zeile im Tile 
+short* vid_screen_ram = 50176;				// 40 * 25 bytes sprich 1k 4 Pages für je ein Tile pro byte mit zwei Bit pro pixel 00 ist vrdgrund 01 hntrgrund 10 ist die Farbe aus D005 genauso wie 11
+short* vid_color_ram = 55296;				// 40 * 25 bytes sprich 1k 4 Pages für je ein Tile pro byte high nibble Vordergrund low nibble Hintergrund
 
 void vid_toggle_screen_output(){
 *vid_controll_register = *vid_controll_register ^ 1;
@@ -31,40 +31,40 @@ void vid_toggle_bitmap_mode(){
 
 //returns value != 0 if not blanked
 
-short int vid_blanking(){
+short vid_blanking(){
 return *vid_blanking_register;
 }
 // returns value != 0 if enabled
-short int vid_screen_enabled_value(){
+short vid_screen_enabled_value(){
 return *vid_controll_register & 1;
 }
-short int vid_vscroll_enabled_value(){
+short vid_vscroll_enabled_value(){
 return *vid_controll_register & 2;
 }
-short int vid_hscroll_enabled_value(){
+short vid_hscroll_enabled_value(){
 return *vid_controll_register & 4;
 }
-short int vid_row_effect_enabled_value(){
+short vid_row_effect_enabled_value(){
 return *vid_controll_register & 8;
 }
-short int vid_bitmap_mode_enabled_value(){
+short vid_bitmap_mode_enabled_value(){
 return *vid_controll_register & 16;
 }
 // D002 Color Register 53250
 
-short int vid_get_border_color(){
+short vid_get_border_color(){
 return *vid_color_register & 15;
 }
 
-void vid_set_border_color(short int color){
+void vid_set_border_color(short color){
 *vid_color_register = *vid_color_register & 240;
 *vid_color_register = *vid_color_register | color;
 }
 
-void vid_set_color2(short int color){
+void vid_set_color2(short color){
 
 }
-void vid_set_color3(short int color){
+void vid_set_color3(short color){
 
 }
 
@@ -99,13 +99,13 @@ vid_character_ram = base;
 
 
 void vid_place_character_to_screen(int loc,int character) {
-short int* loco;
+short* loco;
 loco = vid_screen_ram + loc;
 *loco = character;
 }
 
-void vid_insert_character_to_chram(int offset,short int line1,short int line2,short int line3,short int line4,short int line5,short int line6,short int line7,short int line8) {
-short int* add;
+void vid_insert_character_to_chram(int offset,short line1,short line2,short line3,short line4,short line5,short line6,short line7,short line8) {
+short* add;
 _1 = 8 * offset;
 add = vid_character_ram + _1;
 *add = line1;
@@ -125,15 +125,15 @@ add = add + 1;
 *add = line8;
 }
 
-void vid_insert_color_to_cram(int offset,short int line1) {
-short int* add;
+void vid_insert_color_to_cram(int offset,short line1) {
+short* add;
 add = vid_color_ram + offset;
 *add = line1;
 }
 
 //4*8 für jeden Tile also 32 pixel in 4 byte sprich 
-void vid_set_bitmapped_pixel_x_y(int x,int y,short int color){
-short int* add;
+void vid_set_bitmapped_pixel_x_y(int x,int y,short color){
+short* add;
 add = vid_screen_ram + offset;
 
 }
@@ -149,14 +149,14 @@ add = vid_screen_ram + offset;
 
 //0 und 1 tiles in Codybasic suchen und abändern
 void printnum(int loc,int num){
-short int stelle0;
-short int stelle1;
-short int stelle2;
-short int stelle3;
-short int stelle4;
-short int stelle5;
-short int stelle6;
-short int stelle7;
+short stelle0;
+short stelle1;
+short stelle2;
+short stelle3;
+short stelle4;
+short stelle5;
+short stelle6;
+short stelle7;
 
 stelle0 = num & 1;
 _1 = loc + 7;

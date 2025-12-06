@@ -1,6 +1,7 @@
 class Tokenizer:
 
     def __init__(self, filepath):
+        self.file = filepath.split("/")[-1]
         f = open(filepath, "r")
         lines = "" 
         lc = 1;
@@ -27,6 +28,10 @@ class Tokenizer:
     def append_toline(self,line,code):
         index = self.tokenlist.index("."+str(line+1))
         self.tokenlist.insert(index,code)
+        
+    def set_pointer_next_line(self,line):
+        index = self.tokenlist.index("."+str(line+1))
+        self.set_pointer(index)
     
     def advance(self):
         while(self.cur < len(self.tokenlist) and self.tokenlist[self.cur][0]=="."):
@@ -58,15 +63,20 @@ class Tokenizer:
         if a == token:
             self.advance()
             return 
-        print(f"Expected {token} got {a} in line {self.linecounter}")
+        print(f"Expected {token} got {a} in line {self.linecounter} in file {self.file}")
         
     def next(self,nex = 0):
         if(str(self.nex(nex) + self.nex(nex+1)) in self.doubles):
             return str(self.nex(nex) + self.nex(nex+1))
         else:
             return str(self.nex(nex))
-    
-    def nex(self, nex = 0):
+    def print_tokens(self):
+        i = 0
+        while(i < len(self.tokenlist)):
+                i += 1
+                print(self.next(i))
+        
+    def nex(self, nex):
         i = self.cur
         while i < len(self.tokenlist) and self.tokenlist[i].startswith("."):
             self.linecounter = int(self.tokenlist[i][1:])
@@ -83,7 +93,7 @@ class Tokenizer:
         return self.tokenlist[i]
         
     def tokenize(self, tokenstring: str):
-        SYMBOLS = ["#","+", "-", "*", "/", "=", ";", "{", "}", "(", ")", ",","<",">"]
+        SYMBOLS = ["#","+", "-", "*", "/", "=", ";", "{", "}", "(", ")", ",","<",">","!","|","&"]
         s = tokenstring.replace("\n", " ").replace("\t", " ")
         for sym in SYMBOLS:
             s = s.replace(sym, f" {sym} ")
