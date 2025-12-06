@@ -4,6 +4,7 @@
 # int 16 Bit -32768 bis 32767
 # short 8 Bit 0 bis 255
 # pointer 16 Bit 64k
+# "boolean" 1 und 0
 
 class Gimple():
     

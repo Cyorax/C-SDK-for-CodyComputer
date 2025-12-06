@@ -44,7 +44,6 @@ syslibs = []
 tok = CTokenizer.Tokenizer(argv[opt_pntr+1])
 opt_pntr += 2
 pre = Preprozessor.Preprozessor(tok)
-tok.print_tokens()
 cpar = CParser.CParser(tok)
 syslibs += pre.get_syslibs()
 gimptok = GimpleTokenizer.Tokenizer(" ".join(cpar.generate_gimple()))

@@ -183,10 +183,10 @@ class CodeGenerator():
     def compile_assignret(self,instr):
         self.finalcode += [";\t" + instr[1] + " = Ram[2]"] + self.write2(instr[1])
         
-    #if op l1 l2 -> assign2(op1) assign4(op2) op interpret2(l1,l2)
+    #if op l1 l2 -> assign2(op) interpret2(l1,l2)
     def compile_if(self,instr):
         self.counter += 1
-        self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[1]) + ["LDA 2","BNE NOT"+str(self.counter),"JMP "+self.curfunc["Name"]+instr[2],"NOT"+str(self.counter)+":","JMP "+self.curfunc["Name"]+instr[3]]
+        self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[1]) + ["LDA 2","BNE " + self.curfunc["Name"]+instr[2]] + (["JMP "+self.curfunc["Name"]+instr[3]] if len(instr)==4 else [])
     
     #gimple erzeugt kein sub immer + - oder + und dann zahl die Negativ ist
     def compile_operator(self,operation):
@@ -218,7 +218,7 @@ class CodeGenerator():
             
             case "eq":
                 self.counter += 1
-                return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","ORA 2","STA 2","BEQ TRUE"+str(self.counter),"LDA #$FF","STA 2","TRUE"+str(self.counter)+":"]
+                return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","ORA 2","STA 2","BEQ TRUE"+str(self.counter),"LDA #$1","STA 2","TRUE"+str(self.counter)+":"]
             
             case "neq":
                 return self.compile_operator("eq") + ["LDA #$FF","EOR 2","STA 2"]

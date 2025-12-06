@@ -190,7 +190,7 @@ class CParser:
     # result = 0;
     # goto <end>;
     # <False>:
-    # result = -1;
+    # result = -1; (alles umgeändert zu 1) 
     # <end>:
     
     def parse_or(self):
@@ -202,10 +202,39 @@ class CParser:
             return left
         self.tok.advance()
         self.tok.advance()
+        temp = self.generate_temp()
+        result = self.generate_temp()
+        truelabel = self.create_label()
+        secondlabel = self.create_label()
+        falselabel = self.create_label()
+        endlabel = self.create_label()
+        self.add_to_expression_code(f"{temp} = {left};")
+        self.add_to_expression_code(f"if {temp} goto {truelabel}; else goto {secondlabel};")
+        self.add_to_expression_code(f"{secondlabel}:")
         right = self.parse_and()
-        t = self.generate_temp()
-        self.add_to_expression_code(f"{t} = {left} || {right};")
-        return self.parse_or_strich(t)
+        self.add_to_expression_code(f"{temp} = {right};")
+        self.add_to_expression_code(f"if {temp} goto {truelabel}; else goto {falselabel};")
+        self.add_to_expression_code(f"{truelabel}:")
+        self.add_to_expression_code(f"{result} = 1;")
+        self.add_to_expression_code(f"goto {endlabel};")
+        self.add_to_expression_code(f"{falselabel}:")
+        self.add_to_expression_code(f"{result} = 0;")
+        self.add_to_expression_code(f"{endlabel}:")
+        return self.parse_or_strich(result)
+    
+    #short circuting ablauf and:
+    # links auswerten
+    # if links goto <rechts>;else goto <false>;
+    # <Rechts>:
+    #rechts auswerten
+    # if rechts goto <True>; else goto <false>;
+    # <True>:
+    # result = 0;
+    # goto <end>;
+    # <False>:
+    # result = 1;
+    # <end>:
+    
     
     def parse_and(self):
         left = self.parse_bw_or()
@@ -216,10 +245,25 @@ class CParser:
             return left
         self.tok.advance()
         self.tok.advance()
+        temp = self.generate_temp()
+        result = self.generate_temp()
+        truelabel = self.create_label()
+        secondlabel = self.create_label()
+        falselabel = self.create_label()
+        endlabel = self.create_label()
+        self.add_to_expression_code(f"{temp} = {left};")
+        self.add_to_expression_code(f"if {temp} goto {secondlabel}; else goto {falselabel};")
+        self.add_to_expression_code(f"{secondlabel}:")
         right = self.parse_bw_or()
-        t = self.generate_temp()
-        self.add_to_expression_code(f"{t} = {left} && {right};")
-        return self.parse_and_strich(t)
+        self.add_to_expression_code(f"{temp} = {right};")
+        self.add_to_expression_code(f"if {temp} goto {truelabel}; else goto {falselabel};")
+        self.add_to_expression_code(f"{truelabel}:")
+        self.add_to_expression_code(f"{result} = 1;")
+        self.add_to_expression_code(f"goto {endlabel};")
+        self.add_to_expression_code(f"{falselabel}:")
+        self.add_to_expression_code(f"{result} = 0;")
+        self.add_to_expression_code(f"{endlabel}:")
+        return self.parse_and_strich(result)
     
     def parse_bw_or(self):
         left = self.parse_bw_xor()

@@ -96,6 +96,78 @@ LDA 3
 STA 31
 JSR main
 JMP BRK
+;	 Function: funcA
+funcA:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+;	 Call
+LDA #3
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR vid_set_border_color
+;	Return
+;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+LDA 0
+TAX
+LDA $100, X
+STA 6
+LDA #1
+STA 2
+LDA #0
+STA 3
+;	SP=Ram[0](FBP)
+LDA 0
+TAX
+TXS
+;	FBP = Ram[6]
+LDA 6
+STA 0
+rts
+;	 Function: funcB
+funcB:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+;	 Call
+LDA #4
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR vid_set_border_color
+;	Return
+;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+LDA 0
+TAX
+LDA $100, X
+STA 6
+LDA #1
+STA 2
+LDA #0
+STA 3
+;	SP=Ram[0](FBP)
+LDA 0
+TAX
+TXS
+;	FBP = Ram[6]
+LDA 6
+STA 0
+rts
 ;	 Function: main
 main:
 TSX
@@ -104,223 +176,34 @@ PHA
 TXA
 STA 0
 LDA #0
-PHA
-PHA
-PHA
-PHA
-;	Ram[2] = 0
-LDA #0
-STA 2
-LDA #0
-STA 3
-;	counter = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = 0
-LDA #0
-STA 2
-LDA #0
-STA 3
-;	counter1 = Ram[2]
-LDA 0
-CLC
-SBC #3
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-mainc1:
-;	Ram[2] = counter1
-LDA 0
-CLC
-SBC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 125
-LDA #125
-STA 4
-LDA #0
-STA 5
-LDA 2
-EOR 4
-STA 2
-LDA 3
-EOR 5
-ORA 2
-STA 2
-BEQ TRUE1
-LDA #$FF
-STA 2
-TRUE1:
-LDA #$FF
-EOR 2
-STA 2
+;	 Call
+JSR funcA
 ;	_0 = Ram[2]
 LDA 2
 STA $200
 LDA 3
 STA $201
-;	Ram[2] = c2
+;	Ram[2] = _0
 LDA $200
 STA 2
 LDA $201
 STA 3
-LDA 2
-BNE NOT2
-JMP mainc2
-NOT2:
-JMP mainc3
-mainc2:
-;	Ram[2] = counter
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 15
-LDA #15
-STA 4
-LDA #0
-STA 5
-LDA 2
-EOR 4
-STA 2
-LDA 3
-EOR 5
-ORA 2
-STA 2
-BEQ TRUE3
-LDA #$FF
-STA 2
-TRUE3:
 ;	_1 = Ram[2]
 LDA 2
 STA $202
 LDA 3
 STA $203
-;	Ram[2] = c4
+;	Ram[2] = c2
 LDA $202
 STA 2
 LDA $203
 STA 3
 LDA 2
-BNE NOT4
-JMP mainc4
-NOT4:
-JMP mainc5
-mainc4:
-;	Ram[2] = 0
-LDA #0
-STA 2
-LDA #0
-STA 3
-;	counter = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-mainc5:
-;	Ram[2] = counter
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 1
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-;	_2 = Ram[2]
-LDA 2
-STA $204
-LDA 3
-STA $205
-;	Ram[2] = _2
-LDA $204
-STA 2
-LDA $205
-STA 3
-;	counter = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
+BNE mainc2
+JMP mainc3
+mainc2:
 ;	 Call
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR vid_set_border_color
-;	Ram[2] = counter1
-LDA 0
-CLC
-SBC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 1
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
+JSR funcB
 ;	_3 = Ram[2]
 LDA 2
 STA $206
@@ -331,18 +214,81 @@ LDA $206
 STA 2
 LDA $207
 STA 3
-;	counter1 = Ram[2]
-LDA 0
-CLC
-SBC #3
-TAX
+;	_1 = Ram[2]
 LDA 2
-STA $100,X
-INX
+STA $202
 LDA 3
-STA $100,X
-JMP mainc1
+STA $203
+;	Ram[2] = c1
+LDA $202
+STA 2
+LDA $203
+STA 3
+LDA 2
+BNE mainc1
+JMP mainc3
+mainc1:
+;	Ram[2] = 1
+LDA #1
+STA 2
+LDA #0
+STA 3
+;	_2 = Ram[2]
+LDA 2
+STA $204
+LDA 3
+STA $205
+JMP mainc4
 mainc3:
+;	Ram[2] = 0
+LDA #0
+STA 2
+LDA #0
+STA 3
+;	_2 = Ram[2]
+LDA 2
+STA $204
+LDA 3
+STA $205
+mainc4:
+;	Ram[2] = c5
+LDA $204
+STA 2
+LDA $205
+STA 3
+LDA 2
+BNE mainc5
+JMP mainc6
+mainc5:
+;	 Call
+LDA #5
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR vid_set_border_color
+;	Return
+;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+LDA 0
+TAX
+LDA $100, X
+STA 6
+LDA #1
+STA 2
+LDA #0
+STA 3
+;	SP=Ram[0](FBP)
+LDA 0
+TAX
+TXS
+;	FBP = Ram[6]
+LDA 6
+STA 0
+rts
+mainc6:
 ;	Return
 ;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
 LDA 0
