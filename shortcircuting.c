@@ -1,5 +1,8 @@
 #include <Codygraphics.h>
+/* lost 
 
+
+*/
 int funcA() {
     vid_set_border_color(3);
     return 1;

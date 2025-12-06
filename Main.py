@@ -42,6 +42,7 @@ while(argv[opt_pntr].startswith("-")):
 outputname = argv[opt_pntr]
 syslibs = []
 tok = CTokenizer.Tokenizer(argv[opt_pntr+1])
+print(tok.get_tokens())
 opt_pntr += 2
 pre = Preprozessor.Preprozessor(tok)
 cpar = CParser.CParser(tok)

@@ -5,9 +5,25 @@ class Tokenizer:
         f = open(filepath, "r")
         lines = "" 
         lc = 1;
+        inmulti = False
         for  line in f:
-            lines += "."+str(lc)+" "+line.split("//")[0]
-            lc += 1
+            if("/*" in line and not inmulti):
+                inmulti = True
+                lines += "."+str(lc)+" "+line.split("/*")[0].split("//")[0].lstrip()
+                lc += 1
+                
+            if("*/" in line and inmulti):
+                inmulti = False
+                lines += "."+str(lc)+" "+line.split("*/")[1].split("//")[0].rstrip()
+                lc += 1
+                continue
+            
+            if(inmulti):
+                continue
+            else:
+                lines += "."+str(lc)+" "+line.split("//")[0]
+                lc += 1
+        
         self.tokenlist = self.tokenize(lines)
         self.cur = 0
         self.linecounter = 0
