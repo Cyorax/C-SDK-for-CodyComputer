@@ -87,6 +87,7 @@ class CParser:
                 expr = self.parse_expression()
                 labeltrue = self.create_label()
                 labelfalse = self.create_label()
+                labelend = self.create_label()
                 self.add_to_expression_code(f"if {expr} goto {labeltrue}; else goto {labelfalse};")
                 self.add_to_expression_code(f"{labeltrue}:")
                 self.tok.eat(")")
@@ -94,12 +95,50 @@ class CParser:
                     self.tok.eat("{")
                     self.parse_instructions()
                     self.tok.eat("}")
+                    self.add_to_expression_code(f"goto {labelend};")
                     self.add_to_expression_code(f"{labelfalse}:")
-                    #hier else
+                    if(self.tok.next() == "else"):
+                        self.tok.eat("else")
+                        self.parse_instruction()
+                    self.add_to_expression_code(f"{labelend}:")
                 else:
                     self.parse_instruction()
+                    self.add_to_expression_code(f"goto {labelend};")
                     self.add_to_expression_code(f"{labelfalse}:")
-                    #hier else
+                    if(self.tok.next() == "else"):
+                        self.tok.eat("else")
+                        self.parse_instruction()
+                    self.add_to_expression_code(f"{labelend}:")
+        
+            case "for":
+                self.tok.eat("for")
+                self.tok.eat("(")
+                type,ident = self.parse_type()
+                self.locals.append(f"{type} {ident};")
+                self.tok.eat("=")
+                t = self.parse_expression()
+                self.add_to_expression_code(f"{ident} = {t};")
+                self.tok.eat(";")
+                labelwhilecondition = self.create_label()
+                labelwhiletrue = self.create_label()
+                labelwhilefalse = self.create_label()
+                self.add_to_expression_code(labelwhilecondition+":")
+                condition = self.parse_expression()
+                self.tok.eat(";")
+                self.add_to_expression_code(f"if {condition} goto {labelwhiletrue}; else goto {labelwhilefalse};")
+                self.add_to_expression_code(labelwhiletrue+":")
+                self.parse_expression_statement()
+                self.tok.eat(")")
+                if(self.tok.next() == "{"):
+                    self.tok.eat("{")
+                    self.parse_instructions()
+                    self.tok.eat("}")
+                    self.add_to_expression_code(f"goto {labelwhilecondition};")
+                    self.add_to_expression_code(labelwhilefalse+":")
+                else:
+                    self.parse_instruction()
+                    self.add_to_expression_code(f"goto {labelwhilecondition};")
+                    self.add_to_expression_code(labelwhilefalse+":")
                 
                 
             case "while":
@@ -156,6 +195,20 @@ class CParser:
                     self.add_to_expression_code(f"{op} = {exp};")
                     self.tok.eat(";")
             
+    
+    def parse_expression_statement(self):
+        start = self.tok.get_pointer()
+        op = self.parse_operand()
+        if self.tok.next() == "=":
+            self.tok.eat("=")
+            expr = self.parse_expression()
+            self.add_to_expression_code(f"{op} = {expr};")
+            return
+        self.tok.set_pointer(start)
+        self.parse_expression()
+            
+    
+    
     def parse_operand(self):
         #casted long int short int 
         if(self.tok.next() == "("):
@@ -190,7 +243,7 @@ class CParser:
     # result = 0;
     # goto <end>;
     # <False>:
-    # result = -1; (alles umgeändert zu 1) 
+    # result = -1; 
     # <end>:
     
     def parse_or(self):
@@ -215,10 +268,10 @@ class CParser:
         self.add_to_expression_code(f"{temp} = {right};")
         self.add_to_expression_code(f"if {temp} goto {truelabel}; else goto {falselabel};")
         self.add_to_expression_code(f"{truelabel}:")
-        self.add_to_expression_code(f"{result} = 1;")
+        self.add_to_expression_code(f"{result} = 0;")
         self.add_to_expression_code(f"goto {endlabel};")
         self.add_to_expression_code(f"{falselabel}:")
-        self.add_to_expression_code(f"{result} = 0;")
+        self.add_to_expression_code(f"{result} = 255;")
         self.add_to_expression_code(f"{endlabel}:")
         return self.parse_or_strich(result)
     
@@ -258,10 +311,10 @@ class CParser:
         self.add_to_expression_code(f"{temp} = {right};")
         self.add_to_expression_code(f"if {temp} goto {truelabel}; else goto {falselabel};")
         self.add_to_expression_code(f"{truelabel}:")
-        self.add_to_expression_code(f"{result} = 1;")
+        self.add_to_expression_code(f"{result} = 0;")
         self.add_to_expression_code(f"goto {endlabel};")
         self.add_to_expression_code(f"{falselabel}:")
-        self.add_to_expression_code(f"{result} = 0;")
+        self.add_to_expression_code(f"{result} = 255;")
         self.add_to_expression_code(f"{endlabel}:")
         return self.parse_and_strich(result)
     
@@ -375,7 +428,7 @@ class CParser:
             val = self.parse_unary()
             t = self.generate_temp()
             if(tok == "!"):
-                self.add_to_expression_code(f"{t} = {val} == 0;")
+                self.add_to_expression_code(f"{t} = {val} == 255;")
             else:  
                 self.add_to_expression_code(f"{t} = {tok} {val};")
             return t

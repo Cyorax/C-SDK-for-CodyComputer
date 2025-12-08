@@ -186,27 +186,25 @@ class CodeGenerator():
     #if op l1 l2 -> assign2(op) interpret2(l1,l2)
     def compile_if(self,instr):
         self.counter += 1
-        self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[1]) + ["LDA 2","BNE " + self.curfunc["Name"]+instr[2]] + (["JMP "+self.curfunc["Name"]+instr[3]] if len(instr)==4 else [])
+        self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[1])+["LDA 2","BNE NOT"+str(self.counter),"JMP "+self.curfunc["Name"]+instr[2],"NOT"+str(self.counter)+":","JMP "+self.curfunc["Name"]+instr[3]]
     
     #gimple erzeugt kein sub immer + - oder + und dann zahl die Negativ ist
     def compile_operator(self,operation):
         match operation:
-            # 2 Byte -> 2 Byte
             case "add":
                 return ["LDA 2","CLC","ADC 4","STA 2","LDA 3","ADC 5","STA 3"]
-            # 2 Byte -> 2 Byte
+        
             case "sub":
                 return ["LDA 4","EOR #$FF","CLC","ADC #1","STA 4","LDA 5","EOR #$FF","ADC #0","STA 5"]+self.compile_operator("add")
-            # 2 Byte -> 2 Byte
+
             case "bitand":
                 return ["LDA 2","AND 4","STA 2","LDA 3","AND 5","STA 3"]
-            # 2 Byte -> 2 Byte            
+            
             case "bitor": 
                 return ["LDA 2","ORA 4","STA 2","LDA 3","ORA 5","STA 3"]
-            # 2 Byte -> 2 Byte            
+            
             case "xor":
                 return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","STA 3"]
-            
             #shifts nur für 8 bit short ints 
             case "ASL": 
                 self.counter += 1
@@ -218,7 +216,7 @@ class CodeGenerator():
             
             case "eq":
                 self.counter += 1
-                return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","ORA 2","STA 2","BEQ TRUE"+str(self.counter),"LDA #$1","STA 2","TRUE"+str(self.counter)+":"]
+                return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","ORA 2","STA 2","BEQ TRUE"+str(self.counter),"LDA #$FF","STA 2","TRUE"+str(self.counter)+":"]
             
             case "neq":
                 return self.compile_operator("eq") + ["LDA #$FF","EOR 2","STA 2"]
@@ -259,7 +257,7 @@ class CodeGenerator():
         return self.assign2(ident) + ["LDA 3","PHA","LDA 2","PHA"]
             
     def assign2(self,ident):
-        if(ident[0]=="-" or ident[0]=="!"):
+        if(ident[0]=="-"):
             return self.assign2(ident[1:]) + ["LDA 2","EOR #$FF","CLC","ADC #1","STA 2","LDA 3","EOR #$FF","ADC #0","STA 3"]
         elif(ident[0]=="_"):
             return ["LDA $2"+str(int(ident[1:])*2).zfill(2),"STA 2","LDA $2"+str(int(ident[1:])*2 + 1).zfill(2),"STA 3"]

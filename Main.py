@@ -1,13 +1,10 @@
 #todos in files der priorität nach
 
 #todos codegen:
-# Operatoren fixen (||,&&,>=,>,>>,<<) & als adressengetter 
+# Operatoren fixen (>>,<<) & als adressengetter 
 
 #todos CParser:
-# else for und dec von mehrereren Variablen
-
-#todos CTokenizer:
-# multiline commands
+# dec von mehrereren Variablen , ++ += -= --  ? :
 
 #todos libs:
 # codygrapics bitmapped, sprites, scrolling, codykeyboard, Sound (in der Uni testen)
@@ -36,13 +33,12 @@ if(len(argv) == 0):
 options = []
 opt_pntr = 1
 while(argv[opt_pntr].startswith("-")):
-    options.append(argv[opt_pntr])
+    options.append(argv[opt_pntr].replace("-",""))
     opt_pntr += 1
 
 outputname = argv[opt_pntr]
 syslibs = []
 tok = CTokenizer.Tokenizer(argv[opt_pntr+1])
-print(tok.get_tokens())
 opt_pntr += 2
 pre = Preprozessor.Preprozessor(tok)
 cpar = CParser.CParser(tok)
@@ -71,7 +67,13 @@ for lib in syslibs:
     gim.merge(gim2)
     
 opt = Optimizer.Optimizer(gim);
-gim.dump_gimple()
+if("gimple" in options):
+    with open(outputname+".gimple", "w") as f:
+        for line in cpar.generate_gimple():
+            print(line, file=f)
+if("precomp" in options):
+    gim.dump_gimple()
+    
 c = CodeGenerator(gim)
 c.print_final_code(outputname)
 
