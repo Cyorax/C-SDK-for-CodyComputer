@@ -23,11 +23,7 @@ void vid_set_character_ram_address(int loc);
 
 void vid_place_character_to_screen(int loc, int character);
 
-void vid_insert_character_to_chram(
-    int offset,
-    short line1, short line2, short line3, short line4,
-    short line5, short line6, short line7, short line8
-);
+void vid_insert_character_to_chram(int offset, short line1, short line2, short line3, short line4, short line5, short line6, short line7, short line8);
 
 void vid_insert_color_to_cram(int offset, short line1);
 

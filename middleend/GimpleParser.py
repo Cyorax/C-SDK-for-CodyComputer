@@ -173,7 +173,7 @@ class Gimple():
         
         elif self.tok.next(1) == "(": 
             ident, args = self.parse_funccall()
-            self.addInstruktion("call "+ident+" "+args)
+            self.addInstruktion("call "+ident+args)
             self.tok.eat(";") # skip ;  
             return True
         

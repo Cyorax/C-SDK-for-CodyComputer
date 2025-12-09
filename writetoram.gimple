@@ -1,0 +1,14 @@
+int main(){
+int i;
+i = 0;
+<c.1>:
+_0 = i < 1000;
+if _0 goto <c.2>; else goto <c.3>;
+<c.2>:
+_1 = i + 1;
+i = _1;
+vid_place_character_to_screen(i, 76);
+goto <c.1>;
+<c.3>:
+return 0;
+}

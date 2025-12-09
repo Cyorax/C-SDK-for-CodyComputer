@@ -1,10 +1,10 @@
 #todos in files der priorität nach
 
 #todos codegen:
-# Operatoren fixen (>>,<<) & als adressengetter 
+# Operatoren fixen (>>,<<) bzw für 16 bit & als adressengetter 
 
 #todos CParser:
-# dec von mehrereren Variablen , ++ += -= --  ? :
+# arrays und pointer verschiebungen dec von mehrereren Variablen += -= 
 
 #todos libs:
 # codygrapics bitmapped, sprites, scrolling, codykeyboard, Sound (in der Uni testen)
@@ -45,11 +45,11 @@ cpar = CParser.CParser(tok)
 syslibs += pre.get_syslibs()
 gimptok = GimpleTokenizer.Tokenizer(" ".join(cpar.generate_gimple()))
 gim = GimpleParser.Gimple(gimptok)
-
+ 
 while(opt_pntr < len(argv)):
     tok1 = CTokenizer.Tokenizer(argv[opt_pntr])
     opt_pntr += 1
-    pre1 = Preprozessor.Preprozessor(tok1)
+    pre1 = Preprozessor.Preprozessor(tok1)  
     cpar1 = CParser.CParser(tok1)
     syslibs += pre1.get_syslibs()
     gimptok1 = GimpleTokenizer.Tokenizer(" ".join(cpar1.generate_gimple()))

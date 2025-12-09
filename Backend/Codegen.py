@@ -85,6 +85,7 @@ class CodeGenerator():
                 self.finalcode.append("PHA")
             self.compile_statements(f["Instructions"])
         
+        
     def print_final_code(self,filename):
         with open(filename+".asm", "w") as f:
             print(f";   64tass --mw65c02 --nostart -o {filename}.bin {filename}.asm\nADDR= $0300\n.WORD ADDR\n.WORD (ADDR + LAST - FIRST - 1)\n.LOGICAL    ADDR\nFIRST:",file = f)
@@ -97,7 +98,7 @@ class CodeGenerator():
         if(len(statementslist)==0):
             return
         instr = statementslist[0].split()
-        #self.finalcode.append(";\t"+statementslist[0])
+        self.finalcode.append(";\t"+" ".join(instr))
         match instr[0]:
             case "if":
                 self.compile_if(instr)
@@ -126,34 +127,35 @@ class CodeGenerator():
     
     # bei Return machen wir also:   also übersetzt
     # Ram[10] = Ram[FBP]            Ram[6] = Ram[$100 + Ram[0]]
-    # Ram[FBP] = Returnvalue        Ram[$100 + Ram[0]] = Returnvalue (OPTIONAL abhängig von retval)
     # Sp = FBP                      SP = Ram[0] (weil nur 8 Bit)
     # FBP = Ram[10]                 Ram[0] = Ram[6]
     # rts                           rts
     
     def compile_return(self,instr):
-        ret1 =[";\tReturn",";\tRam[6] = Ram[$100 + Ram[0]](Old FBP)","LDA 0","TAX","LDA $100, X","STA 6"]
         retopt = []
         if(len(instr)==2):
             retopt = self.assign2(instr[1])
-        ret2 = [";\tSP=Ram[0](FBP)","LDA 0","TAX","TXS",";\tFBP = Ram[6]","LDA 6","STA 0","rts"]
-        self.finalcode += ret1 +retopt +ret2
+        ret2 = ["LDA 0", "TAX", "DEX", "TXS", "PLA","STA 0", "RTS"]
+        self.finalcode += retopt +ret2
         return 
     
     # call main i,x,y  push y push x push i JSR main
     def compile_call(self, instr):
         func = instr[1]
         args = instr[2:]
-        call = [";\t Call"]
+        call = []
         for a in reversed(args):
             call += self.push_arg(a)
         call.append(f"JSR {func}")
+        for _ in range(len(args)):
+            call.append("PLA")
+            call.append("PLA")
         self.finalcode += call
         return
 
     #assign dest value -> assign2(value) write2(dest)
     def compile_assign(self,instr):
-        self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[2]) + [";\t" + instr[1] + " = Ram[2]"] +self.write2(instr[1])
+        self.finalcode += self.assign2(instr[2]) + self.write2(instr[1])
     
     #op dest op1 op2 -> assign2(op1) assign4(op2) op write2(dest)
     def compile_operation(self,instr):
@@ -177,16 +179,16 @@ class CodeGenerator():
             self.compile_call(["call","rightshift",instr[2],instr[3]]) 
             self.compile_assignret(["return",instr[1]])
             return
-        self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[2]) + [";\tRam[4] = " + instr[3]] + self.assign4(instr[3]) + self.compile_operator(instr[0]) + [";\t" + instr[1] + " = Ram[2]"] + self.write2(instr[1])
+        self.finalcode += self.assign2(instr[2]) + self.assign4(instr[3]) + self.compile_operator(instr[0]) + self.write2(instr[1])
     
     #assignret dest -> write2(dest)
     def compile_assignret(self,instr):
-        self.finalcode += [";\t" + instr[1] + " = Ram[2]"] + self.write2(instr[1])
+        self.finalcode +=  self.write2(instr[1])
         
     #if op l1 l2 -> assign2(op) interpret2(l1,l2)
     def compile_if(self,instr):
         self.counter += 1
-        self.finalcode += [";\tRam[2] = " + instr[2]] + self.assign2(instr[1])+["LDA 2","BNE NOT"+str(self.counter),"JMP "+self.curfunc["Name"]+instr[2],"NOT"+str(self.counter)+":","JMP "+self.curfunc["Name"]+instr[3]]
+        self.finalcode += self.assign2(instr[1])+["LDA 2","BNE NOT"+str(self.counter),"JMP "+self.curfunc["Name"]+instr[2],"NOT"+str(self.counter)+":","JMP "+self.curfunc["Name"]+instr[3]]
     
     #gimple erzeugt kein sub immer + - oder + und dann zahl die Negativ ist
     def compile_operator(self,operation):
@@ -216,11 +218,11 @@ class CodeGenerator():
             
             case "eq":
                 self.counter += 1
-                return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","ORA 2","STA 2","BEQ TRUE"+str(self.counter),"LDA #$FF","STA 2","TRUE"+str(self.counter)+":"]
+                return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","ORA 2","STA 2","STA 3","CMP #0","BEQ TRUE"+str(self.counter),"LDA #$FF","STA 2","STA 3","TRUE"+str(self.counter)+":"]
             
             case "neq":
-                return self.compile_operator("eq") + ["LDA #$FF","EOR 2","STA 2"]
-            # a > b <=> a - b > 0 <=> 0 > b - a <=> b - a < 0 (das haben wir uns beim Parsen schon richtig gemogelt)
+                return self.compile_operator("eq") + ["LDA #$FF","EOR 2","STA 2","LDA #$FF","EOR 3","STA 3"]
+            # a > b <=> a - b > 0 <=> 0 > b - a <=> b - a < 0 
             case "gt":
                 return  self.compile_operator("lt")
             # a < b <=> a - b < 0 bei LT ist einfach da wir einfach gucken können, ob Sign bit gesetzt ist aber bei gt müssen wir die zwei Register nachprüfen
@@ -243,7 +245,7 @@ class CodeGenerator():
         if(ident[0]=="_"):
             return ["LDA 2","STA $2"+str(int(ident[1:])*2).zfill(2),"LDA 3","STA $2"+str(int(ident[1:])*2 + 1).zfill(2)]
         elif(ident[0]=="*"):
-            return [";\tRam[4] = " + ident[1:]] + self.assign4(ident[1:]) + ["LDA #0","TAY","LDA 2","STA (4),Y"]+(["LDA 3","INY","STA (4),Y"] if self.is_two_bytes(ident) else [])
+            return self.assign4(ident[1:]) + ["LDA #0","TAY","LDA 2","STA (4),Y"]+(["LDA 3","INY","STA (4),Y"] if self.is_two_bytes(ident) else [])
         elif(ident in self.curfunc["locals"]):
             return self.compute_lowBitstackaddress_in_X(ident) + ["LDA 2","STA $100,X"] +(["INX","LDA 3","STA $100,X"] if self.curfunc["locals"][ident]["size"] == 2 else [])
         elif(ident in self.gimple.globalsmap):
@@ -306,5 +308,5 @@ class CodeGenerator():
             return ["LDA 0","CLC","ADC #"+str(m["offset"] + 3),"TAX"]
         else:
             #skip FBP und -1 wegen subtraktion
-            return ["LDA 0","CLC","SBC #"+str(m["offset"] -1),"TAX"]
+            return ["LDA 0","CLC","SBC #"+str(m["offset"]-1),"TAX"]
             

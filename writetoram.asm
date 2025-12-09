@@ -106,170 +106,11 @@ STA 0
 LDA #0
 PHA
 PHA
-;	 Call
+;	assign i 0
 LDA #0
 STA 2
 LDA #0
 STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR vid_set_character_ram_address
-;	 Call
-LDA #0
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #20
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #65
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #65
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #65
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #65
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #65
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #20
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #0
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR vid_insert_character_to_chram
-;	 Call
-LDA #0
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #21
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #4
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #4
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #4
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #4
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #4
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #20
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #1
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR vid_insert_character_to_chram
-;	Ram[2] = 0
-LDA #0
-STA 2
-LDA #0
-STA 3
-;	i = Ram[2]
 LDA 0
 CLC
 SBC #1
@@ -279,8 +120,9 @@ STA $100,X
 INX
 LDA 3
 STA $100,X
+;	label c1
 mainc1:
-;	Ram[2] = i
+;	lt _0 i 1000
 LDA 0
 CLC
 SBC #1
@@ -290,31 +132,41 @@ STA 2
 INX
 LDA $100,X
 STA 3
-;	Ram[4] = 10
-LDA #10
+LDA #232
 STA 4
-LDA #0
+LDA #3
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
 STA 5
 LDA 2
-EOR 4
+CLC
+ADC 4
 STA 2
 LDA 3
-EOR 5
-ORA 2
-STA 2
-BEQ TRUE1
-LDA #$FF
-STA 2
+ADC 5
+STA 3
+BMI TRUE1
+JMP FALSE1
 TRUE1:
-LDA #$FF
-EOR 2
+LDA #0
 STA 2
-;	_0 = Ram[2]
+JMP END1
+FALSE1:
+LDA #$FF
+STA 2
+END1:
 LDA 2
 STA $200
 LDA 3
 STA $201
-;	Ram[2] = c2
+;	if _0 c2 c3
 LDA $200
 STA 2
 LDA $201
@@ -324,8 +176,9 @@ BNE NOT2
 JMP mainc2
 NOT2:
 JMP mainc3
+;	label c2
 mainc2:
-;	Ram[2] = i
+;	add _1 i 1
 LDA 0
 CLC
 SBC #1
@@ -335,7 +188,6 @@ STA 2
 INX
 LDA $100,X
 STA 3
-;	Ram[4] = 1
 LDA #1
 STA 4
 LDA #0
@@ -347,17 +199,15 @@ STA 2
 LDA 3
 ADC 5
 STA 3
-;	_1 = Ram[2]
 LDA 2
 STA $202
 LDA 3
 STA $203
-;	Ram[2] = _1
+;	assign i _1
 LDA $202
 STA 2
 LDA $203
 STA 3
-;	i = Ram[2]
 LDA 0
 CLC
 SBC #1
@@ -367,8 +217,8 @@ STA $100,X
 INX
 LDA 3
 STA $100,X
-;	 Call
-LDA #0
+;	call vid_place_character_to_screen i 76
+LDA #76
 STA 2
 LDA #0
 STA 3
@@ -390,189 +240,26 @@ PHA
 LDA 2
 PHA
 JSR vid_place_character_to_screen
+PLA
+PLA
+PLA
+PLA
+;	goto c1
 JMP mainc1
+;	label c3
 mainc3:
-;	Return
-;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
-LDA 0
-TAX
-LDA $100, X
-STA 6
+;	return 0
 LDA #0
 STA 2
 LDA #0
 STA 3
-;	SP=Ram[0](FBP)
 LDA 0
 TAX
+DEX
 TXS
-;	FBP = Ram[6]
-LDA 6
+PLA
 STA 0
-rts
-;	 Function: vid_set_character_ram_address
-vid_set_character_ram_address:
-TSX
-LDA 0
-PHA
-TXA
-STA 0
-LDA #0
-PHA
-PHA
-;	 Call
-LDA #0
-STA 2
-LDA #4
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR mult
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	Ram[2] = 40960
-LDA #0
-STA 2
-LDA #160
-STA 3
-;	Ram[4] = _1
-LDA $202
-STA 4
-LDA $203
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-;	base = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = *vid_base_register
-LDA 16
-STA 2
-LDA 17
-STA 3
-LDA #0
-TAY
-LDA (2),Y
-STA 2
-LDA #0
-STA 3
-;	Ram[4] = 240
-LDA #240
-STA 4
-LDA #0
-STA 5
-LDA 2
-AND 4
-STA 2
-LDA 3
-AND 5
-STA 3
-;	*vid_base_register = Ram[2]
-;	Ram[4] = vid_base_register
-LDA 16
-STA 4
-LDA 17
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	Ram[2] = *vid_base_register
-LDA 16
-STA 2
-LDA 17
-STA 3
-LDA #0
-TAY
-LDA (2),Y
-STA 2
-LDA #0
-STA 3
-;	Ram[4] = loc
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA 2
-ORA 4
-STA 2
-LDA 3
-ORA 5
-STA 3
-;	*vid_base_register = Ram[2]
-;	Ram[4] = vid_base_register
-LDA 16
-STA 4
-LDA 17
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	Ram[2] = base
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	vid_character_ram = Ram[2]
-LDA 2
-STA 26
-LDA 3
-STA 27
-;	Return
-;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
-LDA 0
-TAX
-LDA $100, X
-STA 6
-;	SP=Ram[0](FBP)
-LDA 0
-TAX
-TXS
-;	FBP = Ram[6]
-LDA 6
-STA 0
-rts
+RTS
 ;	 Function: vid_place_character_to_screen
 vid_place_character_to_screen:
 TSX
@@ -583,12 +270,11 @@ STA 0
 LDA #0
 PHA
 PHA
-;	Ram[2] = vid_screen_ram
+;	add loco vid_screen_ram loc
 LDA 28
 STA 2
 LDA 29
 STA 3
-;	Ram[4] = loc
 LDA 0
 CLC
 ADC #3
@@ -605,7 +291,6 @@ STA 2
 LDA 3
 ADC 5
 STA 3
-;	loco = Ram[2]
 LDA 0
 CLC
 SBC #1
@@ -615,7 +300,7 @@ STA $100,X
 INX
 LDA 3
 STA $100,X
-;	Ram[2] = character
+;	assign *loco character
 LDA 0
 CLC
 ADC #5
@@ -625,8 +310,6 @@ STA 2
 INX
 LDA $100,X
 STA 3
-;	*loco = Ram[2]
-;	Ram[4] = loco
 LDA 0
 CLC
 SBC #1
@@ -640,927 +323,14 @@ LDA #0
 TAY
 LDA 2
 STA (4),Y
-;	Return
-;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
+;	return
 LDA 0
 TAX
-LDA $100, X
-STA 6
-;	SP=Ram[0](FBP)
-LDA 0
-TAX
+DEX
 TXS
-;	FBP = Ram[6]
-LDA 6
+PLA
 STA 0
-rts
-;	 Function: vid_insert_character_to_chram
-vid_insert_character_to_chram:
-TSX
-LDA 0
-PHA
-TXA
-STA 0
-LDA #0
-PHA
-PHA
-;	 Call
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #8
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR mult
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	Ram[2] = vid_character_ram
-LDA 26
-STA 2
-LDA 27
-STA 3
-;	Ram[4] = _1
-LDA $202
-STA 4
-LDA $203
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-;	add = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = line1
-LDA 0
-CLC
-ADC #5
-TAX
-LDA $100,X
-STA 2
-LDA #0
-STA 3
-;	*add = Ram[2]
-;	Ram[4] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	Ram[2] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 1
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-;	add = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = line2
-LDA 0
-CLC
-ADC #7
-TAX
-LDA $100,X
-STA 2
-LDA #0
-STA 3
-;	*add = Ram[2]
-;	Ram[4] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	Ram[2] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 1
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-;	add = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = line3
-LDA 0
-CLC
-ADC #9
-TAX
-LDA $100,X
-STA 2
-LDA #0
-STA 3
-;	*add = Ram[2]
-;	Ram[4] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	Ram[2] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 1
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-;	add = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = line4
-LDA 0
-CLC
-ADC #11
-TAX
-LDA $100,X
-STA 2
-LDA #0
-STA 3
-;	*add = Ram[2]
-;	Ram[4] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	Ram[2] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 1
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-;	add = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = line5
-LDA 0
-CLC
-ADC #13
-TAX
-LDA $100,X
-STA 2
-LDA #0
-STA 3
-;	*add = Ram[2]
-;	Ram[4] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	Ram[2] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 1
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-;	add = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = line6
-LDA 0
-CLC
-ADC #15
-TAX
-LDA $100,X
-STA 2
-LDA #0
-STA 3
-;	*add = Ram[2]
-;	Ram[4] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	Ram[2] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 1
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-;	add = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = line7
-LDA 0
-CLC
-ADC #17
-TAX
-LDA $100,X
-STA 2
-LDA #0
-STA 3
-;	*add = Ram[2]
-;	Ram[4] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	Ram[2] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 1
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-;	add = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = line8
-LDA 0
-CLC
-ADC #19
-TAX
-LDA $100,X
-STA 2
-LDA #0
-STA 3
-;	*add = Ram[2]
-;	Ram[4] = add
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	Return
-;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
-LDA 0
-TAX
-LDA $100, X
-STA 6
-;	SP=Ram[0](FBP)
-LDA 0
-TAX
-TXS
-;	FBP = Ram[6]
-LDA 6
-STA 0
-rts
-;	 Function: abs
-abs:
-TSX
-LDA 0
-PHA
-TXA
-STA 0
-LDA #0
-;	Ram[2] = i
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 0
-LDA #0
-STA 4
-LDA #0
-STA 5
-LDA 4
-EOR #$FF
-CLC
-ADC #1
-STA 4
-LDA 5
-EOR #$FF
-ADC #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-BMI TRUE3
-JMP FALSE3
-TRUE3:
-LDA #0
-STA 2
-JMP END3
-FALSE3:
-LDA #$FF
-STA 2
-END3:
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	Ram[2] = neg
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 2
-BNE NOT4
-JMP absneg
-NOT4:
-JMP abspos
-absneg:
-;	Return
-;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
-LDA 0
-TAX
-LDA $100, X
-STA 6
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 2
-EOR #$FF
-CLC
-ADC #1
-STA 2
-LDA 3
-EOR #$FF
-ADC #0
-STA 3
-;	SP=Ram[0](FBP)
-LDA 0
-TAX
-TXS
-;	FBP = Ram[6]
-LDA 6
-STA 0
-rts
-abspos:
-;	Return
-;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
-LDA 0
-TAX
-LDA $100, X
-STA 6
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	SP=Ram[0](FBP)
-LDA 0
-TAX
-TXS
-;	FBP = Ram[6]
-LDA 6
-STA 0
-rts
-;	 Function: mult
-mult:
-TSX
-LDA 0
-PHA
-TXA
-STA 0
-LDA #0
-PHA
-PHA
-PHA
-PHA
-;	 Call
-LDA 0
-CLC
-ADC #5
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR abs
-;	jj = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = 0
-LDA #0
-STA 2
-LDA #0
-STA 3
-;	erg = Ram[2]
-LDA 0
-CLC
-SBC #3
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-JMP multW1
-multW2:
-;	Ram[2] = erg
-LDA 0
-CLC
-SBC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = i
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-;	erg = Ram[2]
-LDA 0
-CLC
-SBC #3
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	Ram[2] = jj
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = -1
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 4
-EOR #$FF
-CLC
-ADC #1
-STA 4
-LDA 5
-EOR #$FF
-ADC #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-;	jj = Ram[2]
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-multW1:
-;	Ram[2] = jj
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 0
-LDA #0
-STA 4
-LDA #0
-STA 5
-LDA 2
-EOR 4
-STA 2
-LDA 3
-EOR 5
-ORA 2
-STA 2
-BEQ TRUE5
-LDA #$FF
-STA 2
-TRUE5:
-LDA #$FF
-EOR 2
-STA 2
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	Ram[2] = W2
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 2
-BNE NOT6
-JMP multW2
-NOT6:
-JMP multW0
-multW0:
-;	Ram[2] = j
-LDA 0
-CLC
-ADC #5
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	Ram[4] = 0
-LDA #0
-STA 4
-LDA #0
-STA 5
-LDA 4
-EOR #$FF
-CLC
-ADC #1
-STA 4
-LDA 5
-EOR #$FF
-ADC #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-BMI TRUE7
-JMP FALSE7
-TRUE7:
-LDA #0
-STA 2
-JMP END7
-FALSE7:
-LDA #$FF
-STA 2
-END7:
-;	_1 = Ram[2]
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	Ram[2] = W4
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 2
-BNE NOT8
-JMP multW4
-NOT8:
-JMP multW5
-multW4:
-;	Return
-;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
-LDA 0
-TAX
-LDA $100, X
-STA 6
-LDA 0
-CLC
-SBC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 2
-EOR #$FF
-CLC
-ADC #1
-STA 2
-LDA 3
-EOR #$FF
-ADC #0
-STA 3
-;	SP=Ram[0](FBP)
-LDA 0
-TAX
-TXS
-;	FBP = Ram[6]
-LDA 6
-STA 0
-rts
-multW5:
-;	Return
-;	Ram[6] = Ram[$100 + Ram[0]](Old FBP)
-LDA 0
-TAX
-LDA $100, X
-STA 6
-LDA 0
-CLC
-SBC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-;	SP=Ram[0](FBP)
-LDA 0
-TAX
-TXS
-;	FBP = Ram[6]
-LDA 6
-STA 0
-rts
+RTS
 BRK: BRA BRK
 LAST
 .ENDLOGICAL

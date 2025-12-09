@@ -17,6 +17,14 @@ class CParser:
     
     def generate_gimple(self):
         return self.globals+self.final_code
+    
+    def generate_temp(self):
+        temp = f"_{self.temp_count}"
+        self.temp_count += 1
+        return temp
+        
+    def add_to_expression_code(self, code):
+        self.instructions.append(code)
         
         
     def parse(self):
@@ -221,17 +229,31 @@ class CParser:
             op += self.parse_ident()
         #hier noch Array hinzufügen theoretisch kann man einfach die Addresse nehemen und dann draufaddieren 
         return op
+    
         
     def parse_expression(self):
-        return self.parse_or()
+        return self.parse_ternary()
     
-    def generate_temp(self):
-        temp = f"_{self.temp_count}"
-        self.temp_count += 1
-        return temp
-        
-    def add_to_expression_code(self, code):
-        self.instructions.append(code)
+    def parse_ternary(self):
+        condition = self.parse_or()
+        while(self.tok.next() == "?"):
+            self.tok.eat("?")
+            t = self.generate_temp()
+            truelabel = self.create_label()
+            falselabel = self.create_label()
+            endlabel = self.create_label()
+            self.add_to_expression_code(f"if {condition} goto {truelabel}; else goto {falselabel};")
+            self.add_to_expression_code(f"{truelabel}:")
+            left = self.parse_or()
+            self.add_to_expression_code(f"{t} = {left};")
+            self.add_to_expression_code(f"goto {endlabel};")
+            self.tok.eat(":")
+            self.add_to_expression_code(f"{falselabel}:")
+            right = self.parse_or()
+            self.add_to_expression_code(f"{t} = {right};")
+            self.add_to_expression_code(f"{endlabel}:")
+            condition = t
+        return condition
         
     #short circuting ablauf oder:
     # links auswerten
@@ -279,7 +301,7 @@ class CParser:
     # links auswerten
     # if links goto <rechts>;else goto <false>;
     # <Rechts>:
-    #rechts auswerten
+    # rechts auswerten
     # if rechts goto <True>; else goto <false>;
     # <True>:
     # result = 0;
@@ -423,17 +445,39 @@ class CParser:
         return self.parse_mult_strich(t)
     
     def parse_unary(self):
-        if self.tok.next() in ["-", "!", "+","*","&"]:
+        if self.tok.next() in ["-", "!", "+","*","&","++","--"]:
             tok = self.tok.consume_cur()
             val = self.parse_unary()
             t = self.generate_temp()
             if(tok == "!"):
                 self.add_to_expression_code(f"{t} = {val} == 255;")
-            else:  
+            elif(tok == "++"):
+                self.add_to_expression_code(f"{val} = {val} + 1;")
+                self.add_to_expression_code(f"{t} = {val};")
+            elif(tok == "--"):
+                self.add_to_expression_code(f"{val} = {val} - 1;")
+                self.add_to_expression_code(f"{t} = {val};")
+            else:
                 self.add_to_expression_code(f"{t} = {tok} {val};")
             return t
-        return self.parse_highest()
-
+        return self.parse_suffix()
+    
+    def parse_suffix(self):
+        left = self.parse_highest()
+        while(self.tok.next() in ["--","++"]):
+            tok = self.tok.consume_cur()
+            t = self.generate_temp()
+            self.add_to_expression_code(f"{t} = {left};")
+            match tok:
+                case "++":
+                    self.add_to_expression_code(f"{left} = {left} + 1;")
+                case "":
+                    self.add_to_expression_code(f"{left} = {left} - 1;")
+                case _:
+                    pass
+            return t
+        return left
+    
     def parse_highest(self):
         tok = self.tok.next()
         if tok == "(":

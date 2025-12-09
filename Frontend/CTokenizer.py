@@ -28,7 +28,7 @@ class Tokenizer:
         self.cur = 0
         self.linecounter = 0
         self.curmethod = ""
-        self.doubles = ["==", "!=", "<=", ">=", "<<", ">>", "&&", "||"]
+        self.doubles = ["==", "!=", "<=", ">=", "<<", ">>", "&&", "||","++","--"]
         
     def get_pointer(self):
         return self.cur
@@ -109,7 +109,7 @@ class Tokenizer:
         return self.tokenlist[i]
         
     def tokenize(self, tokenstring: str):
-        SYMBOLS = ["#","+", "-", "*", "/", "=", ";", "{", "}", "(", ")", ",","<",">","!","|","&"]
+        SYMBOLS = ["#","+", "-", "*", "/", "=", ";", "{", "}", "(", ")", ",","<",">","!","|","&","?",":"]
         s = tokenstring.replace("\n", " ").replace("\t", " ")
         for sym in SYMBOLS:
             s = s.replace(sym, f" {sym} ")
