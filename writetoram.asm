@@ -4,6 +4,10 @@ ADDR= $0300
 .WORD (ADDR + LAST - FIRST - 1)
 .LOGICAL    ADDR
 FIRST:
+LDA #<DATAEXT
+STA $6
+LDA #>DATAEXT
+STA $7
 LDA #$FF
 STA 0
 LDA #0
@@ -94,10 +98,18 @@ LDA 2
 STA 30
 LDA 3
 STA 31
+LDA #128
+STA 2
+LDA #208
+STA 3
+LDA 2
+STA 32
+LDA 3
+STA 33
 JSR main
 JMP BRK
-;	 Function: main
-main:
+;	 Function: loadBytesFromDataTo
+loadBytesFromDataTo:
 TSX
 LDA 0
 PHA
@@ -106,8 +118,12 @@ STA 0
 LDA #0
 PHA
 PHA
-;	assign i 0
-LDA #0
+PHA
+PHA
+PHA
+PHA
+;	assign datapointerregister 6
+LDA #6
 STA 2
 LDA #0
 STA 3
@@ -120,9 +136,7 @@ STA $100,X
 INX
 LDA 3
 STA $100,X
-;	label c1
-mainc1:
-;	lt _0 i 1000
+;	assign _0 *datapointerregister
 LDA 0
 CLC
 SBC #1
@@ -132,9 +146,111 @@ STA 2
 INX
 LDA $100,X
 STA 3
-LDA #232
+LDA #0
+TAY
+LDA (2),Y
+TAX
+INY
+LDA (2),Y
+STA 3
+TXA
+STA 2
+LDA 2
+STA $200
+LDA 3
+STA $201
+;	assign data _0
+LDA $200
+STA 2
+LDA $201
+STA 3
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	add _1 data startaddressdata
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
 STA 4
-LDA #3
+INX
+LDA $100,X
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	assign data _1
+LDA $202
+STA 2
+LDA $203
+STA 3
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign i 0
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+SBC #5
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	label c1
+loadBytesFromDataToc1:
+;	lt _2 i amount
+LDA 0
+CLC
+SBC #5
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+CLC
+ADC #7
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
 STA 5
 LDA 4
 EOR #$FF
@@ -163,25 +279,25 @@ LDA #$FF
 STA 2
 END1:
 LDA 2
-STA $200
+STA $204
 LDA 3
-STA $201
-;	if _0 c2 c3
-LDA $200
+STA $205
+;	if _2 c2 c3
+LDA $204
 STA 2
-LDA $201
+LDA $205
 STA 3
 LDA 2
 BNE NOT2
-JMP mainc2
+JMP loadBytesFromDataToc2
 NOT2:
-JMP mainc3
+JMP loadBytesFromDataToc3
 ;	label c2
-mainc2:
-;	add _1 i 1
+loadBytesFromDataToc2:
+;	add _3 i 1
 LDA 0
 CLC
-SBC #1
+SBC #5
 TAX
 LDA $100,X
 STA 2
@@ -200,13 +316,168 @@ LDA 3
 ADC 5
 STA 3
 LDA 2
-STA $202
+STA $206
 LDA 3
-STA $203
-;	assign i _1
-LDA $202
+STA $207
+;	assign i _3
+LDA $206
 STA 2
-LDA $203
+LDA $207
+STA 3
+LDA 0
+CLC
+SBC #5
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign _4 *data
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA 2
+STA $208
+LDA 3
+STA $209
+;	assign *startadressram _4
+LDA $208
+STA 2
+LDA $209
+STA 3
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+LDA 3
+INY
+STA (4),Y
+;	add _5 data 1
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 2
+STA $210
+LDA 3
+STA $211
+;	assign data _5
+LDA $210
+STA 2
+LDA $211
+STA 3
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	add _6 startadressram 1
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 2
+STA $212
+LDA 3
+STA $213
+;	assign startadressram _6
+LDA $212
+STA 2
+LDA $213
+STA 3
+LDA 0
+CLC
+ADC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	goto c1
+JMP loadBytesFromDataToc1
+;	label c3
+loadBytesFromDataToc3:
+;	return
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: main
+main:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	assign chram 40960
+LDA #0
+STA 2
+LDA #160
 STA 3
 LDA 0
 CLC
@@ -217,8 +488,8 @@ STA $100,X
 INX
 LDA 3
 STA $100,X
-;	call vid_place_character_to_screen i 76
-LDA #76
+;	call vid_set_character_ram_address 0
+LDA #0
 STA 2
 LDA #0
 STA 3
@@ -226,14 +497,97 @@ LDA 3
 PHA
 LDA 2
 PHA
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
+JSR vid_set_character_ram_address
+PLA
+PLA
+;	call vid_set_border_color 3
+LDA #3
 STA 2
-INX
-LDA $100,X
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR vid_set_border_color
+PLA
+PLA
+;	call loadBytesFromDataTo 40960 0 8
+LDA #8
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #160
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR loadBytesFromDataTo
+PLA
+PLA
+PLA
+PLA
+PLA
+PLA
+;	call loadBytesFromDataTo 40968 8 8
+LDA #8
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #8
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #8
+STA 2
+LDA #160
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR loadBytesFromDataTo
+PLA
+PLA
+PLA
+PLA
+PLA
+PLA
+;	call vid_place_character_to_screen 0 0
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
 STA 3
 LDA 3
 PHA
@@ -244,15 +598,655 @@ PLA
 PLA
 PLA
 PLA
-;	goto c1
-JMP mainc1
-;	label c3
-mainc3:
+;	call vid_place_character_to_screen 1 1
+LDA #1
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #1
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR vid_place_character_to_screen
+PLA
+PLA
+PLA
+PLA
 ;	return 0
 LDA #0
 STA 2
 LDA #0
 STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: abs
+abs:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+;	lt _1 i 0
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #0
+STA 4
+LDA #0
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+BMI TRUE3
+JMP FALSE3
+TRUE3:
+LDA #0
+STA 2
+JMP END3
+FALSE3:
+LDA #$FF
+STA 2
+END3:
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	if _1 neg pos
+LDA $202
+STA 2
+LDA $203
+STA 3
+LDA 2
+BNE NOT4
+JMP absneg
+NOT4:
+JMP abspos
+;	label neg
+absneg:
+;	return -i
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+EOR #$FF
+CLC
+ADC #1
+STA 2
+LDA 3
+EOR #$FF
+ADC #0
+STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	label pos
+abspos:
+;	return i
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: mult
+mult:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+PHA
+PHA
+;	call abs j
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR abs
+PLA
+PLA
+;	assignret jj
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign erg 0
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	goto W1
+JMP multW1
+;	label W2
+multW2:
+;	add erg erg i
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	add jj jj -1
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	label W1
+multW1:
+;	neq _1 jj 0
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #0
+STA 4
+LDA #0
+STA 5
+LDA 2
+EOR 4
+STA 2
+LDA 3
+EOR 5
+ORA 2
+STA 2
+STA 3
+CMP #0
+BEQ TRUE5
+LDA #$FF
+STA 2
+STA 3
+TRUE5:
+LDA #$FF
+EOR 2
+STA 2
+LDA #$FF
+EOR 3
+STA 3
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	if _1 W2 W0
+LDA $202
+STA 2
+LDA $203
+STA 3
+LDA 2
+BNE NOT6
+JMP multW2
+NOT6:
+JMP multW0
+;	label W0
+multW0:
+;	lt _1 j 0
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #0
+STA 4
+LDA #0
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+BMI TRUE7
+JMP FALSE7
+TRUE7:
+LDA #0
+STA 2
+JMP END7
+FALSE7:
+LDA #$FF
+STA 2
+END7:
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	if _1 W4 W5
+LDA $202
+STA 2
+LDA $203
+STA 3
+LDA 2
+BNE NOT8
+JMP multW4
+NOT8:
+JMP multW5
+;	label W4
+multW4:
+;	return -erg
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+EOR #$FF
+CLC
+ADC #1
+STA 2
+LDA 3
+EOR #$FF
+ADC #0
+STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	label W5
+multW5:
+;	return erg
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: vid_set_border_color
+vid_set_border_color:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+;	bitand *vid_color_register *vid_color_register 240
+LDA 14
+STA 2
+LDA 15
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA #240
+STA 4
+LDA #0
+STA 5
+LDA 2
+AND 4
+STA 2
+LDA 3
+AND 5
+STA 3
+LDA 14
+STA 4
+LDA 15
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	bitor *vid_color_register *vid_color_register color
+LDA 14
+STA 2
+LDA 15
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+LDA #0
+STA 5
+LDA 2
+ORA 4
+STA 2
+LDA 3
+ORA 5
+STA 3
+LDA 14
+STA 4
+LDA 15
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	return
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: vid_set_character_ram_address
+vid_set_character_ram_address:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	mult _1 loc 1024
+LDA #0
+STA 2
+LDA #4
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR mult
+PLA
+PLA
+PLA
+PLA
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	add base 40960 _1
+LDA #0
+STA 2
+LDA #160
+STA 3
+LDA $202
+STA 4
+LDA $203
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	bitand *vid_base_register *vid_base_register 240
+LDA 16
+STA 2
+LDA 17
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA #240
+STA 4
+LDA #0
+STA 5
+LDA 2
+AND 4
+STA 2
+LDA 3
+AND 5
+STA 3
+LDA 16
+STA 4
+LDA 17
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	bitor *vid_base_register *vid_base_register loc
+LDA 16
+STA 2
+LDA 17
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA 2
+ORA 4
+STA 2
+LDA 3
+ORA 5
+STA 3
+LDA 16
+STA 4
+LDA 17
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	assign vid_character_ram base
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+STA 26
+LDA 3
+STA 27
+;	return
 LDA 0
 TAX
 DEX
@@ -331,6 +1325,8 @@ TXS
 PLA
 STA 0
 RTS
+DATAEXT:
+.byte $14, $41, $41, $41, $41, $41, $14, $0, $14, $04, $04, $04, $04, $04, $15, $0
 BRK: BRA BRK
 LAST
 .ENDLOGICAL

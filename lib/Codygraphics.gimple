@@ -12,6 +12,7 @@ short* vid_shared_colors_register = 53254;
 short* vid_character_ram = 57344;			// 2k 8 Pages mit zwei Bit pro Pixel für alle vier anzeigbaren Farben 8 Byte lang ein Byte eine Zeile im Tile 
 short* vid_screen_ram = 50176;				// 40 * 25 bytes sprich 1k 4 Pages für je ein Tile pro byte mit zwei Bit pro pixel 00 ist vrdgrund 01 hntrgrund 10 ist die Farbe aus D005 genauso wie 11
 short* vid_color_ram = 55296;				// 40 * 25 bytes sprich 1k 4 Pages für je ein Tile pro byte high nibble Vordergrund low nibble Hintergrund
+short* vid_sprite_ram = 53376;
 
 void vid_toggle_screen_output(){
 *vid_controll_register = *vid_controll_register ^ 1;
@@ -132,22 +133,52 @@ add = vid_color_ram + offset;
 }
 
 //4*8 für jeden Tile also 32 pixel in 4 byte sprich 
-void vid_set_bitmapped_pixel_x_y(int x,int y,short color){
+void vid_set_bitmapped_pixel_x_y(int x,int y){
 short* add;
+int offset;
+short pixel;
+pixel = x % 4;
+_0 = y / 8;
+_1 = _0 * 320;
+_2 = x / 4;
+_3 = _2 * 8;
+_4 = _1 + _3;
+_5 = y % 8;
+_6 = _4 + _5;
+offset = _6;
 add = vid_screen_ram + offset;
+_1 = *add;
+_2 = 1 << pixel;
+*add = _1 ^ _2;
+}
+
+void vid_insert_sprite_into_sprite_table(int offset,int x, int y, int color,int baseaddress){
+short* add;
+_1 = offset * 4;
+add = vid_sprite_ram + _1;
+*add = x;
+add = add + 1;
+*add = y;
+add = add + 1;
+*add = color;
+add = add + 1;
+*add = baseaddress;
+}
+
+void vid_change_sprite_position(int index,short x,short y){
+short* add;
+_1 = offset * 4;
+add = vid_sprite_ram + _1;
+*add = x;
+add = add + 1;
+*add = y;
+}
+
+void vid_insert_sprite_into_sprite_ram(){
 
 }
 
 
-
-
-
-
-
-
-
-
-//0 und 1 tiles in Codybasic suchen und abändern
 void printnum(int loc,int num){
 short stelle0;
 short stelle1;

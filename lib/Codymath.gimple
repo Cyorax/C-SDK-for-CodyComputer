@@ -30,14 +30,63 @@ int mult (int i, int j)
   return erg;
 }
 
-int mod(int i, int j){
-	
-
+int div(int x,int y){
+int q;
+int minus;
+minus = 0;
+_0 = x < 0;
+if _0 goto <c.1>; else goto <c.2>;
+<c.1>:
+_1 = - x;
+x = _1;
+_2 = minus == 255;
+minus = _2;
+goto <c.3>;
+<c.2>:
+<c.3>:
+_3 = y < 0;
+if _3 goto <c.4>; else goto <c.5>;
+<c.4>:
+_4 = - y;
+y = _4;
+_5 = minus == 255;
+minus = _5;
+goto <c.6>;
+<c.5>:
+<c.6>:
+q = 0;
+<c.7>:
+_6 = x >= y;
+if _6 goto <c.8>; else goto <c.9>;
+<c.8>:
+_7 = x - y;
+x = _7;
+_8 = q + 1;
+q = _8;
+goto <c.7>;
+<c.9>:
+if minus goto <c.10>; else goto <c.11>;
+<c.10>:
+_9 = - q;
+return _9;
+goto <c.12>;
+<c.11>:
+return q;
+<c.12>:
 }
 
-int div(int i, int j){
-
+int mod(int x,int y){
+<c.13>:
+_0 = x >= y;
+if _0 goto <c.14>; else goto <c.15>;
+<c.14>:
+_1 = x - y;
+x = _1;
+goto <c.13>;
+<c.15>:
+return x;
 }
+
 int leftshift(int i, int j){
   goto <W1>;
   <W2>:

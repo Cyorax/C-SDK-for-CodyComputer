@@ -7,7 +7,7 @@
 # arrays und pointer verschiebungen dec von mehrereren Variablen += -= 
 
 #todos libs:
-# codygrapics bitmapped, sprites, scrolling, codykeyboard, Sound (in der Uni testen)
+# codygrapics bitmapped, sprites, scrolling, codykeyboard, Sound (in der Uni testen) Mathe modulo minus
 
 #todos CParser:
 #Typechecking
@@ -75,5 +75,8 @@ if("precomp" in options):
     gim.dump_gimple()
     
 c = CodeGenerator(gim)
-c.print_final_code(outputname)
+if("data" in options):
+    c.print_final_code_with_data(outputname)
+else:
+    c.print_final_code(outputname)
 

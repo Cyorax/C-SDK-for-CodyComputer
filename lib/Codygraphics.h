@@ -27,6 +27,6 @@ void vid_insert_character_to_chram(int offset, short line1, short line2, short l
 
 void vid_insert_color_to_cram(int offset, short line1);
 
-void vid_set_bitmapped_pixel_x_y(int x, int y, short color);
+void vid_set_bitmapped_pixel_x_y(int x, int y);
 
 void printnum(int loc, int num);

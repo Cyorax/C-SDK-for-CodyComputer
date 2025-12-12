@@ -1,13 +1,16 @@
-int main(){
+int main(int x,int y){
 int i;
+vid_toggle_bitmap_mode();
+vid_set_screen_ram_address(0);
+vid_set_border_color(0);
 i = 0;
 <c.1>:
-_0 = i < 1000;
+_0 = i < 200;
 if _0 goto <c.2>; else goto <c.3>;
 <c.2>:
 _1 = i + 1;
 i = _1;
-vid_place_character_to_screen(i, 76);
+vid_set_bitmapped_pixel_x_y(i, 80);
 goto <c.1>;
 <c.3>:
 return 0;

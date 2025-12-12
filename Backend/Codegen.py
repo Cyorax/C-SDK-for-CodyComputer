@@ -34,17 +34,14 @@ from middleend.GimpleParser import Gimple
 #3 Operandenregister 1 Unteres Byte
 #4 Operandenregister 2 O. Byte
 #5 Operandenregister 2 U. Byte
-#6 zwischenspeicher für Return (nicht Return Ergebnis)
-#7 Beliebig
+#6 Adresse Datasegment
+#7 Adresse Datasegment
 #8 ISPTR
 #9 ISPTR
 
 # $10-$FF ist Static
 # $100-$1FF ist Stack
 # $200-$2FF ist Temp
-
-# $300-$A00 ist Heap
-
 
 #temp variablen beginnen mit _
 # 16 bit Ints werden Simuliert daher butze ich Ram[2] und Ram[3] als Akkumulator 
@@ -94,6 +91,22 @@ class CodeGenerator():
             print("BRK: BRA BRK\nLAST\n.ENDLOGICAL",file = f)
         print("OUPUT: "+filename+".asm")
     
+    def print_final_code_with_data(self,filename):
+        with open(filename+".asm", "w") as f:
+            print(f";   64tass --mw65c02 --nostart -o {filename}.bin {filename}.asm\nADDR= $0300\n.WORD ADDR\n.WORD (ADDR + LAST - FIRST - 1)\n.LOGICAL    ADDR\nFIRST:",file = f)
+            print(f"LDA #<DATAEXT\nSTA $6\nLDA #>DATAEXT\nSTA $7",file = f)
+            for line in self.finalcode:
+                print(line, file = f)
+            ff = open("data.lib", "r")
+            lines = "" 
+            for  line in ff:
+                lines += line.split("//")[0]
+            lines = lines.replace("\n", " ").replace("\t", " ").split()
+            print("DATAEXT:",file = f)
+            print(".byte $"+", $".join(lines),file = f)
+            print("BRK: BRA BRK\nLAST\n.ENDLOGICAL",file = f)
+        print("OUPUT: "+filename+".asm")
+        
     def compile_statements(self,statementslist):
         if(len(statementslist)==0):
             return
@@ -293,12 +306,14 @@ class CodeGenerator():
             low  = value & 0xFF
             return ["LDA #"+str(low),"STA 4","LDA #"+str(high),"STA 5"]
         
-    def is_two_bytes(self,ident):
-        if ident in self.curfunc["locals"] and self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte":
-            return True
-        if ident in self.gimple.globalsmap and self.curfunc["locals"][ident[1:]]["type"] != "pointer onebyte":
-            return True
-        return False
+    def is_two_bytes(self, ident):
+        base = ident.lstrip("*")
+        if base in self.curfunc["locals"]:
+            return self.curfunc["locals"][base]["type"] != "pointer onebyte"
+        if base in self.gimple.globalsmap:
+            return self.gimple.globalsmap[base]["type"] != "pointer onebyte"
+        return True
+
     
     #highbit = 1 low = 0 Methode fügt code hinzu zum berechnen der Stackaddressen zur Laufzeit
     def compute_lowBitstackaddress_in_X(self,ident):
