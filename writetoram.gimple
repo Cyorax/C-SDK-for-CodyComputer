@@ -1,17 +1,47 @@
-int main(int x,int y){
-int i;
-vid_toggle_bitmap_mode();
-vid_set_screen_ram_address(0);
-vid_set_border_color(0);
-i = 0;
+void waitforblank(){
 <c.1>:
-_0 = i < 200;
-if _0 goto <c.2>; else goto <c.3>;
+_0 = vid_blanking();
+_1 = _0 == 0;
+if _1 goto <c.2>; else goto <c.3>;
 <c.2>:
-_1 = i + 1;
-i = _1;
-vid_set_bitmapped_pixel_x_y(i, 80);
 goto <c.1>;
 <c.3>:
+<c.4>:
+_0 = vid_blanking();
+_1 = _0 != 0;
+if _1 goto <c.5>; else goto <c.6>;
+<c.5>:
+goto <c.4>;
+<c.6>:
+}
+int main(){
+int i;
+vid_set_character_ram_address(0);
+vid_set_border_color(1);
+copy_tiledata_from_data(0, 24);
+copy_spritedata_from_data(24, 16);
+vid_insert_sprite_into_sprite_table(0, 100, 100, 55, 16);
+vid_place_character_to_screen(0, 0);
+vid_place_character_to_screen(1, 1);
+vid_place_character_to_screen(60, 2);
+vid_insert_color_to_cram(60, 76);
+i = 21;
+<c.7>:
+_0 = 1 == 1;
+if _0 goto <c.8>; else goto <c.9>;
+<c.8>:
+_0 = i == 150;
+if _0 goto <c.10>; else goto <c.11>;
+<c.10>:
+i = 21;
+goto <c.12>;
+<c.11>:
+<c.12>:
+i = i + 1;
+vid_change_sprite_position(0, i, i);
+waitforblank();
+goto <c.7>;
+<c.9>:
+vid_place_character_to_screen(2, 2);
 return 0;
 }

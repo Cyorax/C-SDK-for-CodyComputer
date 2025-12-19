@@ -1,3 +1,5 @@
+#include <Codyram.h>
+
 void vid_toggle_screen_output();
 void vid_toggle_vscroll();
 void vid_toggle_hscroll();
@@ -27,6 +29,19 @@ void vid_insert_character_to_chram(int offset, short line1, short line2, short l
 
 void vid_insert_color_to_cram(int offset, short line1);
 
-void vid_set_bitmapped_pixel_x_y(int x, int y);
+//4*8 für jeden Tile also 32 pixel in 4 byte sprich 
+void vid_set_bitmapped_pixel_x_y(int x,int y);
+
+//baseadress ist ein 8 bit wert einfach ein offset index
+void vid_insert_sprite_into_sprite_table(int spriteindex,int x, int y, int color,int baseadresssprite);
+
+void vid_change_sprite_position(int spriteindex,short x,short y);
+
+//baseadress ist ein 8 bit wert einfach ein offset index muss aber aneinanderliegend sein 
+void copy_spritedata_from_data(int startbytedatanumber,int baseadresssprite);
+
+void copy_tiledata_from_data(int startbytedatanumber,int amountbytes);
+
+void copy_colordata_from_data(int startbytedatanumber,int amountbytes);
 
 void printnum(int loc, int num);

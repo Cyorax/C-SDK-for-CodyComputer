@@ -1,16 +1,17 @@
 #todos in files der priorität nach
+#Inhaltsverzeichnis
 
 #todos codegen:
 # Operatoren fixen (>>,<<) bzw für 16 bit & als adressengetter 
 
-#todos CParser:
-# arrays und pointer verschiebungen dec von mehrereren Variablen += -= 
-
 #todos libs:
-# codygrapics bitmapped, sprites, scrolling, codykeyboard, Sound (in der Uni testen) Mathe modulo minus
+# codygrapics bitmapped, sprites, scrolling, codykeyboard, Sound (in der Uni testen) 
 
 #todos CParser:
 #Typechecking
+
+#todos 
+# constant propagation constant folding
 
 #todos Preprozessor:
 # makros
@@ -44,6 +45,7 @@ pre = Preprozessor.Preprozessor(tok)
 cpar = CParser.CParser(tok)
 syslibs += pre.get_syslibs()
 gimptok = GimpleTokenizer.Tokenizer(" ".join(cpar.generate_gimple()))
+print(" ".join(cpar.generate_gimple()))
 gim = GimpleParser.Gimple(gimptok)
  
 while(opt_pntr < len(argv)):
@@ -71,6 +73,7 @@ if("gimple" in options):
     with open(outputname+".gimple", "w") as f:
         for line in cpar.generate_gimple():
             print(line, file=f)
+            
 if("precomp" in options):
     gim.dump_gimple()
     

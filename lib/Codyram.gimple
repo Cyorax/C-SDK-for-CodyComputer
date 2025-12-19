@@ -1,0 +1,41 @@
+void poke (int * address, int bytes)
+{
+  *address = bytes;
+}
+
+
+void poke1byte (short* add, short byte)
+{
+  *add = byte;
+}
+
+void copy_from_data(short* startadressram,int startadressdata,int amount){
+int* datapointerregister;
+short* data;
+datapointerregister = 6;
+data = *datapointerregister + startadressdata;
+_0 = amount;
+<cond>:
+_1 = _0 != 0;
+if _1 goto <keepcopy>; else goto <out>;
+<keepcopy>:
+*startadressram = *data;
+startadressram = startadressram +1;
+data = data + 1;
+_0 = _0 - 1;
+goto <cond>;
+<out>:
+}
+
+int peek (int* address)
+{
+  return *address;
+}
+
+int peek1byte(short* address)
+{
+  return *address;
+}
+
+
+

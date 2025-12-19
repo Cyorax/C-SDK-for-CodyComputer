@@ -53,6 +53,8 @@ class CodeGenerator():
         self.gimple = Gimple
         self.finalcode = ["LDA #$FF","STA 0"]
         self.curfunc = {"locals":[]}
+        self.highesttemp = 0
+        self.save = []
         self.init_globalsvalue(Gimple)
         self.compile_Funcs(Gimple)
         
@@ -88,7 +90,7 @@ class CodeGenerator():
             print(f";   64tass --mw65c02 --nostart -o {filename}.bin {filename}.asm\nADDR= $0300\n.WORD ADDR\n.WORD (ADDR + LAST - FIRST - 1)\n.LOGICAL    ADDR\nFIRST:",file = f)
             for line in self.finalcode:
                 print(line, file=f)
-            print("BRK: BRA BRK\nLAST\n.ENDLOGICAL",file = f)
+            print("BRK: JMP BRK\nLAST\n.ENDLOGICAL",file = f)
         print("OUPUT: "+filename+".asm")
     
     def print_final_code_with_data(self,filename):
@@ -157,13 +159,15 @@ class CodeGenerator():
         func = instr[1]
         args = instr[2:]
         call = []
+        call += self.generate_save_temp_registers()
         for a in reversed(args):
             call += self.push_arg(a)
         call.append(f"JSR {func}")
         for _ in range(len(args)):
             call.append("PLA")
             call.append("PLA")
-        self.finalcode += call
+        call += self.generate_restore_temp_registers()
+        self.finalcode += call 
         return
 
     #assign dest value -> assign2(value) write2(dest)
@@ -256,6 +260,12 @@ class CodeGenerator():
             
     def write2(self,ident):
         if(ident[0]=="_"):
+            if(int(ident[1:]) < int(self.highesttemp)):
+                self.reset_saveable_temp_registers()
+            else:
+                self.highesttemp = int(ident[1:])
+            if(ident[1:] not in self.save):
+                self.save .append(int(ident[1:]))
             return ["LDA 2","STA $2"+str(int(ident[1:])*2).zfill(2),"LDA 3","STA $2"+str(int(ident[1:])*2 + 1).zfill(2)]
         elif(ident[0]=="*"):
             return self.assign4(ident[1:]) + ["LDA #0","TAY","LDA 2","STA (4),Y"]+(["LDA 3","INY","STA (4),Y"] if self.is_two_bytes(ident) else [])
@@ -306,6 +316,21 @@ class CodeGenerator():
             low  = value & 0xFF
             return ["LDA #"+str(low),"STA 4","LDA #"+str(high),"STA 5"]
         
+    def reset_saveable_temp_registers(self):
+        self.save = []
+        
+    def generate_save_temp_registers(self):
+        push = []
+        for s in sorted(set(self.save)):
+            push += ["LDA $2"+str(s*2+1).zfill(2),"PHA","LDA $2"+str(s*2).zfill(2),"PHA"]
+        return push 
+    
+    def generate_restore_temp_registers(self):
+        push = []
+        for s in reversed(sorted(set(self.save))):
+            push += ["PLA","STA $2"+str(s*2).zfill(2),"PLA","STA $2"+str(s*2+1).zfill(2)]
+        return push 
+                
     def is_two_bytes(self, ident):
         base = ident.lstrip("*")
         if base in self.curfunc["locals"]:

@@ -1,34 +1,37 @@
 class Tokenizer:
 
-    def __init__(self, filepath):
-        self.file = filepath.split("/")[-1]
-        f = open(filepath, "r")
-        lines = "" 
-        lc = 1;
-        inmulti = False
-        for  line in f:
-            if("/*" in line and not inmulti):
-                inmulti = True
-                lines += "."+str(lc)+" "+line.split("/*")[0].split("//")[0].lstrip()
-                lc += 1
+    def __init__(self, filepath, fromfile = True):
+        if(fromfile):
+            self.file = filepath.split("/")[-1]
+            f = open(filepath, "r")
+            lines = "" 
+            lc = 1;
+            inmulti = False
+            for  line in f:
+                if("/*" in line and not inmulti):
+                    inmulti = True
+                    lines += "."+str(lc)+" "+line.split("/*")[0].split("//")[0].lstrip()
+                    lc += 1
+                    
+                if("*/" in line and inmulti):
+                    inmulti = False
+                    lines += "."+str(lc)+" "+line.split("*/")[1].split("//")[0].rstrip()
+                    lc += 1
+                    continue
                 
-            if("*/" in line and inmulti):
-                inmulti = False
-                lines += "."+str(lc)+" "+line.split("*/")[1].split("//")[0].rstrip()
-                lc += 1
-                continue
-            
-            if(inmulti):
-                continue
-            else:
-                lines += "."+str(lc)+" "+line.split("//")[0]
-                lc += 1
-        
+                if(inmulti):
+                    continue
+                else:
+                    lines += "."+str(lc)+" "+line.split("//")[0]
+                    lc += 1
+        else:
+            lines = filepath
+            self.file = "test"
         self.tokenlist = self.tokenize(lines)
         self.cur = 0
         self.linecounter = 0
         self.curmethod = ""
-        self.doubles = ["==", "!=", "<=", ">=", "<<", ">>", "&&", "||","++","--"]
+        self.doubles = ["==", "!=", "<=", ">=", "<<", ">>", "&&", "||","++","--","+=","-=","*=","/=","%=","&=","^=","|="]
         
     def get_pointer(self):
         return self.cur
@@ -109,7 +112,7 @@ class Tokenizer:
         return self.tokenlist[i]
         
     def tokenize(self, tokenstring: str):
-        SYMBOLS = ["#","+", "-", "*", "/", "=", ";", "{", "}", "(", ")", ",","<",">","!","|","&","?",":"]
+        SYMBOLS = ["#","+", "-", "*", "/", "=", ";", "{", "}", "(", ")", ",","<",">","!","|","&","?",":","[","]"]
         s = tokenstring.replace("\n", " ").replace("\t", " ")
         for sym in SYMBOLS:
             s = s.replace(sym, f" {sym} ")

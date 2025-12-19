@@ -1,3 +1,4 @@
+int everythingsbaseadress = 40960;
 short* vid_blanking_register = 53248;
 short* vid_controll_register = 53249;
 short* vid_color_register = 53250;
@@ -152,9 +153,10 @@ _2 = 1 << pixel;
 *add = _1 ^ _2;
 }
 
-void vid_insert_sprite_into_sprite_table(int offset,int x, int y, int color,int baseaddress){
+//baseadress ist ein 8 bit wert einfach ein offset index
+void vid_insert_sprite_into_sprite_table(int spriteindex,int x, int y, int color,int baseadresssprite){
 short* add;
-_1 = offset * 4;
+_1 = spriteindex * 4;
 add = vid_sprite_ram + _1;
 *add = x;
 add = add + 1;
@@ -162,22 +164,32 @@ add = add + 1;
 add = add + 1;
 *add = color;
 add = add + 1;
-*add = baseaddress;
+*add = baseadresssprite;
 }
 
-void vid_change_sprite_position(int index,short x,short y){
+void vid_change_sprite_position(int spriteindex,int x,int y){
 short* add;
-_1 = offset * 4;
+_1 = spriteindex * 4;
 add = vid_sprite_ram + _1;
 *add = x;
 add = add + 1;
 *add = y;
 }
 
-void vid_insert_sprite_into_sprite_ram(){
-
+//baseadress ist ein 8 bit wert einfach ein offset index
+void copy_spritedata_from_data(int startbytedatanumber,int baseadresssprite){
+_1 = 64 * baseadresssprite;
+_2 = everythingsbaseadress + _1;
+copy_from_data(_2,startbytedatanumber,63);
 }
 
+void copy_tiledata_from_data(int startbytedatanumber,int amountbytes){
+copy_from_data(vid_character_ram,startbytedatanumber,amountbytes);
+}
+
+void copy_colordata_from_data(int startbytedatanumber,int amountbytes){
+copy_from_data(vid_color_ram,startbytedatanumber,amountbytes);
+}
 
 void printnum(int loc,int num){
 short stelle0;

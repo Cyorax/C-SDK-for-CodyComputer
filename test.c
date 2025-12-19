@@ -1,27 +1,32 @@
 #include <Codygraphics.h>
 
-void loadBytesFromDataTo(int* startadressram,int startaddressdata,int amount){
-int* datapointerregister = 6;
-short* data = * datapointerregister;
-data = data + startaddressdata;
-for(int i = 0; i < amount; i = i+1){ 
-    *startadressram = *data
-    data = data + 1;
-    startadressram = startadressram + 1;
-}
+void waitforblank(){
+while(vid_blanking() == 0){}
+while(vid_blanking() != 0){}
 }
 
-int main (int x,int y){
-        short* chram = 40960;
+int main (){
         vid_set_character_ram_address(0);
-        
-        vid_set_border_color(3);
-        loadBytesFromDataTo(40960,0,8); //lade die null in chram[0]
-        loadBytesFromDataTo(40968,8,8); //lade die eins in chram[1]
+        vid_set_border_color(1);
+        copy_tiledata_from_data(0,24); //lade drei Tiles 
+        copy_spritedata_from_data(24,16);
+        vid_insert_sprite_into_sprite_table(0,100,100,55,16);
 
         vid_place_character_to_screen(0,0);
         vid_place_character_to_screen(1,1);
-   return 0;
+        vid_place_character_to_screen(60,2);
+        vid_insert_color_to_cram(60,76);   
+        int i = 21;
+        while(1==1){        
+        if(i==150){
+        i=21;
+        }
+        i+=1;
+        vid_change_sprite_position(0,i,i);  
+        waitforblank();      
+        } 
+        vid_place_character_to_screen(2,2);
+       return 0;
 }
 
 

@@ -23,6 +23,9 @@ class CParser:
         self.temp_count += 1
         return temp
         
+    def reset_temp_count(self):
+        self.temp_count = 0
+        
     def add_to_expression_code(self, code):
         self.instructions.append(code)
         
@@ -92,6 +95,7 @@ class CParser:
             case "if":
                 self.tok.eat("if")
                 self.tok.eat("(")
+                self.reset_temp_count()
                 expr = self.parse_expression()
                 labeltrue = self.create_label()
                 labelfalse = self.create_label()
@@ -124,6 +128,7 @@ class CParser:
                 type,ident = self.parse_type()
                 self.locals.append(f"{type} {ident};")
                 self.tok.eat("=")
+                self.reset_temp_count()
                 t = self.parse_expression()
                 self.add_to_expression_code(f"{ident} = {t};")
                 self.tok.eat(";")
@@ -131,11 +136,13 @@ class CParser:
                 labelwhiletrue = self.create_label()
                 labelwhilefalse = self.create_label()
                 self.add_to_expression_code(labelwhilecondition+":")
+                self.reset_temp_count()
                 condition = self.parse_expression()
                 self.tok.eat(";")
                 self.add_to_expression_code(f"if {condition} goto {labelwhiletrue}; else goto {labelwhilefalse};")
                 self.add_to_expression_code(labelwhiletrue+":")
-                self.parse_expression_statement()
+                self.reset_temp_count()
+                self.parse_expression()
                 self.tok.eat(")")
                 if(self.tok.next() == "{"):
                     self.tok.eat("{")
@@ -156,6 +163,7 @@ class CParser:
                 labelwhiletrue = self.create_label()
                 labelwhilefalse = self.create_label()
                 self.add_to_expression_code(labelwhilecondition+":")
+                self.reset_temp_count()
                 expr = self.parse_expression()
                 self.add_to_expression_code(f"if {expr} goto {labelwhiletrue}; else goto {labelwhilefalse};")
                 self.tok.eat(")")
@@ -176,67 +184,64 @@ class CParser:
                 if(self.tok.next() == ";"):
                     self.tok.eat(";")
                     self.add_to_expression_code("return;")
+                self.reset_temp_count()
                 expr = self.parse_expression()
                 self.add_to_expression_code(f"return {expr};")
                 self.tok.eat(";")
                 
             case _:#init, dec, assign oder functioncall
+                self.reset_temp_count()
                 if self.tok.next() in self.types:
                     type,ident = self.parse_type()
+                    
+                    self.locals.append(f"{type} {ident};")
+                    
                     if(self.tok.next()=="="):
                         self.tok.eat("=")
                         t = self.parse_expression()
                         self.add_to_expression_code(f"{ident} = {t};")
-                        self.tok.eat(";")
-                    elif(self.tok.next()==";"):
-                        self.tok.eat(";")
-                    self.locals.append(f"{type} {ident};")
+                        
+                    
+                    while(self.tok.next()==","):
+                        self.tok.advance()
+                        identlist = self.parse_ident()
+                        
+                        self.locals.append(f"{type} {identlist};")
+                    
+                        if(self.tok.next()=="="):
+                            self.tok.eat("=")
+                            self.reset_temp_count()
+                            t = self.parse_expression()
+                            self.add_to_expression_code(f"{identlist} = {t};")
+                        
+                    self.tok.eat(";")
                     
                 elif self.tok.next(1) == "(":
                     self.parse_void_functioncall()
                     self.tok.eat(";")
                     
                 elif self.tok.next()!="}":
-                    op = self.parse_operand()
-                    self.tok.eat("=")
-                    exp = self.parse_expression()
-                    self.add_to_expression_code(f"{op} = {exp};")
+                    self.parse_expression()
                     self.tok.eat(";")
             
-    
-    def parse_expression_statement(self):
-        start = self.tok.get_pointer()
-        op = self.parse_operand()
-        if self.tok.next() == "=":
-            self.tok.eat("=")
-            expr = self.parse_expression()
-            self.add_to_expression_code(f"{op} = {expr};")
-            return
-        self.tok.set_pointer(start)
-        self.parse_expression()
-            
-    
-    
-    def parse_operand(self):
-        #casted long int short int 
-        if(self.tok.next() == "("):
-            self.tok.eat("(")
-            while(self.tok.next()!=")"):
-                self.tok.consume_cur()
-            self.tok.eat(")")
-        op = self.tok.consume_cur()
-        while(op == "*"):
-            op += self.parse_ident()
-        #hier noch Array hinzufügen theoretisch kann man einfach die Addresse nehemen und dann draufaddieren 
-        return op
-    
-        
     def parse_expression(self):
-        return self.parse_ternary()
+        return self.parse_assignment()
+    
+    def parse_assignment(self):
+        left = self.parse_ternary()
+        if(self.tok.next() in ["+=","=","-=","*=","/=","%=","&=","^=","|="]):
+            op = self.tok.consume_cur()
+            right = self.parse_assignment()
+            if(not op.startswith("=")):
+                op = op.replace("=","") 
+                self.add_to_expression_code(f"{left} = {left} {op} {right};")
+            else:
+                self.add_to_expression_code(f"{left} = {right};")
+        return left
     
     def parse_ternary(self):
         condition = self.parse_or()
-        while(self.tok.next() == "?"):
+        if(self.tok.next() == "?"):
             self.tok.eat("?")
             t = self.generate_temp()
             truelabel = self.create_label()
@@ -244,12 +249,12 @@ class CParser:
             endlabel = self.create_label()
             self.add_to_expression_code(f"if {condition} goto {truelabel}; else goto {falselabel};")
             self.add_to_expression_code(f"{truelabel}:")
-            left = self.parse_or()
+            left = self.parse_expression()
             self.add_to_expression_code(f"{t} = {left};")
             self.add_to_expression_code(f"goto {endlabel};")
             self.tok.eat(":")
             self.add_to_expression_code(f"{falselabel}:")
-            right = self.parse_or()
+            right = self.parse_ternary()
             self.add_to_expression_code(f"{t} = {right};")
             self.add_to_expression_code(f"{endlabel}:")
             condition = t
@@ -445,9 +450,13 @@ class CParser:
         return self.parse_mult_strich(t)
     
     def parse_unary(self):
-        if self.tok.next() in ["-", "!", "+","*","&","++","--"]:
+        if self.tok.next() in ["+","-", "!", "*","&","++","--"]:
             tok = self.tok.consume_cur()
             val = self.parse_unary()
+            if(tok == "*"):
+                return f"{tok} {val}"
+            elif(tok == "+"):
+                return val
             t = self.generate_temp()
             if(tok == "!"):
                 self.add_to_expression_code(f"{t} = {val} == 255;")
@@ -464,15 +473,19 @@ class CParser:
     
     def parse_suffix(self):
         left = self.parse_highest()
-        while(self.tok.next() in ["--","++"]):
+        while(self.tok.next() in ["--","++","["]):
             tok = self.tok.consume_cur()
             t = self.generate_temp()
-            self.add_to_expression_code(f"{t} = {left};")
             match tok:
                 case "++":
                     self.add_to_expression_code(f"{left} = {left} + 1;")
-                case "":
+                case "--":
                     self.add_to_expression_code(f"{left} = {left} - 1;")
+                case "[":
+                    expr = self.parse_expression()
+                    self.tok.eat("]")
+                    self.add_to_expression_code(f"{t} = {left} + {expr};")
+                    return f"*{t}"
                 case _:
                     pass
             return t
@@ -490,6 +503,7 @@ class CParser:
         if self.tok.is_ident(tok) or self.tok.is_number(tok) or self.tok.is_character(tok):
             self.tok.advance()
             return tok
+        print(f"COULD NOT PARSE TOKEN {self.tok.next()} in line {self.tok.get_line()}")
         
     def parse_functioncall(self):
         name = self.tok.consume_cur()
@@ -549,6 +563,8 @@ class CParser:
         
     def parse_type(self):
         type = self.tok.consume_cur()
+        if(type == "short"):
+            type = "int"
         while(self.tok.next() == "*"):
             type += self.tok.consume_cur()
         ident = self.tok.consume_cur()

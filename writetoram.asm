@@ -12,13 +12,13 @@ LDA #$FF
 STA 0
 LDA #0
 STA 2
-LDA #208
+LDA #160
 STA 3
 LDA 2
 STA 10
 LDA 3
 STA 11
-LDA #1
+LDA #0
 STA 2
 LDA #208
 STA 3
@@ -26,7 +26,7 @@ LDA 2
 STA 12
 LDA 3
 STA 13
-LDA #2
+LDA #1
 STA 2
 LDA #208
 STA 3
@@ -34,7 +34,7 @@ LDA 2
 STA 14
 LDA 3
 STA 15
-LDA #3
+LDA #2
 STA 2
 LDA #208
 STA 3
@@ -42,7 +42,7 @@ LDA 2
 STA 16
 LDA 3
 STA 17
-LDA #4
+LDA #3
 STA 2
 LDA #208
 STA 3
@@ -50,7 +50,7 @@ LDA 2
 STA 18
 LDA 3
 STA 19
-LDA #5
+LDA #4
 STA 2
 LDA #208
 STA 3
@@ -58,7 +58,7 @@ LDA 2
 STA 20
 LDA 3
 STA 21
-LDA #6
+LDA #5
 STA 2
 LDA #208
 STA 3
@@ -74,9 +74,9 @@ LDA 2
 STA 24
 LDA 3
 STA 25
-LDA #0
+LDA #6
 STA 2
-LDA #224
+LDA #208
 STA 3
 LDA 2
 STA 26
@@ -84,7 +84,7 @@ LDA 3
 STA 27
 LDA #0
 STA 2
-LDA #196
+LDA #224
 STA 3
 LDA 2
 STA 28
@@ -92,370 +92,164 @@ LDA 3
 STA 29
 LDA #0
 STA 2
-LDA #216
+LDA #196
 STA 3
 LDA 2
 STA 30
 LDA 3
 STA 31
-LDA #128
+LDA #0
 STA 2
-LDA #208
+LDA #216
 STA 3
 LDA 2
 STA 32
 LDA 3
 STA 33
+LDA #128
+STA 2
+LDA #208
+STA 3
+LDA 2
+STA 34
+LDA 3
+STA 35
 JSR main
 JMP BRK
-;	 Function: loadBytesFromDataTo
-loadBytesFromDataTo:
+;	 Function: waitforblank
+waitforblank:
 TSX
 LDA 0
 PHA
 TXA
 STA 0
 LDA #0
-PHA
-PHA
-PHA
-PHA
-PHA
-PHA
-;	assign datapointerregister 6
-LDA #6
-STA 2
-LDA #0
-STA 3
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	assign _0 *datapointerregister
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA #0
-TAY
-LDA (2),Y
-TAX
-INY
-LDA (2),Y
-STA 3
-TXA
-STA 2
+;	label c1
+waitforblankc1:
+;	call vid_blanking
+JSR vid_blanking
+;	assignret _0
 LDA 2
 STA $200
 LDA 3
 STA $201
-;	assign data _0
+;	eq _1 _0 0
 LDA $200
 STA 2
 LDA $201
 STA 3
-LDA 0
-CLC
-SBC #3
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	add _1 data startaddressdata
-LDA 0
-CLC
-SBC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 0
-CLC
-ADC #5
-TAX
-LDA $100,X
+LDA #0
 STA 4
-INX
-LDA $100,X
+LDA #0
 STA 5
 LDA 2
-CLC
-ADC 4
+EOR 4
 STA 2
 LDA 3
-ADC 5
+EOR 5
+ORA 2
+STA 2
+STA 3
+CMP #0
+BEQ TRUE1
+LDA #$FF
+STA 2
+STA 3
+TRUE1:
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	if _1 c2 c3
+LDA $202
+STA 2
+LDA $203
+STA 3
+LDA 2
+BNE NOT2
+JMP waitforblankc2
+NOT2:
+JMP waitforblankc3
+;	label c2
+waitforblankc2:
+;	goto c1
+JMP waitforblankc1
+;	label c3
+waitforblankc3:
+;	label c4
+waitforblankc4:
+;	call vid_blanking
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
+JSR vid_blanking
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+;	assignret _0
+LDA 2
+STA $200
+LDA 3
+STA $201
+;	neq _1 _0 0
+LDA $200
+STA 2
+LDA $201
+STA 3
+LDA #0
+STA 4
+LDA #0
+STA 5
+LDA 2
+EOR 4
+STA 2
+LDA 3
+EOR 5
+ORA 2
+STA 2
+STA 3
+CMP #0
+BEQ TRUE3
+LDA #$FF
+STA 2
+STA 3
+TRUE3:
+LDA #$FF
+EOR 2
+STA 2
+LDA #$FF
+EOR 3
 STA 3
 LDA 2
 STA $202
 LDA 3
 STA $203
-;	assign data _1
+;	if _1 c5 c6
 LDA $202
 STA 2
 LDA $203
 STA 3
-LDA 0
-CLC
-SBC #3
-TAX
 LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	assign i 0
-LDA #0
-STA 2
-LDA #0
-STA 3
-LDA 0
-CLC
-SBC #5
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	label c1
-loadBytesFromDataToc1:
-;	lt _2 i amount
-LDA 0
-CLC
-SBC #5
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 0
-CLC
-ADC #7
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA 4
-EOR #$FF
-CLC
-ADC #1
-STA 4
-LDA 5
-EOR #$FF
-ADC #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-BMI TRUE1
-JMP FALSE1
-TRUE1:
-LDA #0
-STA 2
-JMP END1
-FALSE1:
-LDA #$FF
-STA 2
-END1:
-LDA 2
-STA $204
-LDA 3
-STA $205
-;	if _2 c2 c3
-LDA $204
-STA 2
-LDA $205
-STA 3
-LDA 2
-BNE NOT2
-JMP loadBytesFromDataToc2
-NOT2:
-JMP loadBytesFromDataToc3
-;	label c2
-loadBytesFromDataToc2:
-;	add _3 i 1
-LDA 0
-CLC
-SBC #5
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-LDA 2
-STA $206
-LDA 3
-STA $207
-;	assign i _3
-LDA $206
-STA 2
-LDA $207
-STA 3
-LDA 0
-CLC
-SBC #5
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	assign _4 *data
-LDA 0
-CLC
-SBC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA #0
-TAY
-LDA (2),Y
-STA 2
-LDA #0
-STA 3
-LDA 2
-STA $208
-LDA 3
-STA $209
-;	assign *startadressram _4
-LDA $208
-STA 2
-LDA $209
-STA 3
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-LDA 3
-INY
-STA (4),Y
-;	add _5 data 1
-LDA 0
-CLC
-SBC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-LDA 2
-STA $210
-LDA 3
-STA $211
-;	assign data _5
-LDA $210
-STA 2
-LDA $211
-STA 3
-LDA 0
-CLC
-SBC #3
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	add _6 startadressram 1
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-LDA 2
-STA $212
-LDA 3
-STA $213
-;	assign startadressram _6
-LDA $212
-STA 2
-LDA $213
-STA 3
-LDA 0
-CLC
-ADC #3
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	goto c1
-JMP loadBytesFromDataToc1
-;	label c3
-loadBytesFromDataToc3:
+BNE NOT4
+JMP waitforblankc5
+NOT4:
+JMP waitforblankc6
+;	label c5
+waitforblankc5:
+;	goto c4
+JMP waitforblankc4
+;	label c6
+waitforblankc6:
 ;	return
 LDA 0
 TAX
@@ -474,21 +268,15 @@ STA 0
 LDA #0
 PHA
 PHA
-;	assign chram 40960
-LDA #0
-STA 2
-LDA #160
-STA 3
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
 ;	call vid_set_character_ram_address 0
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
 LDA #0
 STA 2
 LDA #0
@@ -500,8 +288,24 @@ PHA
 JSR vid_set_character_ram_address
 PLA
 PLA
-;	call vid_set_border_color 3
-LDA #3
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+;	call vid_set_border_color 1
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
+LDA #1
 STA 2
 LDA #0
 STA 3
@@ -512,8 +316,24 @@ PHA
 JSR vid_set_border_color
 PLA
 PLA
-;	call loadBytesFromDataTo 40960 0 8
-LDA #8
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+;	call copy_tiledata_from_data 0 24
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
+LDA #24
 STA 2
 LDA #0
 STA 3
@@ -529,31 +349,29 @@ LDA 3
 PHA
 LDA 2
 PHA
-LDA #0
-STA 2
-LDA #160
-STA 3
-LDA 3
+JSR copy_tiledata_from_data
+PLA
+PLA
+PLA
+PLA
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+;	call copy_spritedata_from_data 24 16
+LDA $201
 PHA
-LDA 2
+LDA $200
 PHA
-JSR loadBytesFromDataTo
-PLA
-PLA
-PLA
-PLA
-PLA
-PLA
-;	call loadBytesFromDataTo 40968 8 8
-LDA #8
-STA 2
-LDA #0
-STA 3
-LDA 3
+LDA $203
 PHA
-LDA 2
+LDA $202
 PHA
-LDA #8
+LDA #16
 STA 2
 LDA #0
 STA 3
@@ -561,22 +379,104 @@ LDA 3
 PHA
 LDA 2
 PHA
-LDA #8
+LDA #24
 STA 2
-LDA #160
+LDA #0
 STA 3
 LDA 3
 PHA
 LDA 2
 PHA
-JSR loadBytesFromDataTo
+JSR copy_spritedata_from_data
+PLA
+PLA
+PLA
+PLA
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+;	call vid_insert_sprite_into_sprite_table 0 100 100 55 16
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
+LDA #16
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #55
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #100
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #100
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR vid_insert_sprite_into_sprite_table
 PLA
 PLA
 PLA
 PLA
 PLA
 PLA
+PLA
+PLA
+PLA
+PLA
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
 ;	call vid_place_character_to_screen 0 0
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
 LDA #0
 STA 2
 LDA #0
@@ -598,7 +498,23 @@ PLA
 PLA
 PLA
 PLA
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
 ;	call vid_place_character_to_screen 1 1
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
 LDA #1
 STA 2
 LDA #0
@@ -620,11 +536,1667 @@ PLA
 PLA
 PLA
 PLA
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+;	call vid_place_character_to_screen 60 2
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
+LDA #2
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #60
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR vid_place_character_to_screen
+PLA
+PLA
+PLA
+PLA
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+;	call vid_insert_color_to_cram 60 76
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
+LDA #76
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #60
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR vid_insert_color_to_cram
+PLA
+PLA
+PLA
+PLA
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+;	assign i 21
+LDA #21
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	label c7
+mainc7:
+;	eq _0 1 1
+LDA #1
+STA 2
+LDA #0
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+EOR 4
+STA 2
+LDA 3
+EOR 5
+ORA 2
+STA 2
+STA 3
+CMP #0
+BEQ TRUE5
+LDA #$FF
+STA 2
+STA 3
+TRUE5:
+LDA 2
+STA $200
+LDA 3
+STA $201
+;	if _0 c8 c9
+LDA $200
+STA 2
+LDA $201
+STA 3
+LDA 2
+BNE NOT6
+JMP mainc8
+NOT6:
+JMP mainc9
+;	label c8
+mainc8:
+;	eq _0 i 150
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #150
+STA 4
+LDA #0
+STA 5
+LDA 2
+EOR 4
+STA 2
+LDA 3
+EOR 5
+ORA 2
+STA 2
+STA 3
+CMP #0
+BEQ TRUE7
+LDA #$FF
+STA 2
+STA 3
+TRUE7:
+LDA 2
+STA $200
+LDA 3
+STA $201
+;	if _0 c10 c11
+LDA $200
+STA 2
+LDA $201
+STA 3
+LDA 2
+BNE NOT8
+JMP mainc10
+NOT8:
+JMP mainc11
+;	label c10
+mainc10:
+;	assign i 21
+LDA #21
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	goto c12
+JMP mainc12
+;	label c11
+mainc11:
+;	label c12
+mainc12:
+;	add i i 1
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	call vid_change_sprite_position 0 i i
+LDA $201
+PHA
+LDA $200
+PHA
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #0
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR vid_change_sprite_position
+PLA
+PLA
+PLA
+PLA
+PLA
+PLA
+PLA
+STA $200
+PLA
+STA $201
+;	call waitforblank
+LDA $201
+PHA
+LDA $200
+PHA
+JSR waitforblank
+PLA
+STA $200
+PLA
+STA $201
+;	goto c7
+JMP mainc7
+;	label c9
+mainc9:
+;	call vid_place_character_to_screen 2 2
+LDA $201
+PHA
+LDA $200
+PHA
+LDA #2
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #2
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR vid_place_character_to_screen
+PLA
+PLA
+PLA
+PLA
+PLA
+STA $200
+PLA
+STA $201
 ;	return 0
 LDA #0
 STA 2
 LDA #0
 STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: copy_from_data
+copy_from_data:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+PHA
+PHA
+;	assign datapointerregister 6
+LDA #6
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	add data *datapointerregister startadressdata
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+TAX
+INY
+LDA (2),Y
+STA 3
+TXA
+STA 2
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign _0 amount
+LDA 0
+CLC
+ADC #7
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+STA $200
+LDA 3
+STA $201
+;	label cond
+copy_from_datacond:
+;	neq _1 _0 0
+LDA $200
+STA 2
+LDA $201
+STA 3
+LDA #0
+STA 4
+LDA #0
+STA 5
+LDA 2
+EOR 4
+STA 2
+LDA 3
+EOR 5
+ORA 2
+STA 2
+STA 3
+CMP #0
+BEQ TRUE9
+LDA #$FF
+STA 2
+STA 3
+TRUE9:
+LDA #$FF
+EOR 2
+STA 2
+LDA #$FF
+EOR 3
+STA 3
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	if _1 keepcopy out
+LDA $202
+STA 2
+LDA $203
+STA 3
+LDA 2
+BNE NOT10
+JMP copy_from_datakeepcopy
+NOT10:
+JMP copy_from_dataout
+;	label keepcopy
+copy_from_datakeepcopy:
+;	assign *startadressram *data
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	add startadressram startadressram 1
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+ADC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	add data data 1
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	sub _0 _0 1
+LDA $200
+STA 2
+LDA $201
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 2
+STA $200
+LDA 3
+STA $201
+;	goto cond
+JMP copy_from_datacond
+;	label out
+copy_from_dataout:
+;	return
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: vid_blanking
+vid_blanking:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+;	return *vid_blanking_register
+LDA 12
+STA 2
+LDA 13
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: vid_set_border_color
+vid_set_border_color:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+;	bitand *vid_color_register *vid_color_register 240
+LDA 16
+STA 2
+LDA 17
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA #240
+STA 4
+LDA #0
+STA 5
+LDA 2
+AND 4
+STA 2
+LDA 3
+AND 5
+STA 3
+LDA 16
+STA 4
+LDA 17
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	bitor *vid_color_register *vid_color_register color
+LDA 16
+STA 2
+LDA 17
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+LDA #0
+STA 5
+LDA 2
+ORA 4
+STA 2
+LDA 3
+ORA 5
+STA 3
+LDA 16
+STA 4
+LDA 17
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	return
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: vid_set_character_ram_address
+vid_set_character_ram_address:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	mult _1 loc 1024
+LDA $201
+PHA
+LDA $200
+PHA
+LDA #0
+STA 2
+LDA #4
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR mult
+PLA
+PLA
+PLA
+PLA
+PLA
+STA $200
+PLA
+STA $201
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	add base 40960 _1
+LDA #0
+STA 2
+LDA #160
+STA 3
+LDA $202
+STA 4
+LDA $203
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	bitand *vid_base_register *vid_base_register 240
+LDA 18
+STA 2
+LDA 19
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA #240
+STA 4
+LDA #0
+STA 5
+LDA 2
+AND 4
+STA 2
+LDA 3
+AND 5
+STA 3
+LDA 18
+STA 4
+LDA 19
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	bitor *vid_base_register *vid_base_register loc
+LDA 18
+STA 2
+LDA 19
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA 2
+ORA 4
+STA 2
+LDA 3
+ORA 5
+STA 3
+LDA 18
+STA 4
+LDA 19
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	assign vid_character_ram base
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+STA 28
+LDA 3
+STA 29
+;	return
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: vid_place_character_to_screen
+vid_place_character_to_screen:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	add loco vid_screen_ram loc
+LDA 30
+STA 2
+LDA 31
+STA 3
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign *loco character
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	return
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: vid_insert_color_to_cram
+vid_insert_color_to_cram:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	add add vid_color_ram offset
+LDA 32
+STA 2
+LDA 33
+STA 3
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign *add line1
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	return
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: vid_insert_sprite_into_sprite_table
+vid_insert_sprite_into_sprite_table:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	mult _1 spriteindex 4
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
+LDA #4
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR mult
+PLA
+PLA
+PLA
+PLA
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	add add vid_sprite_ram _1
+LDA 34
+STA 2
+LDA 35
+STA 3
+LDA $202
+STA 4
+LDA $203
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign *add x
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	add add add 1
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign *add y
+LDA 0
+CLC
+ADC #7
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	add add add 1
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign *add color
+LDA 0
+CLC
+ADC #9
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	add add add 1
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign *add baseadresssprite
+LDA 0
+CLC
+ADC #11
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	return
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: vid_change_sprite_position
+vid_change_sprite_position:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	mult _1 spriteindex 4
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
+LDA #4
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR mult
+PLA
+PLA
+PLA
+PLA
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	add add vid_sprite_ram _1
+LDA 34
+STA 2
+LDA 35
+STA 3
+LDA $202
+STA 4
+LDA $203
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign *add x
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	add add add 1
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign *add y
+LDA 0
+CLC
+ADC #7
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	return
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: copy_spritedata_from_data
+copy_spritedata_from_data:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+;	mult _1 64 baseadresssprite
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA #64
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR mult
+PLA
+PLA
+PLA
+PLA
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	add _2 everythingsbaseadress _1
+LDA 10
+STA 2
+LDA 11
+STA 3
+LDA $202
+STA 4
+LDA $203
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 2
+STA $204
+LDA 3
+STA $205
+;	call copy_from_data _2 startbytedatanumber 63
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
+LDA $205
+PHA
+LDA $204
+PHA
+LDA #63
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA $204
+STA 2
+LDA $205
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR copy_from_data
+PLA
+PLA
+PLA
+PLA
+PLA
+PLA
+PLA
+STA $204
+PLA
+STA $205
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+;	return
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: copy_tiledata_from_data
+copy_tiledata_from_data:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+;	call copy_from_data vid_character_ram startbytedatanumber amountbytes
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
+LDA $205
+PHA
+LDA $204
+PHA
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+LDA 28
+STA 2
+LDA 29
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR copy_from_data
+PLA
+PLA
+PLA
+PLA
+PLA
+PLA
+PLA
+STA $204
+PLA
+STA $205
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+;	return
 LDA 0
 TAX
 DEX
@@ -670,16 +2242,16 @@ STA 2
 LDA 3
 ADC 5
 STA 3
-BMI TRUE3
-JMP FALSE3
-TRUE3:
+BMI TRUE11
+JMP FALSE11
+TRUE11:
 LDA #0
 STA 2
-JMP END3
-FALSE3:
+JMP END11
+FALSE11:
 LDA #$FF
 STA 2
-END3:
+END11:
 LDA 2
 STA $202
 LDA 3
@@ -690,9 +2262,9 @@ STA 2
 LDA $203
 STA 3
 LDA 2
-BNE NOT4
+BNE NOT12
 JMP absneg
-NOT4:
+NOT12:
 JMP abspos
 ;	label neg
 absneg:
@@ -754,6 +2326,10 @@ PHA
 PHA
 PHA
 ;	call abs j
+LDA $203
+PHA
+LDA $202
+PHA
 LDA 0
 CLC
 ADC #5
@@ -770,6 +2346,10 @@ PHA
 JSR abs
 PLA
 PLA
+PLA
+STA $202
+PLA
+STA $203
 ;	assignret jj
 LDA 0
 CLC
@@ -897,11 +2477,11 @@ ORA 2
 STA 2
 STA 3
 CMP #0
-BEQ TRUE5
+BEQ TRUE13
 LDA #$FF
 STA 2
 STA 3
-TRUE5:
+TRUE13:
 LDA #$FF
 EOR 2
 STA 2
@@ -918,9 +2498,9 @@ STA 2
 LDA $203
 STA 3
 LDA 2
-BNE NOT6
+BNE NOT14
 JMP multW2
-NOT6:
+NOT14:
 JMP multW0
 ;	label W0
 multW0:
@@ -954,16 +2534,16 @@ STA 2
 LDA 3
 ADC 5
 STA 3
-BMI TRUE7
-JMP FALSE7
-TRUE7:
+BMI TRUE15
+JMP FALSE15
+TRUE15:
 LDA #0
 STA 2
-JMP END7
-FALSE7:
+JMP END15
+FALSE15:
 LDA #$FF
 STA 2
-END7:
+END15:
 LDA 2
 STA $202
 LDA 3
@@ -974,9 +2554,9 @@ STA 2
 LDA $203
 STA 3
 LDA 2
-BNE NOT8
+BNE NOT16
 JMP multW4
-NOT8:
+NOT16:
 JMP multW5
 ;	label W4
 multW4:
@@ -1025,308 +2605,8 @@ TXS
 PLA
 STA 0
 RTS
-;	 Function: vid_set_border_color
-vid_set_border_color:
-TSX
-LDA 0
-PHA
-TXA
-STA 0
-LDA #0
-;	bitand *vid_color_register *vid_color_register 240
-LDA 14
-STA 2
-LDA 15
-STA 3
-LDA #0
-TAY
-LDA (2),Y
-STA 2
-LDA #0
-STA 3
-LDA #240
-STA 4
-LDA #0
-STA 5
-LDA 2
-AND 4
-STA 2
-LDA 3
-AND 5
-STA 3
-LDA 14
-STA 4
-LDA 15
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	bitor *vid_color_register *vid_color_register color
-LDA 14
-STA 2
-LDA 15
-STA 3
-LDA #0
-TAY
-LDA (2),Y
-STA 2
-LDA #0
-STA 3
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 4
-LDA #0
-STA 5
-LDA 2
-ORA 4
-STA 2
-LDA 3
-ORA 5
-STA 3
-LDA 14
-STA 4
-LDA 15
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	return
-LDA 0
-TAX
-DEX
-TXS
-PLA
-STA 0
-RTS
-;	 Function: vid_set_character_ram_address
-vid_set_character_ram_address:
-TSX
-LDA 0
-PHA
-TXA
-STA 0
-LDA #0
-PHA
-PHA
-;	mult _1 loc 1024
-LDA #0
-STA 2
-LDA #4
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR mult
-PLA
-PLA
-PLA
-PLA
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	add base 40960 _1
-LDA #0
-STA 2
-LDA #160
-STA 3
-LDA $202
-STA 4
-LDA $203
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	bitand *vid_base_register *vid_base_register 240
-LDA 16
-STA 2
-LDA 17
-STA 3
-LDA #0
-TAY
-LDA (2),Y
-STA 2
-LDA #0
-STA 3
-LDA #240
-STA 4
-LDA #0
-STA 5
-LDA 2
-AND 4
-STA 2
-LDA 3
-AND 5
-STA 3
-LDA 16
-STA 4
-LDA 17
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	bitor *vid_base_register *vid_base_register loc
-LDA 16
-STA 2
-LDA 17
-STA 3
-LDA #0
-TAY
-LDA (2),Y
-STA 2
-LDA #0
-STA 3
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA 2
-ORA 4
-STA 2
-LDA 3
-ORA 5
-STA 3
-LDA 16
-STA 4
-LDA 17
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	assign vid_character_ram base
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 2
-STA 26
-LDA 3
-STA 27
-;	return
-LDA 0
-TAX
-DEX
-TXS
-PLA
-STA 0
-RTS
-;	 Function: vid_place_character_to_screen
-vid_place_character_to_screen:
-TSX
-LDA 0
-PHA
-TXA
-STA 0
-LDA #0
-PHA
-PHA
-;	add loco vid_screen_ram loc
-LDA 28
-STA 2
-LDA 29
-STA 3
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	assign *loco character
-LDA 0
-CLC
-ADC #5
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	return
-LDA 0
-TAX
-DEX
-TXS
-PLA
-STA 0
-RTS
 DATAEXT:
-.byte $14, $41, $41, $41, $41, $41, $14, $0, $14, $04, $04, $04, $04, $04, $15, $0
+.byte $14, $41, $41, $41, $41, $41, $14, $0, $14, $04, $04, $04, $04, $04, $15, $0, $30, $CC, $C0, $C0, $C0, $C0, $CC, $30, $0, $14, $00, $01, $55, $40, $05, $55, $50, $05, $55, $50, $15, $7D, $54, $15, $D7, $54, $15, $D5, $54, $15, $D5, $54, $15, $D7, $54, $05, $7D, $50, $05, $55, $50, $05, $55, $50, $0D, $55, $70, $0C, $5D, $30, $0C, $5D, $30, $03, $1C, $C0, $03, $0C, $C0, $03, $0C, $C0, $00, $8E, $00, $00, $AA, $00, $00, $AA, $00, $83
 BRK: BRA BRK
 LAST
 .ENDLOGICAL
