@@ -74,9 +74,9 @@ LDA 2
 STA 24
 LDA 3
 STA 25
-LDA #6
+LDA #0
 STA 2
-LDA #208
+LDA #224
 STA 3
 LDA 2
 STA 26
@@ -84,7 +84,7 @@ LDA 3
 STA 27
 LDA #0
 STA 2
-LDA #224
+LDA #196
 STA 3
 LDA 2
 STA 28
@@ -92,28 +92,20 @@ LDA 3
 STA 29
 LDA #0
 STA 2
-LDA #196
+LDA #216
 STA 3
 LDA 2
 STA 30
 LDA 3
 STA 31
-LDA #0
-STA 2
-LDA #216
-STA 3
-LDA 2
-STA 32
-LDA 3
-STA 33
 LDA #128
 STA 2
 LDA #208
 STA 3
 LDA 2
-STA 34
+STA 32
 LDA 3
-STA 35
+STA 33
 JSR main
 JMP BRK
 ;	 Function: waitforblank
@@ -268,6 +260,36 @@ STA 0
 LDA #0
 PHA
 PHA
+PHA
+PHA
+;	call vid_set_border_color 3
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
+LDA #3
+STA 2
+LDA #0
+STA 3
+LDA 3
+PHA
+LDA 2
+PHA
+JSR vid_set_border_color
+PLA
+PLA
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
 ;	call vid_set_character_ram_address 0
 LDA $201
 PHA
@@ -286,34 +308,6 @@ PHA
 LDA 2
 PHA
 JSR vid_set_character_ram_address
-PLA
-PLA
-PLA
-STA $202
-PLA
-STA $203
-PLA
-STA $200
-PLA
-STA $201
-;	call vid_set_border_color 1
-LDA $201
-PHA
-LDA $200
-PHA
-LDA $203
-PHA
-LDA $202
-PHA
-LDA #1
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR vid_set_border_color
 PLA
 PLA
 PLA
@@ -400,7 +394,35 @@ PLA
 STA $200
 PLA
 STA $201
-;	call vid_insert_sprite_into_sprite_table 0 100 100 55 16
+;	assign x 100
+LDA #100
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign y 100
+LDA #100
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	call vid_insert_sprite_into_sprite_table 0 x y 55 16
 LDA $201
 PHA
 LDA $200
@@ -425,17 +447,27 @@ LDA 3
 PHA
 LDA 2
 PHA
-LDA #100
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
 STA 2
-LDA #0
+INX
+LDA $100,X
 STA 3
 LDA 3
 PHA
 LDA 2
 PHA
-LDA #100
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
 STA 2
-LDA #0
+INX
+LDA $100,X
 STA 3
 LDA 3
 PHA
@@ -468,241 +500,31 @@ PLA
 STA $200
 PLA
 STA $201
-;	call vid_place_character_to_screen 0 0
-LDA $201
-PHA
-LDA $200
-PHA
-LDA $203
-PHA
-LDA $202
-PHA
-LDA #0
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #0
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR vid_place_character_to_screen
-PLA
-PLA
-PLA
-PLA
-PLA
-STA $202
-PLA
-STA $203
-PLA
-STA $200
-PLA
-STA $201
-;	call vid_place_character_to_screen 1 1
-LDA $201
-PHA
-LDA $200
-PHA
-LDA $203
-PHA
-LDA $202
-PHA
-LDA #1
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #1
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR vid_place_character_to_screen
-PLA
-PLA
-PLA
-PLA
-PLA
-STA $202
-PLA
-STA $203
-PLA
-STA $200
-PLA
-STA $201
-;	call vid_place_character_to_screen 60 2
-LDA $201
-PHA
-LDA $200
-PHA
-LDA $203
-PHA
-LDA $202
-PHA
-LDA #2
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #60
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR vid_place_character_to_screen
-PLA
-PLA
-PLA
-PLA
-PLA
-STA $202
-PLA
-STA $203
-PLA
-STA $200
-PLA
-STA $201
-;	call vid_insert_color_to_cram 60 76
-LDA $201
-PHA
-LDA $200
-PHA
-LDA $203
-PHA
-LDA $202
-PHA
-LDA #76
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-LDA #60
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR vid_insert_color_to_cram
-PLA
-PLA
-PLA
-PLA
-PLA
-STA $202
-PLA
-STA $203
-PLA
-STA $200
-PLA
-STA $201
-;	assign i 21
-LDA #21
-STA 2
-LDA #0
-STA 3
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
 ;	label c7
 mainc7:
-;	eq _0 1 1
-LDA #1
-STA 2
-LDA #0
-STA 3
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 2
-EOR 4
-STA 2
-LDA 3
-EOR 5
-ORA 2
-STA 2
-STA 3
-CMP #0
-BEQ TRUE5
-LDA #$FF
-STA 2
-STA 3
-TRUE5:
-LDA 2
-STA $200
-LDA 3
-STA $201
-;	if _0 c8 c9
-LDA $200
-STA 2
-LDA $201
-STA 3
-LDA 2
-BNE NOT6
+;	goto c8
 JMP mainc8
-NOT6:
-JMP mainc9
 ;	label c8
 mainc8:
-;	eq _0 i 150
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA #150
-STA 4
-LDA #0
-STA 5
-LDA 2
-EOR 4
-STA 2
-LDA 3
-EOR 5
-ORA 2
-STA 2
-STA 3
-CMP #0
-BEQ TRUE7
-LDA #$FF
-STA 2
-STA 3
-TRUE7:
+;	call is_W_pressed
+LDA $201
+PHA
+LDA $200
+PHA
+LDA $203
+PHA
+LDA $202
+PHA
+JSR is_W_pressed
+PLA
+STA $202
+PLA
+STA $203
+PLA
+STA $200
+PLA
+STA $201
+;	assignret _0
 LDA 2
 STA $200
 LDA 3
@@ -713,20 +535,73 @@ STA 2
 LDA $201
 STA 3
 LDA 2
-BNE NOT8
+BNE NOT5
 JMP mainc10
-NOT8:
+NOT5:
 JMP mainc11
 ;	label c10
 mainc10:
-;	assign i 21
-LDA #21
+;	sub y y 1
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
 STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
 LDA #0
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
 STA 3
 LDA 0
 CLC
-SBC #1
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign _0 y
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+STA $200
+LDA 3
+STA $201
+;	assign y _0
+LDA $200
+STA 2
+LDA $201
+STA 3
+LDA 0
+CLC
+SBC #3
 TAX
 LDA 2
 STA $100,X
@@ -737,9 +612,221 @@ STA $100,X
 JMP mainc12
 ;	label c11
 mainc11:
-;	label c12
-mainc12:
-;	add i i 1
+;	call is_A_pressed
+LDA $201
+PHA
+LDA $200
+PHA
+JSR is_A_pressed
+PLA
+STA $200
+PLA
+STA $201
+;	assignret _0
+LDA 2
+STA $200
+LDA 3
+STA $201
+;	if _0 c13 c14
+LDA $200
+STA 2
+LDA $201
+STA 3
+LDA 2
+BNE NOT6
+JMP mainc13
+NOT6:
+JMP mainc14
+;	label c13
+mainc13:
+;	sub x x 1
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign _0 x
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+STA $200
+LDA 3
+STA $201
+;	assign x _0
+LDA $200
+STA 2
+LDA $201
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	goto c15
+JMP mainc15
+;	label c14
+mainc14:
+;	call is_S_pressed
+LDA $201
+PHA
+LDA $200
+PHA
+JSR is_S_pressed
+PLA
+STA $200
+PLA
+STA $201
+;	assignret _0
+LDA 2
+STA $200
+LDA 3
+STA $201
+;	if _0 c16 c17
+LDA $200
+STA 2
+LDA $201
+STA 3
+LDA 2
+BNE NOT7
+JMP mainc16
+NOT7:
+JMP mainc17
+;	label c16
+mainc16:
+;	add y y 1
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign _0 y
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+STA $200
+LDA 3
+STA $201
+;	assign y _0
+LDA $200
+STA 2
+LDA $201
+STA 3
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	goto c18
+JMP mainc18
+;	label c17
+mainc17:
+;	call is_D_pressed
+LDA $201
+PHA
+LDA $200
+PHA
+JSR is_D_pressed
+PLA
+STA $200
+PLA
+STA $201
+;	assignret _0
+LDA 2
+STA $200
+LDA 3
+STA $201
+;	if _0 c19 c20
+LDA $200
+STA 2
+LDA $201
+STA 3
+LDA 2
+BNE NOT8
+JMP mainc19
+NOT8:
+JMP mainc20
+;	label c19
+mainc19:
+;	add x x 1
 LDA 0
 CLC
 SBC #1
@@ -769,14 +856,54 @@ STA $100,X
 INX
 LDA 3
 STA $100,X
-;	call vid_change_sprite_position 0 i i
+;	assign _0 x
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+STA $200
+LDA 3
+STA $201
+;	assign x _0
+LDA $200
+STA 2
+LDA $201
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	goto c21
+JMP mainc21
+;	label c20
+mainc20:
+;	label c21
+mainc21:
+;	label c18
+mainc18:
+;	label c15
+mainc15:
+;	label c12
+mainc12:
+;	call vid_change_sprite_position 0 x y
 LDA $201
 PHA
 LDA $200
 PHA
 LDA 0
 CLC
-SBC #1
+SBC #3
 TAX
 LDA $100,X
 STA 2
@@ -831,42 +958,743 @@ PLA
 STA $201
 ;	goto c7
 JMP mainc7
-;	label c9
-mainc9:
-;	call vid_place_character_to_screen 2 2
+;	 Function: abs
+abs:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+;	lt _1 i 0
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #0
+STA 4
+LDA #0
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+BMI TRUE9
+JMP FALSE9
+TRUE9:
+LDA #0
+STA 2
+JMP END9
+FALSE9:
+LDA #$FF
+STA 2
+END9:
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	if _1 neg pos
+LDA $202
+STA 2
+LDA $203
+STA 3
+LDA 2
+BNE NOT10
+JMP absneg
+NOT10:
+JMP abspos
+;	label neg
+absneg:
+;	return -i
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+EOR #$FF
+CLC
+ADC #1
+STA 2
+LDA 3
+EOR #$FF
+ADC #0
+STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	label pos
+abspos:
+;	return i
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: mult
+mult:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+PHA
+PHA
+;	call abs j
 LDA $201
 PHA
 LDA $200
 PHA
-LDA #2
+LDA $203
+PHA
+LDA $202
+PHA
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
 STA 2
-LDA #0
+INX
+LDA $100,X
 STA 3
 LDA 3
 PHA
 LDA 2
 PHA
-LDA #2
-STA 2
-LDA #0
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR vid_place_character_to_screen
+JSR abs
 PLA
 PLA
 PLA
+STA $202
 PLA
+STA $203
 PLA
 STA $200
 PLA
 STA $201
-;	return 0
+;	assignret jj
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign erg 0
 LDA #0
 STA 2
 LDA #0
+STA 3
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	goto W1
+JMP multW1
+;	label W2
+multW2:
+;	add erg erg i
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+CLC
+ADC #3
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #3
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	add jj jj -1
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #1
+STA 4
+LDA #0
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	label W1
+multW1:
+;	neq _1 jj 0
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #0
+STA 4
+LDA #0
+STA 5
+LDA 2
+EOR 4
+STA 2
+LDA 3
+EOR 5
+ORA 2
+STA 2
+STA 3
+CMP #0
+BEQ TRUE11
+LDA #$FF
+STA 2
+STA 3
+TRUE11:
+LDA #$FF
+EOR 2
+STA 2
+LDA #$FF
+EOR 3
+STA 3
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	if _1 W2 W0
+LDA $202
+STA 2
+LDA $203
+STA 3
+LDA 2
+BNE NOT12
+JMP multW2
+NOT12:
+JMP multW0
+;	label W0
+multW0:
+;	lt _1 j 0
+LDA 0
+CLC
+ADC #5
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #0
+STA 4
+LDA #0
+STA 5
+LDA 4
+EOR #$FF
+CLC
+ADC #1
+STA 4
+LDA 5
+EOR #$FF
+ADC #0
+STA 5
+LDA 2
+CLC
+ADC 4
+STA 2
+LDA 3
+ADC 5
+STA 3
+BMI TRUE13
+JMP FALSE13
+TRUE13:
+LDA #0
+STA 2
+JMP END13
+FALSE13:
+LDA #$FF
+STA 2
+END13:
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	if _1 W4 W5
+LDA $202
+STA 2
+LDA $203
+STA 3
+LDA 2
+BNE NOT14
+JMP multW4
+NOT14:
+JMP multW5
+;	label W4
+multW4:
+;	return -erg
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 2
+EOR #$FF
+CLC
+ADC #1
+STA 2
+LDA 3
+EOR #$FF
+ADC #0
+STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	label W5
+multW5:
+;	return erg
+LDA 0
+CLC
+SBC #3
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: is_D_pressed
+is_D_pressed:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	assign add 40705
+LDA #1
+STA 2
+LDA #159
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign *add 1
+LDA #1
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	bitand _1 *add 16
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA #16
+STA 4
+LDA #0
+STA 5
+LDA 2
+AND 4
+STA 2
+LDA 3
+AND 5
+STA 3
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	return _1
+LDA $202
+STA 2
+LDA $203
+STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: is_A_pressed
+is_A_pressed:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	assign add 40705
+LDA #1
+STA 2
+LDA #159
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign *add 1
+LDA #1
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	bitand _1 *add 8
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA #8
+STA 4
+LDA #0
+STA 5
+LDA 2
+AND 4
+STA 2
+LDA 3
+AND 5
+STA 3
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	return _1
+LDA $202
+STA 2
+LDA $203
+STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: is_S_pressed
+is_S_pressed:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	assign add 40705
+LDA #1
+STA 2
+LDA #159
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign *add 4
+LDA #4
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	bitand _1 *add 8
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA #8
+STA 4
+LDA #0
+STA 5
+LDA 2
+AND 4
+STA 2
+LDA 3
+AND 5
+STA 3
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	return _1
+LDA $202
+STA 2
+LDA $203
+STA 3
+LDA 0
+TAX
+DEX
+TXS
+PLA
+STA 0
+RTS
+;	 Function: is_W_pressed
+is_W_pressed:
+TSX
+LDA 0
+PHA
+TXA
+STA 0
+LDA #0
+PHA
+PHA
+;	assign add 40705
+LDA #1
+STA 2
+LDA #159
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA 2
+STA $100,X
+INX
+LDA 3
+STA $100,X
+;	assign *add 5
+LDA #5
+STA 2
+LDA #0
+STA 3
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 4
+INX
+LDA $100,X
+STA 5
+LDA #0
+TAY
+LDA 2
+STA (4),Y
+;	bitand _1 *add 8
+LDA 0
+CLC
+SBC #1
+TAX
+LDA $100,X
+STA 2
+INX
+LDA $100,X
+STA 3
+LDA #0
+TAY
+LDA (2),Y
+STA 2
+LDA #0
+STA 3
+LDA #8
+STA 4
+LDA #0
+STA 5
+LDA 2
+AND 4
+STA 2
+LDA 3
+AND 5
+STA 3
+LDA 2
+STA $202
+LDA 3
+STA $203
+;	return _1
+LDA $202
+STA 2
+LDA $203
 STA 3
 LDA 0
 TAX
@@ -979,11 +1807,11 @@ ORA 2
 STA 2
 STA 3
 CMP #0
-BEQ TRUE9
+BEQ TRUE15
 LDA #$FF
 STA 2
 STA 3
-TRUE9:
+TRUE15:
 LDA #$FF
 EOR 2
 STA 2
@@ -1000,9 +1828,9 @@ STA 2
 LDA $203
 STA 3
 LDA 2
-BNE NOT10
+BNE NOT16
 JMP copy_from_datakeepcopy
-NOT10:
+NOT16:
 JMP copy_from_dataout
 ;	label keepcopy
 copy_from_datakeepcopy:
@@ -1388,150 +2216,9 @@ INX
 LDA $100,X
 STA 3
 LDA 2
-STA 28
+STA 26
 LDA 3
-STA 29
-;	return
-LDA 0
-TAX
-DEX
-TXS
-PLA
-STA 0
-RTS
-;	 Function: vid_place_character_to_screen
-vid_place_character_to_screen:
-TSX
-LDA 0
-PHA
-TXA
-STA 0
-LDA #0
-PHA
-PHA
-;	add loco vid_screen_ram loc
-LDA 30
-STA 2
-LDA 31
-STA 3
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	assign *loco character
-LDA 0
-CLC
-ADC #5
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
-;	return
-LDA 0
-TAX
-DEX
-TXS
-PLA
-STA 0
-RTS
-;	 Function: vid_insert_color_to_cram
-vid_insert_color_to_cram:
-TSX
-LDA 0
-PHA
-TXA
-STA 0
-LDA #0
-PHA
-PHA
-;	add add vid_color_ram offset
-LDA 32
-STA 2
-LDA 33
-STA 3
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	assign *add line1
-LDA 0
-CLC
-ADC #5
-TAX
-LDA $100,X
-STA 2
-LDA #0
-STA 3
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA #0
-TAY
-LDA 2
-STA (4),Y
+STA 27
 ;	return
 LDA 0
 TAX
@@ -1598,9 +2285,9 @@ STA $202
 LDA 3
 STA $203
 ;	add add vid_sprite_ram _1
-LDA 34
+LDA 32
 STA 2
-LDA 35
+LDA 33
 STA 3
 LDA $202
 STA 4
@@ -1870,9 +2557,9 @@ STA $202
 LDA 3
 STA $203
 ;	add add vid_sprite_ram _1
-LDA 34
+LDA 32
 STA 2
-LDA 35
+LDA 33
 STA 3
 LDA $202
 STA 4
@@ -2169,9 +2856,9 @@ LDA 3
 PHA
 LDA 2
 PHA
-LDA 28
+LDA 26
 STA 2
-LDA 29
+LDA 27
 STA 3
 LDA 3
 PHA
@@ -2197,407 +2884,6 @@ STA $200
 PLA
 STA $201
 ;	return
-LDA 0
-TAX
-DEX
-TXS
-PLA
-STA 0
-RTS
-;	 Function: abs
-abs:
-TSX
-LDA 0
-PHA
-TXA
-STA 0
-LDA #0
-;	lt _1 i 0
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA #0
-STA 4
-LDA #0
-STA 5
-LDA 4
-EOR #$FF
-CLC
-ADC #1
-STA 4
-LDA 5
-EOR #$FF
-ADC #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-BMI TRUE11
-JMP FALSE11
-TRUE11:
-LDA #0
-STA 2
-JMP END11
-FALSE11:
-LDA #$FF
-STA 2
-END11:
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	if _1 neg pos
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 2
-BNE NOT12
-JMP absneg
-NOT12:
-JMP abspos
-;	label neg
-absneg:
-;	return -i
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 2
-EOR #$FF
-CLC
-ADC #1
-STA 2
-LDA 3
-EOR #$FF
-ADC #0
-STA 3
-LDA 0
-TAX
-DEX
-TXS
-PLA
-STA 0
-RTS
-;	label pos
-abspos:
-;	return i
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 0
-TAX
-DEX
-TXS
-PLA
-STA 0
-RTS
-;	 Function: mult
-mult:
-TSX
-LDA 0
-PHA
-TXA
-STA 0
-LDA #0
-PHA
-PHA
-PHA
-PHA
-;	call abs j
-LDA $203
-PHA
-LDA $202
-PHA
-LDA 0
-CLC
-ADC #5
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 3
-PHA
-LDA 2
-PHA
-JSR abs
-PLA
-PLA
-PLA
-STA $202
-PLA
-STA $203
-;	assignret jj
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	assign erg 0
-LDA #0
-STA 2
-LDA #0
-STA 3
-LDA 0
-CLC
-SBC #3
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	goto W1
-JMP multW1
-;	label W2
-multW2:
-;	add erg erg i
-LDA 0
-CLC
-SBC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 0
-CLC
-ADC #3
-TAX
-LDA $100,X
-STA 4
-INX
-LDA $100,X
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-LDA 0
-CLC
-SBC #3
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	add jj jj -1
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA #1
-STA 4
-LDA #0
-STA 5
-LDA 4
-EOR #$FF
-CLC
-ADC #1
-STA 4
-LDA 5
-EOR #$FF
-ADC #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-LDA 0
-CLC
-SBC #1
-TAX
-LDA 2
-STA $100,X
-INX
-LDA 3
-STA $100,X
-;	label W1
-multW1:
-;	neq _1 jj 0
-LDA 0
-CLC
-SBC #1
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA #0
-STA 4
-LDA #0
-STA 5
-LDA 2
-EOR 4
-STA 2
-LDA 3
-EOR 5
-ORA 2
-STA 2
-STA 3
-CMP #0
-BEQ TRUE13
-LDA #$FF
-STA 2
-STA 3
-TRUE13:
-LDA #$FF
-EOR 2
-STA 2
-LDA #$FF
-EOR 3
-STA 3
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	if _1 W2 W0
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 2
-BNE NOT14
-JMP multW2
-NOT14:
-JMP multW0
-;	label W0
-multW0:
-;	lt _1 j 0
-LDA 0
-CLC
-ADC #5
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA #0
-STA 4
-LDA #0
-STA 5
-LDA 4
-EOR #$FF
-CLC
-ADC #1
-STA 4
-LDA 5
-EOR #$FF
-ADC #0
-STA 5
-LDA 2
-CLC
-ADC 4
-STA 2
-LDA 3
-ADC 5
-STA 3
-BMI TRUE15
-JMP FALSE15
-TRUE15:
-LDA #0
-STA 2
-JMP END15
-FALSE15:
-LDA #$FF
-STA 2
-END15:
-LDA 2
-STA $202
-LDA 3
-STA $203
-;	if _1 W4 W5
-LDA $202
-STA 2
-LDA $203
-STA 3
-LDA 2
-BNE NOT16
-JMP multW4
-NOT16:
-JMP multW5
-;	label W4
-multW4:
-;	return -erg
-LDA 0
-CLC
-SBC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
-LDA 2
-EOR #$FF
-CLC
-ADC #1
-STA 2
-LDA 3
-EOR #$FF
-ADC #0
-STA 3
-LDA 0
-TAX
-DEX
-TXS
-PLA
-STA 0
-RTS
-;	label W5
-multW5:
-;	return erg
-LDA 0
-CLC
-SBC #3
-TAX
-LDA $100,X
-STA 2
-INX
-LDA $100,X
-STA 3
 LDA 0
 TAX
 DEX

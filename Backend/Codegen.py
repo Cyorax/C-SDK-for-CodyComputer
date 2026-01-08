@@ -1,4 +1,4 @@
-from middleend.GimpleParser import Gimple
+from middleend.DACParser import DAC
 
 ##Speichermedien
 # globalsmap map: ident -> (offset static, type, initvalue)
@@ -49,14 +49,14 @@ from middleend.GimpleParser import Gimple
 # littleendian erst das Low byte dann das High byte
 
 class CodeGenerator():
-    def __init__(self,Gimple):
-        self.gimple = Gimple
+    def __init__(self,DAC):
+        self.gimple = DAC
         self.finalcode = ["LDA #$FF","STA 0"]
         self.curfunc = {"locals":[]}
         self.highesttemp = 0
         self.save = []
-        self.init_globalsvalue(Gimple)
-        self.compile_Funcs(Gimple)
+        self.init_globalsvalue(DAC)
+        self.compile_Funcs(DAC)
         
     def init_globalsvalue(self,gimple):
         for g in gimple.globalsmap:
@@ -224,15 +224,10 @@ class CodeGenerator():
             
             case "xor":
                 return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","STA 3"]
-            #shifts nur für 8 bit short ints 
             case "ASL": 
-                self.counter += 1
-                return ["ASL 2"]
-            
+                return ["CLC","ROL 2","ROL 3"]
             case "ASR":
-                self.counter += 1
-                return ["LSR 2"]
-            
+                return ["CLC","ROR 3","ROR 2"]
             case "eq":
                 self.counter += 1
                 return ["LDA 2","EOR 4","STA 2","LDA 3","EOR 5","ORA 2","STA 2","STA 3","CMP #0","BEQ TRUE"+str(self.counter),"LDA #$FF","STA 2","STA 3","TRUE"+str(self.counter)+":"]
@@ -288,6 +283,13 @@ class CodeGenerator():
             return ["LDA $2"+str(int(ident[1:])*2).zfill(2),"STA 2","LDA $2"+str(int(ident[1:])*2 + 1).zfill(2),"STA 3"]
         elif(ident[0]=="*"):    # x da die zwei als Akkumulator und aktueller Speicher für den Pointer dient
             return self.assign2(ident[1:]) + ["LDA #0","TAY","LDA (2),Y"]+(["TAX","INY","LDA (2),Y","STA 3","TXA","STA 2"] if self.is_two_bytes(ident) else ["STA 2","LDA #0","STA 3"])
+        elif(ident[0]=="&"):
+            if(ident[1:] in self.curfunc["locals"]):
+                return self.compute_lowBitstackaddress_in_X(ident[1:]) + ["LDA #1","STA 3","TXA","STA 2"]
+            elif(ident[1:] in self.gimple.globalsmap):
+                return ["LDA #"+str(10+self.gimple.globalsmap[ident[1:]]["offset"]),"STA 2","LDA #0","STA 3"]
+            else:
+                print("ERROR: NO VALID IDENTIFIER "+ident[1:])
         elif(ident in self.curfunc["locals"]):
             return self.compute_lowBitstackaddress_in_X(ident) + ["LDA $100,X","STA 2"] +(["INX","LDA $100,X","STA 3"] if self.curfunc["locals"][ident]["size"] == 2 else ["LDA #0","STA 3"])
         elif(ident in self.gimple.globalsmap):
@@ -306,6 +308,13 @@ class CodeGenerator():
             return ["LDA $2"+str(int(ident[1:])*2).zfill(2),"STA 4","LDA $2"+str(int(ident[1:])*2 + 1).zfill(2),"STA 5"]
         elif(ident[0]=="*"):    # x da die zwei als Akkumulator und aktueller Speicher für den Pointer dient
             return self.assign4(ident[1:]) + ["LDA #0","TAY","LDA (4),Y"]+(["TAX","INY","LDA (4),Y","STA 5","TXA","STA 4"] if self.is_two_bytes(ident) else ["STA 4","LDA #0","STA 5"])
+        elif(ident[0]=="&"):
+            if(ident[1:] in self.curfunc["locals"]):
+                return self.compute_lowBitstackaddress_in_X(ident[1:]) + ["LDA #1","STA 5","TXA","STA 4"]
+            elif(ident[1:] in self.gimple.globalsmap):
+                return ["LDA #"+str(10+self.gimple.globalsmap[ident[1:]]["offset"]),"STA 4","LDA #0","STA 5"]
+            else:
+                print("ERROR: NO VALID IDENTIFIER "+ident[1:])
         elif(ident in self.curfunc["locals"]):
             return self.compute_lowBitstackaddress_in_X(ident) + ["LDA $100,X","STA 4"] +(["INX","LDA $100,X","STA 5"] if self.curfunc["locals"][ident]["size"] == 2 else ["LDA #0","STA 5"])
         elif(ident in self.gimple.globalsmap):

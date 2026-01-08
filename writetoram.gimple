@@ -15,33 +15,57 @@ goto <c.4>;
 <c.6>:
 }
 int main(){
-int i;
+int x;
+int y;
+vid_set_border_color(3);
 vid_set_character_ram_address(0);
-vid_set_border_color(1);
 copy_tiledata_from_data(0, 24);
 copy_spritedata_from_data(24, 16);
-vid_insert_sprite_into_sprite_table(0, 100, 100, 55, 16);
-vid_place_character_to_screen(0, 0);
-vid_place_character_to_screen(1, 1);
-vid_place_character_to_screen(60, 2);
-vid_insert_color_to_cram(60, 76);
-i = 21;
+x = 100;
+y = 100;
+vid_insert_sprite_into_sprite_table(0, x, y, 55, 16);
 <c.7>:
-_0 = 1 == 1;
-if _0 goto <c.8>; else goto <c.9>;
+if 0 goto <c.8>; else goto <c.9>;
 <c.8>:
-_0 = i == 150;
+_0 = is_W_pressed();
 if _0 goto <c.10>; else goto <c.11>;
 <c.10>:
-i = 21;
+y = y - 1;
+_0 = y;
+y = _0;
 goto <c.12>;
 <c.11>:
+_0 = is_A_pressed();
+if _0 goto <c.13>; else goto <c.14>;
+<c.13>:
+x = x - 1;
+_0 = x;
+x = _0;
+goto <c.15>;
+<c.14>:
+_0 = is_S_pressed();
+if _0 goto <c.16>; else goto <c.17>;
+<c.16>:
+y = y + 1;
+_0 = y;
+y = _0;
+goto <c.18>;
+<c.17>:
+_0 = is_D_pressed();
+if _0 goto <c.19>; else goto <c.20>;
+<c.19>:
+x = x + 1;
+_0 = x;
+x = _0;
+goto <c.21>;
+<c.20>:
+<c.21>:
+<c.18>:
+<c.15>:
 <c.12>:
-i = i + 1;
-vid_change_sprite_position(0, i, i);
+vid_change_sprite_position(0, x, y);
 waitforblank();
 goto <c.7>;
 <c.9>:
-vid_place_character_to_screen(2, 2);
 return 0;
 }

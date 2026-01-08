@@ -6,7 +6,7 @@
 # pointer 16 Bit 64k
 # "boolean" 1 und 0
 
-class Gimple():
+class DAC():
     
     def __init__(self, tokenizer):
         self.tok = tokenizer
@@ -157,10 +157,6 @@ class Gimple():
             self.tok.eat(":")
             self.addInstruktion("label"+" "+label)
             return True
-        
-        elif self.tok.next(1) == "=" or self.tok.next(2) == "=":
-            self.parse_statement()
-            return True
   
         elif self.tok.next() == "return":
             self.tok.eat("return") # skip return
@@ -177,7 +173,9 @@ class Gimple():
             self.tok.eat(";") # skip ;  
             return True
         
-        print("PARSING ERROR AT",self.tok.next())
+        else:
+            self.parse_statement()
+            return True
 
     def parse_type(self):
         type = self.tok.consume_cur()
@@ -209,23 +207,15 @@ class Gimple():
                     self.addInstruktion("assign"+" "+dest+" "+op1)
                     self.tok.eat(";") #skip ;    
             
-
+    
     def parse_operand(self):
-        #casted long int short int 
-        if(self.tok.next() == "("):
-            self.tok.eat("(")
-            while(self.tok.next()!=")"):
-                self.tok.consume_cur()
-            self.tok.eat(")")
-        op = ""
-        if self.tok.next() == "-":
-            self.tok.eat("-")
-            op += "-"
+        if(self.tok.next() in ["*","&","-"]):
+            tok = self.tok.consume_cur()
+            val = self.parse_operand()
+            return f"{tok}{val}"
+        else:
+            return self.tok.consume_cur()
             
-        op += self.tok.consume_cur()
-        if(op == "*" or op == "&"):
-            op += self.tok.consume_cur()
-        return op
     
     def parse_label(self):
         self.tok.eat("<") # skip <  
@@ -233,7 +223,8 @@ class Gimple():
         while(self.tok.next()!=">"):
             label += self.tok.consume_cur()
         self.tok.eat(">") # skip > 
-        return label.replace(".","") #D. ist nicht gültig als label
+        label = label.replace(".","")
+        return label #D. ist nicht gültig als label
     
     def parse_funccall(self):
         ident = self.tok.consume_cur()

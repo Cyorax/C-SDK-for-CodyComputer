@@ -6,7 +6,6 @@ short* vid_base_register = 53251;
 short* vid_scroll_register = 53252;
 short* vid_scolor_register = 53253;
 short* vid_sprite_register = 53254;
-short* vid_shared_colors_register = 53254;
 
 // defaultwerte für Adressbereiche 
 // default Adresse von character_ram ist wahrscheinlich immernoch falsch 
@@ -64,10 +63,23 @@ void vid_set_border_color(short color){
 }
 
 void vid_set_color2(short color){
-
+*vid_scolor_register = *vid_scolor_register & 240;
+*vid_scolor_register = *vid_scolor_register | color;
 }
 void vid_set_color3(short color){
+color = color << 4;
+*vid_scolor_register = *vid_scolor_register & 15;
+*vid_scolor_register = *vid_scolor_register | color;
+}
 
+void vid_set_common_sprite_color(short color){
+*vid_sprite_register = *vid_sprite_register & 240;
+*vid_sprite_register = *vid_sprite_register | color;
+}
+void vid_set_current_sprite_bank(short bank){
+bank = bank << 4;
+*vid_sprite_register = *vid_sprite_register & 15;
+*vid_sprite_register = *vid_sprite_register | bank;
 }
 
 void vid_set_screen_ram_address(int loc){
@@ -187,8 +199,12 @@ void copy_tiledata_from_data(int startbytedatanumber,int amountbytes){
 copy_from_data(vid_character_ram,startbytedatanumber,amountbytes);
 }
 
-void copy_colordata_from_data(int startbytedatanumber,int amountbytes){
-copy_from_data(vid_color_ram,startbytedatanumber,amountbytes);
+void copy_initial_colormap_from_data(int startbytedatanumber){
+copy_from_data(vid_color_ram,startbytedatanumber,1000);
+}
+
+void copy_initial_charactermap_from_data(int startbytedatanumber){
+copy_from_data(vid_screen_ram,startbytedatanumber,1000);
 }
 
 void printnum(int loc,int num){

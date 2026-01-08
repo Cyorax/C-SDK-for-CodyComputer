@@ -1,8 +1,239 @@
-short int is_key_pressed(int row,int id,int screenoffset) {
-short int* add;
-add = 40705 + row;
-_1 = *add ^ 255;
-printnum(screenoffset,_1);
-_1 = _1 & id;
+int is_O_pressed(){
+short* add;
+add = 40705;
+*add = 0;
+_1 = *add & 128;
+return _1;
+}
+
+int is_U_pressed(){
+short* add;
+add = 40705;
+*add = 0;
+_1 = *add & 64;
+return _1;
+}
+
+int is_T_pressed(){
+short* add;
+add = 40705;
+*add = 0;
+_1 = *add & 32;
+return _1;
+}
+
+int is_E_pressed(){
+short* add;
+add = 40705;
+*add = 0;
+_1 = *add & 16;
+return _1;
+}
+
+int is_Q_pressed(){
+short* add;
+add = 40705;
+*add = 0;
+_1 = *add & 8;
+return _1;
+}
+
+int is_L_pressed(){
+short* add;
+add = 40705;
+*add = 1;
+_1 = *add & 128;
+return _1;
+}
+
+int is_J_pressed(){
+short* add;
+add = 40705;
+*add = 1;
+_1 = *add & 64;
+return _1;
+}
+
+int is_G_pressed(){
+short* add;
+add = 40705;
+*add = 1;
+_1 = *add & 32;
+return _1;
+}
+
+int is_D_pressed(){
+short* add;
+add = 40705;
+*add = 1;
+_1 = *add & 16;
+return _1;
+}
+
+int is_A_pressed(){
+short* add;
+add = 40705;
+*add = 1;
+_1 = *add & 8;
+return _1;
+}
+
+int is_Meta_pressed(){
+short* add;
+add = 40705;
+*add = 2;
+_1 = *add & 128;
+return _1;
+}
+
+int is_N_pressed(){
+short* add;
+add = 40705;
+*add = 2;
+_1 = *add & 64;
+return _1;
+}
+
+int is_V_pressed(){
+short* add;
+add = 40705;
+*add = 2;
+_1 = *add & 32;
+return _1;
+}
+
+int is_X_pressed(){
+short* add;
+add = 40705;
+*add = 2;
+_1 = *add & 16;
+return _1;
+}
+
+int is_Cody_pressed(){
+short* add;
+add = 40705;
+*add = 2;
+_1 = *add & 8;
+return _1;
+}
+
+int is_ARROW_pressed(){
+short* add;
+add = 40705;
+*add = 3;
+_1 = *add & 128;
+return _1;
+}
+
+int is_M_pressed(){
+short* add;
+add = 40705;
+*add = 3;
+_1 = *add & 64;
+return _1;
+}
+
+int is_B_pressed(){
+short* add;
+add = 40705;
+*add = 3;
+_1 = *add & 32;
+return _1;
+}
+
+int is_C_pressed(){
+short* add;
+add = 40705;
+*add = 3;
+_1 = *add & 16;
+return _1;
+}
+
+int is_Z_pressed(){
+short* add;
+add = 40705;
+*add = 3;
+_1 = *add & 8;
+return _1;
+}
+
+int is_Space_pressed(){
+short* add;
+add = 40705;
+*add = 4;
+_1 = *add & 128;
+return _1;
+}
+
+int is_K_pressed(){
+short* add;
+add = 40705;
+*add = 4;
+_1 = *add & 64;
+return _1;
+}
+
+int is_H_pressed(){
+short* add;
+add = 40705;
+*add = 4;
+_1 = *add & 32;
+return _1;
+}
+
+int is_F_pressed(){
+short* add;
+add = 40705;
+*add = 4;
+_1 = *add & 16;
+return _1;
+}
+
+int is_S_pressed(){
+short* add;
+add = 40705;
+*add = 4;
+_1 = *add & 8;
+return _1;
+}
+
+int is_P_pressed(){
+short* add;
+add = 40705;
+*add = 5;
+_1 = *add & 128;
+return _1;
+}
+
+int is_I_pressed(){
+short* add;
+add = 40705;
+*add = 5;
+_1 = *add & 64;
+return _1;
+}
+
+int is_Y_pressed(){
+short* add;
+add = 40705;
+*add = 5;
+_1 = *add & 32;
+return _1;
+}
+
+int is_R_pressed(){
+short* add;
+add = 40705;
+*add = 5;
+_1 = *add & 16;
+return _1;
+}
+
+int is_W_pressed(){
+short* add;
+add = 40705;
+*add = 5;
+_1 = *add & 8;
 return _1;
 }

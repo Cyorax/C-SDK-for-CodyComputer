@@ -142,7 +142,7 @@ class CParser:
                 self.add_to_expression_code(f"if {condition} goto {labelwhiletrue}; else goto {labelwhilefalse};")
                 self.add_to_expression_code(labelwhiletrue+":")
                 self.reset_temp_count()
-                self.parse_expression()
+                self.parse_assignment()
                 self.tok.eat(")")
                 if(self.tok.next() == "{"):
                     self.tok.eat("{")
@@ -216,28 +216,107 @@ class CParser:
                         
                     self.tok.eat(";")
                     
-                elif self.tok.next(1) == "(":
+                elif self.tok.next(1) == "(" and self.tok.next() not in ["*","&","++","--"]:
                     self.parse_void_functioncall()
                     self.tok.eat(";")
                     
                 elif self.tok.next()!="}":
-                    self.parse_expression()
+                    self.parse_assignment()
                     self.tok.eat(";")
-            
-    def parse_expression(self):
-        return self.parse_assignment()
     
     def parse_assignment(self):
-        left = self.parse_ternary()
+        left = self.parse_left_unary()
         if(self.tok.next() in ["+=","=","-=","*=","/=","%=","&=","^=","|="]):
             op = self.tok.consume_cur()
-            right = self.parse_assignment()
+            right = self.parse_ternary()
             if(not op.startswith("=")):
                 op = op.replace("=","") 
                 self.add_to_expression_code(f"{left} = {left} {op} {right};")
             else:
                 self.add_to_expression_code(f"{left} = {right};")
         return left
+    
+        
+    def parse_left_add(self):
+        left = self.parse_left_mult()
+        return self.parse_left_add_strich(left)
+    
+    def parse_left_add_strich(self, left):
+        if self.tok.next() not in ["+", "-"]:
+            return left
+        op = self.tok.consume_cur()
+        right = self.parse_left_mult()
+        t = self.generate_temp()
+        self.add_to_expression_code(f"{t} = {left} {op} {right};")
+        return self.parse_left_add_strich(t)
+
+    def parse_left_mult(self):
+        left = self.parse_left_unary()
+        return self.parse_left_mult_strich(left)
+    
+    def parse_left_mult_strich(self, left):
+        if self.tok.next() not in ["*", "/","%"]:
+            return left
+        op = self.tok.consume_cur()
+        right = self.parse_left_unary()
+        t = self.generate_temp()
+        self.add_to_expression_code(f"{t} = {left} {op} {right};")
+        return self.parse_left_mult_strich(t)
+    
+    def parse_left_unary(self):
+        if self.tok.next() in ["*","&","++","--"]:
+            tok = self.tok.consume_cur()
+            val = self.parse_left_unary()
+            t = self.generate_temp()
+            if tok == "*":
+                return f"*{val}"
+            elif tok == "&":
+                return f"&{val}"
+            elif tok == "++":
+                self.add_to_expression_code(f"{val} = {val} + 1;")
+                self.add_to_expression_code(f"{t} = {val};")
+                return t
+            elif tok == "--":
+                self.add_to_expression_code(f"{val} = {val} - 1;")
+                self.add_to_expression_code(f"{t} = {val};")
+                return t
+        return self.parse_left_suffix()
+
+    
+    def parse_left_suffix(self):
+        left = self.parse_left_highest()
+        while(self.tok.next() in ["[","++","--"]):
+            tok = self.tok.consume_cur()
+            t = self.generate_temp()
+            match tok:
+                case "++":
+                    self.add_to_expression_code(f"{left} = {left} + 1;")
+                case "--":
+                    self.add_to_expression_code(f"{left} = {left} - 1;")
+                case "[":
+                    expr = self.parse_left_add()
+                    self.tok.eat("]")
+                    self.add_to_expression_code(f"{t} = {left} + {expr};")
+                    left = f"*{t}" 
+                case _:
+                    pass
+        return left
+    
+    def parse_left_highest(self):
+        tok = self.tok.next()
+        if tok == "(":
+            self.tok.eat("(")
+            expr = self.parse_left_add()
+            self.tok.eat(")")
+            return expr
+        if self.tok.is_ident(tok) or self.tok.is_number(tok):
+            self.tok.advance()
+            return tok
+        print(f"COULD NOT PARSE TOKEN {self.tok.next()} in line {self.tok.get_line()}")
+    
+    
+    def parse_expression(self):
+        return self.parse_ternary()
     
     def parse_ternary(self):
         condition = self.parse_or()
@@ -485,10 +564,9 @@ class CParser:
                     expr = self.parse_expression()
                     self.tok.eat("]")
                     self.add_to_expression_code(f"{t} = {left} + {expr};")
-                    return f"*{t}"
+                    left = f"*{t}"
                 case _:
                     pass
-            return t
         return left
     
     def parse_highest(self):
@@ -563,8 +641,6 @@ class CParser:
         
     def parse_type(self):
         type = self.tok.consume_cur()
-        if(type == "short"):
-            type = "int"
         while(self.tok.next() == "*"):
             type += self.tok.consume_cur()
         ident = self.tok.consume_cur()

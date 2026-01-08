@@ -1,17 +1,11 @@
 #todos in files der priorität nach
 #Inhaltsverzeichnis
 
-#todos codegen:
-# Operatoren fixen (>>,<<) bzw für 16 bit & als adressengetter 
-
 #todos libs:
-# codygrapics bitmapped, sprites, scrolling, codykeyboard, Sound (in der Uni testen) 
+# scrolling, Sound (in der Uni testen) 
 
 #todos CParser:
 #Typechecking
-
-#todos 
-# constant propagation constant folding
 
 #todos Preprozessor:
 # makros
@@ -20,8 +14,8 @@ from Frontend import CTokenizer
 from Frontend import Preprozessor
 from sys import argv
 from Frontend import CParser
-from middleend import GimpleTokenizer
-from middleend import GimpleParser
+from middleend import DACTokenizer
+from middleend import DACParser
 from Backend import Optimizer
 from Backend.Codegen import CodeGenerator
 
@@ -44,9 +38,8 @@ opt_pntr += 2
 pre = Preprozessor.Preprozessor(tok)
 cpar = CParser.CParser(tok)
 syslibs += pre.get_syslibs()
-gimptok = GimpleTokenizer.Tokenizer(" ".join(cpar.generate_gimple()))
-print(" ".join(cpar.generate_gimple()))
-gim = GimpleParser.Gimple(gimptok)
+gimptok = DACTokenizer.Tokenizer(" ".join(cpar.generate_gimple()))
+gim = DACParser.DAC(gimptok)
  
 while(opt_pntr < len(argv)):
     tok1 = CTokenizer.Tokenizer(argv[opt_pntr])
@@ -54,8 +47,8 @@ while(opt_pntr < len(argv)):
     pre1 = Preprozessor.Preprozessor(tok1)  
     cpar1 = CParser.CParser(tok1)
     syslibs += pre1.get_syslibs()
-    gimptok1 = GimpleTokenizer.Tokenizer(" ".join(cpar1.generate_gimple()))
-    gim1 = GimpleParser.Gimple(gimptok1)
+    gimptok1 = DACTokenizer.Tokenizer(" ".join(cpar1.generate_gimple()))
+    gim1 = DACParser.DAC(gimptok1)
     gim.merge(gim1)
     
 syslibs = set(syslibs)
@@ -64,8 +57,8 @@ for lib in syslibs:
     lines = "" 
     for  line in f:
         lines += line.split("//")[0]
-    gimptok2 = GimpleTokenizer.Tokenizer(lines)
-    gim2 = GimpleParser.Gimple(gimptok2)
+    gimptok2 = DACTokenizer.Tokenizer(lines)
+    gim2 = DACParser.DAC(gimptok2)
     gim.merge(gim2)
     
 opt = Optimizer.Optimizer(gim);

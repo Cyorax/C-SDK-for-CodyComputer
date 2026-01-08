@@ -38,7 +38,7 @@ class Tokenizer:
         return "EOF" if self.cur+nex >= len(self.tokenlist) else self.tokenlist[self.cur+nex]
        
     def tokenize(self, tokenstring: str):
-        SYMBOLS = ["+", "-", "*", "/", "=", ";", "{", "}", "(", ")", ",","<",">"]
+        SYMBOLS = ["+", "-", "*", "/", "=", ";", "{", "}", "(", ")", ",","<",">","&"]
         s = tokenstring.replace("\n", " ").replace("\t", " ")
         for sym in SYMBOLS:
             s = s.replace(sym, f" {sym} ")
