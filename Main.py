@@ -1,11 +1,10 @@
 #todos in files der priorität nach
-#Inhaltsverzeichnis
 
 #todos libs:
 # scrolling, Sound (in der Uni testen) 
 
 #todos CParser:
-#Typechecking
+#Typechecking , Scopes,
 
 #todos Preprozessor:
 # makros
@@ -53,17 +52,17 @@ while(opt_pntr < len(argv)):
     
 syslibs = set(syslibs)
 for lib in syslibs:
-    f = open("lib/"+lib.replace(".h",".gimple"), "r")
+    f = open("lib/"+lib.replace(".h",".dac"), "r")
     lines = "" 
     for  line in f:
         lines += line.split("//")[0]
     gimptok2 = DACTokenizer.Tokenizer(lines)
     gim2 = DACParser.DAC(gimptok2)
     gim.merge(gim2)
-    
+
 opt = Optimizer.Optimizer(gim);
 if("gimple" in options):
-    with open(outputname+".gimple", "w") as f:
+    with open(outputname+".dac", "w") as f:
         for line in cpar.generate_gimple():
             print(line, file=f)
             

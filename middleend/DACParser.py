@@ -202,7 +202,10 @@ class DAC():
                     op = self.parse_opertation()
                     op2 = self.parse_operand() #das hier kann noch eine Funktion sein
                     self.tok.eat(";") #skip ;
-                    self.addInstruktion(op+" "+dest+" "+op1+" "+op2)
+                    if("gt" in op):
+                        self.addInstruktion(op+" "+dest+" "+op2+" "+op1)
+                    else:
+                        self.addInstruktion(op+" "+dest+" "+op1+" "+op2)
                 else:
                     self.addInstruktion("assign"+" "+dest+" "+op1)
                     self.tok.eat(";") #skip ;    
