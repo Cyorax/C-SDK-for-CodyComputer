@@ -59,7 +59,7 @@ for lib in syslibs:
     gimptok2 = DACTokenizer.Tokenizer(lines)
     gim2 = DACParser.DAC(gimptok2)
     gim.merge(gim2)
-
+    
 opt = Optimizer.Optimizer(gim);
 if("gimple" in options):
     with open(outputname+".dac", "w") as f:

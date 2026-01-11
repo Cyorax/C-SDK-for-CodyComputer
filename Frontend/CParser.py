@@ -75,6 +75,8 @@ class CParser:
             self.locals = []
             self.instructions = []
             self.temp_count = 0
+            self.scope = 0
+            self.scopestack = [([], self.scope)]
             self.tok.eat("{")
             self.parse_functionbody()
             self.tok.eat("}")
@@ -92,9 +94,12 @@ class CParser:
     def parse_instruction(self):
         match(self.tok.next()):
             case "{":
+                self.scope += 1
+                self.scopestack.append(([],self.scope))
                 self.tok.eat("{")
                 self.parse_instructions()
                 self.tok.eat("}")
+                self.scopestack.pop(-1)
                 
             case "if":
                 self.tok.eat("if")
@@ -178,26 +183,28 @@ class CParser:
                 self.reset_temp_count()
                 if self.tok.next() in self.types:
                     type,ident = self.parse_type()
-                    
-                    self.locals.append(f"{type} {ident};")
+                    _,scopenum = self.scopestack[-1]
+                    self.scopestack[-1][0].append(ident)
+                    self.locals.append(f"{type} {ident}{scopenum};")
                     
                     if(self.tok.next()=="="):
                         self.tok.eat("=")
                         t = self.parse_expression()
-                        self.add_to_expression_code(f"{ident} = {t};")
+                        self.add_to_expression_code(f"{ident}{scopenum} = {t};")
                         
                     
                     while(self.tok.next()==","):
                         self.tok.advance()
                         identlist = self.parse_ident()
                         
-                        self.locals.append(f"{type} {identlist};")
-                    
+                        self.locals.append(f"{type} {identlist}{scopenum};")
+                        self.scopestack[-1][0].append(identlist)
+            
                         if(self.tok.next()=="="):
                             self.tok.eat("=")
                             self.reset_temp_count()
                             t = self.parse_expression()
-                            self.add_to_expression_code(f"{identlist} = {t};")
+                            self.add_to_expression_code(f"{identlist}{scopenum} = {t};")
                         
                     self.tok.eat(";")
                     
@@ -208,7 +215,15 @@ class CParser:
                 elif self.tok.next()!="}":
                     self.parse_assignment()
                     self.tok.eat(";")
-    
+                    
+    def get_scope(self, ident):
+        for lst, scopenum in reversed(self.scopestack):
+            if ident in lst:
+                return str(scopenum)
+        return ""
+
+        
+        
     def parse_assignment(self):
         left = self.parse_left_unary()
         if(self.tok.next() in ["+=","=","-=","*=","/=","%=","&=","^=","|="]):
@@ -294,7 +309,10 @@ class CParser:
             expr = self.parse_left_add()
             self.tok.eat(")")
             return expr
-        if self.tok.is_ident(tok) or self.tok.is_number(tok):
+        if self.tok.is_ident(tok):
+            self.tok.advance()
+            return tok + self.get_scope(tok)
+        elif self.tok.is_number(tok):
             self.tok.advance()
             return tok
         print(f"COULD NOT PARSE TOKEN {self.tok.next()} in line {self.tok.get_line()}")
@@ -563,7 +581,13 @@ class CParser:
             return expr
         if self.tok.next(1) == "(":
             return self.parse_functioncall()
-        if self.tok.is_ident(tok) or self.tok.is_number(tok) or self.tok.is_character(tok):
+        if self.tok.is_character(tok):
+            self.tok.advance()
+            return tok
+        elif self.tok.is_ident(tok):
+            self.tok.advance()
+            return tok + self.get_scope(tok)
+        elif self.tok.is_number(tok): 
             self.tok.advance()
             return tok
         print(f"COULD NOT PARSE TOKEN {self.tok.next()} in line {self.tok.get_line()}")
