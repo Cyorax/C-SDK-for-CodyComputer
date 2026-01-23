@@ -14,7 +14,7 @@ class DAC():
         self.parse_globals()
         self.parse_functions()
         
-    def dump_gimple(self):
+    def dump_dac(self):
         print(self.globalsmap)
         for f in self.functions:
             print("\n",f)

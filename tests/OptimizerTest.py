@@ -4,7 +4,7 @@ from middleend import DACTokenizer
 from Backend import Optimizer
 
 
-class TestGimple(unittest.TestCase):
+class Testdac(unittest.TestCase):
     
     def test_DCE(self):
         tok = DACTokenizer.Tokenizer("int global1 = 100;int main(){int local1; local1 = 10; abc(local1);} short int abc(int i){ return 0;} int* bca(){ return 0;}")

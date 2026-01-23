@@ -1,8 +1,8 @@
 from middleend.DACParser import DAC
 
 class Optimizer():
-    def __init__(self,gimple):
-        self.parser =gimple
+    def __init__(self,dac):
+        self.parser =dac
         self.remove_unused_funcs()
         self.constant_folding_propagation()
         

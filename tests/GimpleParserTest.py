@@ -3,7 +3,7 @@ from middleend import DACParser
 from middleend import DACTokenizer
 
 
-class TestGimple(unittest.TestCase):
+class Testdac(unittest.TestCase):
     
     def test_globals(self):
         tok = DACTokenizer.Tokenizer("int global1 = 100;int main (){ }")

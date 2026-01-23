@@ -37,7 +37,7 @@ opt_pntr += 2
 pre = Preprozessor.Preprozessor(tok)
 cpar = CParser.CParser(tok)
 syslibs += pre.get_syslibs()
-gimptok = DACTokenizer.Tokenizer(" ".join(cpar.generate_gimple()))
+gimptok = DACTokenizer.Tokenizer(" ".join(cpar.generate_dac()))
 gim = DACParser.DAC(gimptok)
  
 while(opt_pntr < len(argv)):
@@ -46,7 +46,7 @@ while(opt_pntr < len(argv)):
     pre1 = Preprozessor.Preprozessor(tok1)  
     cpar1 = CParser.CParser(tok1)
     syslibs += pre1.get_syslibs()
-    gimptok1 = DACTokenizer.Tokenizer(" ".join(cpar1.generate_gimple()))
+    gimptok1 = DACTokenizer.Tokenizer(" ".join(cpar1.generate_dac()))
     gim1 = DACParser.DAC(gimptok1)
     gim.merge(gim1)
     
@@ -61,13 +61,13 @@ for lib in syslibs:
     gim.merge(gim2)
     
 opt = Optimizer.Optimizer(gim);
-if("gimple" in options):
+if("dac" in options):
     with open(outputname+".dac", "w") as f:
-        for line in cpar.generate_gimple():
+        for line in cpar.generate_dac():
             print(line, file=f)
             
 if("precomp" in options):
-    gim.dump_gimple()
+    gim.dump_dac()
     
 c = CodeGenerator(gim)
 if("data" in options):

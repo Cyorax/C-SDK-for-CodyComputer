@@ -2,7 +2,7 @@ import unittest
 from middleend import DACTokenizer
 
 
-class TestGimple(unittest.TestCase):
+class Testdac(unittest.TestCase):
     
     def test_EOF(self):
         tok = DACTokenizer.Tokenizer("int public()")

@@ -1,0 +1,18 @@
+int main(){
+int x0;
+int x1;
+int x2;
+x0 = 1;
+x1 = 2;
+_0 = x1 + 1;
+x1 = _0;
+<c.1>:
+_0 = x1 != 10;
+if _0 goto <c.2>; else goto <c.3>;
+<c.2>:
+x1 = x1 + 1;
+x2 = 12;
+goto <c.1>;
+<c.3>:
+return x0;
+}

@@ -10,14 +10,14 @@ class CParser:
         self.controllstrukturencounter = 0;
         self.safe_cur_express_code = False
         self.forstack = []
-        self.types = ["char","int","short","void"]
+        self.types = ["int","short","void"]
         self.parse()
 
     def create_label(self):
         self.controllstrukturencounter += 1
         return "<c."+str(self.controllstrukturencounter)+">"
     
-    def generate_gimple(self):
+    def generate_dac(self):
         return self.globals+self.final_code
     
     def generate_temp(self):

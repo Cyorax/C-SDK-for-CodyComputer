@@ -50,7 +50,7 @@ from middleend.DACParser import DAC
 
 class CodeGenerator():
     def __init__(self,DAC):
-        self.gimple = DAC
+        self.dac = DAC
         self.finalcode = ["LDA #$FF","STA 0"]
         self.curfunc = {"locals":[]}
         self.highesttemp = 0
@@ -58,31 +58,30 @@ class CodeGenerator():
         self.init_globalsvalue(DAC)
         self.compile_Funcs(DAC)
         
-    def init_globalsvalue(self,gimple):
-        for g in gimple.globalsmap:
-            if str(gimple.globalsmap[g]["value"])!="null":
-                self.finalcode += self.assign2(gimple.globalsmap[g]["value"]) + self.write2(g)
+    def init_globalsvalue(self,dac):
+        for g in dac.globalsmap:
+            if str(dac.globalsmap[g]["value"])!="null":
+                self.finalcode += self.assign2(dac.globalsmap[g]["value"]) + self.write2(g)
         self.finalcode += ["JSR main","JMP BRK"]
         return 
     # label name 
     # n locale Variablen mit 0 initialisieren
     def compile_Funcs(self,instr):
-        g = self.gimple
         self.counter = 0
-        functions = g.get_Functions()
-        for f in functions:
-            self.curfunc = f
+        functions = self.dac.get_Functions()
+        for function in functions:
+            self.curfunc = function
             #label für Methode
-            self.finalcode += [";\t Function: "+f["Name"],f["Name"]+":"]
+            self.finalcode += [";\t Function: "+function["Name"],function["Name"]+":"]
             # old FBP <-FBP        push EBP     EBP=SP
             overwriteFBP = ["TSX","LDA 0","PHA","TXA","STA 0"]
             self.finalcode += overwriteFBP
             #A = 0
             self.finalcode.append("LDA #0")
             #pushe n mal die 0 aus a 
-            for _ in range(0,f["lclmaxoffset"]):
+            for _ in range(0,function["lclmaxoffset"]):
                 self.finalcode.append("PHA")
-            self.compile_statements(f["Instructions"])
+            self.compile_statements(function["Instructions"])
         
         
     def print_final_code(self,filename):
@@ -207,7 +206,7 @@ class CodeGenerator():
         self.counter += 1
         self.finalcode += self.assign2(instr[1])+["LDA 2","BNE NOT"+str(self.counter),"JMP "+self.curfunc["Name"]+instr[2],"NOT"+str(self.counter)+":","JMP "+self.curfunc["Name"]+instr[3]]
     
-    #gimple erzeugt kein sub immer + - oder + und dann zahl die Negativ ist
+    #dac erzeugt kein sub immer + - oder + und dann zahl die Negativ ist
     def compile_operator(self,operation):
         match operation:
             case "add":
@@ -266,8 +265,8 @@ class CodeGenerator():
             return self.assign4(ident[1:]) + ["LDA #0","TAY","LDA 2","STA (4),Y"]+(["LDA 3","INY","STA (4),Y"] if self.is_two_bytes(ident) else [])
         elif(ident in self.curfunc["locals"]):
             return self.compute_lowBitstackaddress_in_X(ident) + ["LDA 2","STA $100,X"] +(["INX","LDA 3","STA $100,X"] if self.curfunc["locals"][ident]["size"] == 2 else [])
-        elif(ident in self.gimple.globalsmap):
-            return ["LDA 2","STA "+str(10+self.gimple.globalsmap[ident]["offset"]),"LDA 3","STA "+str(11+self.gimple.globalsmap[ident]["offset"])]
+        elif(ident in self.dac.globalsmap):
+            return ["LDA 2","STA "+str(10+self.dac.globalsmap[ident]["offset"]),"LDA 3","STA "+str(11+self.dac.globalsmap[ident]["offset"])]
             #return ["LDA $2"+str(int(ident[1:])*2+1).zfill(2),"PHA","LDA $2"+str(int(ident[1:])*2).zfill(2),"PHA"]
         else:
             print("UNKNOW VARIABLE FOUND: "+ident+" IN FUNCTION: "+self.curfunc["Name"])
@@ -286,14 +285,14 @@ class CodeGenerator():
         elif(ident[0]=="&"):
             if(ident[1:] in self.curfunc["locals"]):
                 return self.compute_lowBitstackaddress_in_X(ident[1:]) + ["LDA #1","STA 3","TXA","STA 2"]
-            elif(ident[1:] in self.gimple.globalsmap):
-                return ["LDA #"+str(10+self.gimple.globalsmap[ident[1:]]["offset"]),"STA 2","LDA #0","STA 3"]
+            elif(ident[1:] in self.dac.globalsmap):
+                return ["LDA #"+str(10+self.dac.globalsmap[ident[1:]]["offset"]),"STA 2","LDA #0","STA 3"]
             else:
                 print("ERROR: NO VALID IDENTIFIER "+ident[1:])
         elif(ident in self.curfunc["locals"]):
             return self.compute_lowBitstackaddress_in_X(ident) + ["LDA $100,X","STA 2"] +(["INX","LDA $100,X","STA 3"] if self.curfunc["locals"][ident]["size"] == 2 else ["LDA #0","STA 3"])
-        elif(ident in self.gimple.globalsmap):
-            return ["LDA "+str(10+self.gimple.globalsmap[ident]["offset"]),"STA 2","LDA "+str(11+self.gimple.globalsmap[ident]["offset"]),"STA 3"]
+        elif(ident in self.dac.globalsmap):
+            return ["LDA "+str(10+self.dac.globalsmap[ident]["offset"]),"STA 2","LDA "+str(11+self.dac.globalsmap[ident]["offset"]),"STA 3"]
         else:
             value = int(ident)
             high = (value >> 8) & 0xFF
@@ -311,14 +310,14 @@ class CodeGenerator():
         elif(ident[0]=="&"):
             if(ident[1:] in self.curfunc["locals"]):
                 return self.compute_lowBitstackaddress_in_X(ident[1:]) + ["LDA #1","STA 5","TXA","STA 4"]
-            elif(ident[1:] in self.gimple.globalsmap):
-                return ["LDA #"+str(10+self.gimple.globalsmap[ident[1:]]["offset"]),"STA 4","LDA #0","STA 5"]
+            elif(ident[1:] in self.dac.globalsmap):
+                return ["LDA #"+str(10+self.dac.globalsmap[ident[1:]]["offset"]),"STA 4","LDA #0","STA 5"]
             else:
                 print("ERROR: NO VALID IDENTIFIER "+ident[1:])
         elif(ident in self.curfunc["locals"]):
             return self.compute_lowBitstackaddress_in_X(ident) + ["LDA $100,X","STA 4"] +(["INX","LDA $100,X","STA 5"] if self.curfunc["locals"][ident]["size"] == 2 else ["LDA #0","STA 5"])
-        elif(ident in self.gimple.globalsmap):
-            return ["LDA "+str(10+self.gimple.globalsmap[ident]["offset"]),"STA 4","LDA "+str(11+self.gimple.globalsmap[ident]["offset"]),"STA 5"]
+        elif(ident in self.dac.globalsmap):
+            return ["LDA "+str(10+self.dac.globalsmap[ident]["offset"]),"STA 4","LDA "+str(11+self.dac.globalsmap[ident]["offset"]),"STA 5"]
         else:
             value = int(ident)
             high = (value >> 8) & 0xFF
@@ -344,8 +343,8 @@ class CodeGenerator():
         base = ident.lstrip("*")
         if base in self.curfunc["locals"]:
             return self.curfunc["locals"][base]["type"] != "pointer onebyte"
-        if base in self.gimple.globalsmap:
-            return self.gimple.globalsmap[base]["type"] != "pointer onebyte"
+        if base in self.dac.globalsmap:
+            return self.dac.globalsmap[base]["type"] != "pointer onebyte"
         return True
 
     
