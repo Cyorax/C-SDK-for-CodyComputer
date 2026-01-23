@@ -10,7 +10,7 @@ class DAC():
     globalcount = 0
     def __init__(self, tokenizer):
         self.tok = tokenizer
-        self.datatypes = {"int":2,"char":1,"pointer":2,"pointer onebyte":2}
+        self.datatypes = {"int":2,"short":1,"pointer":2,"pointer onebyte":2}
         self.parse_globals()
         self.parse_functions()
         
@@ -31,6 +31,7 @@ class DAC():
         return self.functions
         
     def parse_globals(self):
+        self.globalcount = 0
         self.globalsmap = {} 
         while(self.parse_globalline()):
             pass
@@ -49,8 +50,8 @@ class DAC():
         else:
             self.tok.eat(";") # skip ;
             initvalue = "null"
-        self.globalsmap[ident] = {"offset":DAC.globalcount,"type":typ,"value":initvalue}
-        DAC.globalcount += 2
+        self.globalsmap[ident] = {"offset":self.globalcount,"type":typ,"value":initvalue}
+        self.globalcount += 2
         return True
         
     def parse_functions(self):

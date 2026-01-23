@@ -39,7 +39,7 @@ cpar = CParser.CParser(tok)
 syslibs += pre.get_syslibs()
 gimptok = DACTokenizer.Tokenizer(" ".join(cpar.generate_dac()))
 gim = DACParser.DAC(gimptok)
- 
+
 while(opt_pntr < len(argv)):
     tok1 = CTokenizer.Tokenizer(argv[opt_pntr])
     opt_pntr += 1
