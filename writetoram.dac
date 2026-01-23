@@ -1,18 +1,128 @@
-int main(){
-int x0;
-int x1;
-int x2;
-x0 = 1;
-x1 = 2;
-_0 = x1 + 1;
-x1 = _0;
+void waitforblank(){
 <c.1>:
-_0 = x1 != 10;
-if _0 goto <c.2>; else goto <c.3>;
+_0 = vid_blanking();
+_1 = _0 == 0;
+if _1 goto <c.2>; else goto <c.3>;
 <c.2>:
-x1 = x1 + 1;
-x2 = 12;
 goto <c.1>;
 <c.3>:
-return x0;
+<c.4>:
+_0 = vid_blanking();
+_1 = _0 != 0;
+if _1 goto <c.5>; else goto <c.6>;
+<c.5>:
+goto <c.4>;
+<c.6>:
+}
+int main(){
+int xi;
+int x2;
+int y2;
+short notfinished2;
+short jumped2;
+short abstandx2;
+short abstandy2;
+short score2;
+short letze2;
+vid_set_border_color(3);
+vid_set_character_ram_address(0);
+copy_tiledata_from_data(0, 104);
+copy_spritedata_from_data(104, 16);
+copy_spritedata_from_data(167, 17);
+vid_place_character_to_screen(890, 10);
+vid_place_character_to_screen(930, 11);
+xi = 960;
+<c.7>:
+_0 = xi != 1000;
+if _0 goto <c.8>; else goto <c.9>;
+<c.8>:
+vid_place_character_to_screen(xi, 12);
+xi = xi + 1;
+goto <c.7>;
+<c.9>:
+<c.10>:
+if 0 goto <c.11>; else goto <c.12>;
+<c.11>:
+vid_place_character_to_screen(0, 0);
+vid_place_character_to_screen(1, 0);
+vid_place_character_to_screen(2, 0);
+x2 = 172;
+y2 = 42;
+notfinished2 = 0;
+jumped2 = 255;
+vid_insert_sprite_into_sprite_table(0, x2, y2, 15, 16);
+<c.13>:
+if notfinished2 goto <c.14>; else goto <c.15>;
+<c.14>:
+x2 = x2 - 1;
+_0 = is_E_pressed();
+if _0 goto <c.16>; else goto <c.17>;
+<c.16>:
+jumped2 = 0;
+vid_insert_sprite_into_sprite_table(1, x2, y2, 15, 17);
+goto <c.18>;
+<c.17>:
+<c.18>:
+if jumped2 goto <c.19>; else goto <c.20>;
+<c.19>:
+vid_change_sprite_position(1, x2, y2);
+y2 = y2 + 2;
+goto <c.21>;
+<c.20>:
+<c.21>:
+vid_change_sprite_position(0, x2, 42);
+_0 = x2 < 20;
+_1 = _0;
+if _1 goto <c.22>; else goto <c.23>;
+<c.23>:
+_3 = y2 > 204;
+_1 = _3;
+if _1 goto <c.22>; else goto <c.24>;
+<c.22>:
+_2 = 0;
+goto <c.25>;
+<c.24>:
+_2 = 255;
+<c.25>:
+if _2 goto <c.26>; else goto <c.27>;
+<c.26>:
+vid_place_character_to_screen(0, 1);
+notfinished2 = 255;
+goto <c.28>;
+<c.27>:
+<c.28>:
+waitforblank();
+goto <c.13>;
+<c.15>:
+_0 = x2 - 22;
+_1 = abs(_0);
+abstandx2 = _1;
+_0 = y2 - 204;
+_1 = abs(_0);
+abstandy2 = _1;
+_0 = abstandx2 + abstandy2;
+_1 = 500 - _0;
+score2 = _1;
+_0 = score2 % 10;
+letze2 = _0;
+vid_place_character_to_screen(2, letze2);
+score2 = score2 / 10;
+_0 = score2 % 10;
+letze2 = _0;
+vid_place_character_to_screen(1, letze2);
+score2 = score2 / 10;
+_0 = score2 % 10;
+letze2 = _0;
+vid_place_character_to_screen(0, letze2);
+<c.29>:
+_0 = is_R_pressed();
+_1 = _0 != 0;
+if _1 goto <c.30>; else goto <c.31>;
+<c.30>:
+goto <c.29>;
+<c.31>:
+vid_change_sprite_position(1, 0, 0);
+goto <c.10>;
+<c.12>:
+return 0;
 }

@@ -60,6 +60,9 @@ for lib in syslibs:
     gim2 = DACParser.DAC(gimptok2)
     gim.merge(gim2)
     
+if("preopt" in options):
+    gim.dump_dac()
+    
 opt = Optimizer.Optimizer(gim);
 if("dac" in options):
     with open(outputname+".dac", "w") as f:
