@@ -112,7 +112,7 @@ class Tokenizer:
         return self.tokenlist[i]
         
     def tokenize(self, tokenstring: str):
-        SYMBOLS = ["#","+", "-", "*", "/", "=", ";", "{", "}", "(", ")", ",","<",">","!","|","&","?",":","[","]"]
+        SYMBOLS = ["#","+", "-", "*", "/", "=", ";", "{", "}", "(", ")", ",","<",">","!","|","&","?",":","[","]","\""]
         s = tokenstring.replace("\n", " ").replace("\t", " ")
         for sym in SYMBOLS:
             s = s.replace(sym, f" {sym} ")

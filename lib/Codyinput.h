@@ -1,3 +1,4 @@
+// all of these functions return 0 if the corresponding key has been pressed.
 int is_A_pressed();
 int is_B_pressed();
 int is_C_pressed();
