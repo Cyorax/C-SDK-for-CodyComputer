@@ -1,4 +1,4 @@
-**Free to Use C SDK for the Cody Computer**
+**Free to Use C SDK for the Cody Computer written in Python**
 
 --------------------------------------------------
 
